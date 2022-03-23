@@ -1,4 +1,6 @@
 attic/
-.ionide
-
+/*-ci.sln
+.ionide/
+.vscode/
+.vs/
 .fake
