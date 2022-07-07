@@ -22,9 +22,15 @@ Using `buf generate` with the above example will generate .fs files in the "gen"
 You then add the following line to your .fsproj:
 ```xml
 <Import Project="gen/Protobuf.targets" />
-<ItemGroup>
-    <PackageReference Include="FsGrpc" Version="0.9.0-alpha*" />
-</ItemGroup>
+```
+
+And run
+```bash
+dotnet add package fsgrpc --prerelease
+```
+or
+```powershell
+Install-Package FsGrpc -Version -IncludePrerelease
 ```
 
 ## Usage in F#
