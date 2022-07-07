@@ -8,10 +8,10 @@ open FsGrpc.Protobuf
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<EnumType>>)>]
 type EnumType =
 /// <summary>This is a (default) enumeraton option</summary>
-| [<FsGrpc.Json.ProtobufName("ENUM_TYPE_NONE")>] None = 0
+| [<FsGrpc.Protobuf.ProtobufName("ENUM_TYPE_NONE")>] None = 0
 /// <summary>This is another enumeration option</summary>
-| [<FsGrpc.Json.ProtobufName("ENUM_TYPE_ONE")>] One = 1
-| [<FsGrpc.Json.ProtobufName("ENUM_TYPE_TWO")>] Two = 2
+| [<FsGrpc.Protobuf.ProtobufName("ENUM_TYPE_ONE")>] One = 1
+| [<FsGrpc.Protobuf.ProtobufName("ENUM_TYPE_TWO")>] Two = 2
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Inner =
@@ -85,7 +85,7 @@ let private _InnerProto : ProtoDef<Inner> =
             while read r &tag do
                 builder.Put (tag, r)
             builder.Build
-        EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+        EncodeJson = fun (o: JsonOptions) ->
             let writeIntFixed = IntFixed.WriteJsonField o
             let writeLongFixed = LongFixed.WriteJsonField o
             let writeZigzagInt = ZigzagInt.WriteJsonField o
@@ -111,6 +111,7 @@ let private _InnerProto : ProtoDef<Inner> =
 ///    is preserved
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type Inner = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("intFixed")>] IntFixed: int // (13)
@@ -219,7 +220,7 @@ module Outer =
                 while read r &tag do
                     builder.Put (tag, r)
                 builder.Build
-            EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+            EncodeJson = fun (o: JsonOptions) ->
                 let writeEnums = Enums.WriteJsonField o
                 let writeInner = Inner.WriteJsonField o
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: Nested) =
@@ -228,6 +229,7 @@ module Outer =
                 encode
         }
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type Nested = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("enums")>] Enums: Ex.Ample.Outer.NestEnumeration seq // (1)
@@ -240,9 +242,9 @@ module Outer =
     /// <summary>this enumeration is nested under another class</summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<NestEnumeration>>)>]
     type NestEnumeration =
-    | [<FsGrpc.Json.ProtobufName("NEST_ENUMERATION_BLACK")>] Black = 0
-    | [<FsGrpc.Json.ProtobufName("NEST_ENUMERATION_RED")>] Red = 1
-    | [<FsGrpc.Json.ProtobufName("NEST_ENUMERATION_BLUE")>] Blue = 2
+    | [<FsGrpc.Protobuf.ProtobufName("NEST_ENUMERATION_BLACK")>] Black = 0
+    | [<FsGrpc.Protobuf.ProtobufName("NEST_ENUMERATION_RED")>] Red = 1
+    | [<FsGrpc.Protobuf.ProtobufName("NEST_ENUMERATION_BLUE")>] Blue = 2
 
     [<System.Runtime.CompilerServices.IsByRefLike>]
     type Builder =
@@ -551,7 +553,7 @@ let private _OuterProto : ProtoDef<Outer> =
             while read r &tag do
                 builder.Put (tag, r)
             builder.Build
-        EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+        EncodeJson = fun (o: JsonOptions) ->
             let writeDoubleVal = DoubleVal.WriteJsonField o
             let writeFloatVal = FloatVal.WriteJsonField o
             let writeLongVal = LongVal.WriteJsonField o
@@ -641,6 +643,7 @@ let private _OuterProto : ProtoDef<Outer> =
     }
 /// <summary>This is an "outer" message that will contain other messages</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type Outer = {
     // Field Declarations
     /// <summary>primitive double value</summary>
@@ -771,7 +774,7 @@ module ResultEvent =
                 while read r &tag do
                     builder.Put (tag, r)
                 builder.Build
-            EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+            EncodeJson = fun (o: JsonOptions) ->
                 let writeKey = Key.WriteJsonField o
                 let writeValue = Value.WriteJsonField o
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: Record) =
@@ -780,6 +783,7 @@ module ResultEvent =
                 encode
         }
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type Record = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("key")>] Key: string // (1)
@@ -830,7 +834,7 @@ let private _ResultEventProto : ProtoDef<ResultEvent> =
             while read r &tag do
                 builder.Put (tag, r)
             builder.Build
-        EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+        EncodeJson = fun (o: JsonOptions) ->
             let writeSubscriptionState = SubscriptionState.WriteJsonField o
             let writeRecords = Records.WriteJsonField o
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: ResultEvent) =
@@ -843,6 +847,7 @@ let private _ResultEventProto : ProtoDef<ResultEvent> =
 /// multiline-style comment
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type ResultEvent = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("subscriptionState")>] SubscriptionState: Ex.Ample.EnumType // (1)

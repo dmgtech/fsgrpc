@@ -9,8 +9,8 @@ module Imported =
 
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<EnumForImport>>)>]
     type EnumForImport =
-    | [<FsGrpc.Json.ProtobufName("ENUM_FOR_IMPORT_NO")>] No = 0
-    | [<FsGrpc.Json.ProtobufName("ENUM_FOR_IMPORT_YES")>] Yes = 1
+    | [<FsGrpc.Protobuf.ProtobufName("ENUM_FOR_IMPORT_NO")>] No = 0
+    | [<FsGrpc.Protobuf.ProtobufName("ENUM_FOR_IMPORT_YES")>] Yes = 1
 
     [<System.Runtime.CompilerServices.IsByRefLike>]
     type Builder =
@@ -46,7 +46,7 @@ let private _ImportedProto : ProtoDef<Imported> =
             while read r &tag do
                 builder.Put (tag, r)
             builder.Build
-        EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+        EncodeJson = fun (o: JsonOptions) ->
             let writeValue = Value.WriteJsonField o
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: Imported) =
                 writeValue w m.Value
@@ -57,6 +57,7 @@ let private _ImportedProto : ProtoDef<Imported> =
 /// which should be removed
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type Imported = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)
@@ -102,13 +103,14 @@ let private _ArgsProto : ProtoDef<Args> =
             while read r &tag do
                 builder.Put (tag, r)
             builder.Build
-        EncodeJson = fun (o: System.Text.Json.JsonSerializerOptions) ->
+        EncodeJson = fun (o: JsonOptions) ->
             let writeValue = Value.WriteJsonField o
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: Args) =
                 writeValue w m.Value
             encode
     }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type Args = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)
