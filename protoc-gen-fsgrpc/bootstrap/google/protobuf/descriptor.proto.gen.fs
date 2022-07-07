@@ -46,12 +46,13 @@ let private _FileDescriptorSetProto : ProtoDef<FileDescriptorSet> =
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: FileDescriptorSet) =
                 writeFiles w m.Files
             encode
-        }
+    }
 /// <summary>
 /// The protocol compiler can output a FileDescriptorSet containing the .proto
 /// files it parses.
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type FileDescriptorSet = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.FileDescriptorProto seq // (1)
@@ -201,9 +202,10 @@ let private _FileDescriptorProtoProto : ProtoDef<FileDescriptorProto> =
                 writeSourceCodeInfo w m.SourceCodeInfo
                 writeSyntax w m.Syntax
             encode
-        }
+    }
 /// <summary>Describes a complete .proto file.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type FileDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -303,8 +305,9 @@ module DescriptorProto =
                     writeEnd w m.End
                     writeOptions w m.Options
                 encode
-            }
+        }
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type ExtensionRange = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("start")>] Start: int // (1)
@@ -366,13 +369,14 @@ module DescriptorProto =
                     writeStart w m.Start
                     writeEnd w m.End
                 encode
-            }
+        }
     /// <summary>
     /// Range of reserved tag numbers. Reserved tag numbers may not be used by
     /// fields or extension ranges in the same message. Reserved ranges may
     /// not overlap.
     /// </summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type ReservedRange = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("start")>] Start: int // (1)
@@ -502,9 +506,10 @@ let private _DescriptorProtoProto : ProtoDef<DescriptorProto> =
                 writeReservedRanges w m.ReservedRanges
                 writeReservedNames w m.ReservedNames
             encode
-        }
+    }
 /// <summary>Describes a message type.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type DescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -568,8 +573,9 @@ let private _ExtensionRangeOptionsProto : ProtoDef<ExtensionRangeOptions> =
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: ExtensionRangeOptions) =
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type ExtensionRangeOptions = {
     // Field Declarations
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
@@ -760,9 +766,10 @@ let private _FieldDescriptorProtoProto : ProtoDef<FieldDescriptorProto> =
                 writeOptions w m.Options
                 writeProto3Optional w m.Proto3Optional
             encode
-        }
+    }
 /// <summary>Describes a field within a message.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type FieldDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -888,9 +895,10 @@ let private _OneofDescriptorProtoProto : ProtoDef<OneofDescriptorProto> =
                 writeName w m.Name
                 writeOptions w m.Options
             encode
-        }
+    }
 /// <summary>Describes a oneof.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type OneofDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -954,7 +962,7 @@ module EnumDescriptorProto =
                     writeStart w m.Start
                     writeEnd w m.End
                 encode
-            }
+        }
     /// <summary>
     /// Range of reserved numeric values. Reserved values may not be used by
     /// entries in the same enum. Reserved ranges may not overlap.
@@ -964,6 +972,7 @@ module EnumDescriptorProto =
     /// domain.
     /// </summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type EnumReservedRange = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("start")>] Start: int // (1)
@@ -1048,9 +1057,10 @@ let private _EnumDescriptorProtoProto : ProtoDef<EnumDescriptorProto> =
                 writeReservedRanges w m.ReservedRanges
                 writeReservedNames w m.ReservedNames
             encode
-        }
+    }
 /// <summary>Describes an enum type.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type EnumDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -1132,9 +1142,10 @@ let private _EnumValueDescriptorProtoProto : ProtoDef<EnumValueDescriptorProto> 
                 writeNumber w m.Number
                 writeOptions w m.Options
             encode
-        }
+    }
 /// <summary>Describes a value within an enum.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type EnumValueDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -1205,9 +1216,10 @@ let private _ServiceDescriptorProtoProto : ProtoDef<ServiceDescriptorProto> =
                 writeMethods w m.Methods
                 writeOptions w m.Options
             encode
-        }
+    }
 /// <summary>Describes a service.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type ServiceDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -1305,9 +1317,10 @@ let private _MethodDescriptorProtoProto : ProtoDef<MethodDescriptorProto> =
                 writeClientStreaming w m.ClientStreaming
                 writeServerStreaming w m.ServerStreaming
             encode
-        }
+    }
 /// <summary>Describes a method of a service.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type MethodDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -1558,8 +1571,9 @@ let private _FileOptionsProto : ProtoDef<FileOptions> =
                 writeRubyPackage w m.RubyPackage
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type FileOptions = {
     // Field Declarations
     /// <summary>
@@ -1759,8 +1773,9 @@ let private _MessageOptionsProto : ProtoDef<MessageOptions> =
                 writeMapEntry w m.MapEntry
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type MessageOptions = {
     // Field Declarations
     /// <summary>
@@ -1940,8 +1955,9 @@ let private _FieldOptionsProto : ProtoDef<FieldOptions> =
                 writeWeak w m.Weak
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type FieldOptions = {
     // Field Declarations
     /// <summary>
@@ -2062,8 +2078,9 @@ let private _OneofOptionsProto : ProtoDef<OneofOptions> =
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: OneofOptions) =
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type OneofOptions = {
     // Field Declarations
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
@@ -2133,8 +2150,9 @@ let private _EnumOptionsProto : ProtoDef<EnumOptions> =
                 writeDeprecated w m.Deprecated
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type EnumOptions = {
     // Field Declarations
     /// <summary>
@@ -2207,8 +2225,9 @@ let private _EnumValueOptionsProto : ProtoDef<EnumValueOptions> =
                 writeDeprecated w m.Deprecated
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type EnumValueOptions = {
     // Field Declarations
     /// <summary>
@@ -2276,8 +2295,9 @@ let private _ServiceOptionsProto : ProtoDef<ServiceOptions> =
                 writeDeprecated w m.Deprecated
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type ServiceOptions = {
     // Field Declarations
     /// <summary>
@@ -2365,8 +2385,9 @@ let private _MethodOptionsProto : ProtoDef<MethodOptions> =
                 writeIdempotencyLevel w m.IdempotencyLevel
                 writeUninterpretedOptions w m.UninterpretedOptions
             encode
-        }
+    }
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type MethodOptions = {
     // Field Declarations
     /// <summary>
@@ -2451,7 +2472,7 @@ module UninterpretedOption =
                     writeNamePart w m.NamePart
                     writeIsExtension w m.IsExtension
                 encode
-            }
+        }
     /// <summary>
     /// The name of the uninterpreted option.  Each string represents a segment in
     /// a dot-separated name.  is_extension is true iff a segment represents an
@@ -2460,6 +2481,7 @@ module UninterpretedOption =
     /// "foo.(bar.baz).qux".
     /// </summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type NamePart = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("namePart")>] NamePart: string // (1)
@@ -2557,7 +2579,7 @@ let private _UninterpretedOptionProto : ProtoDef<UninterpretedOption> =
                 | Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue v -> writeAggregateValue w v
                 )
             encode
-        }
+    }
 /// <summary>
 /// A message representing a option the parser does not recognize. This only
 /// appears in options protos created by the compiler::Parser class.
@@ -2567,6 +2589,7 @@ let private _UninterpretedOptionProto : ProtoDef<UninterpretedOption> =
 /// in them.
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type UninterpretedOption = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("names")>] Names: Google.Protobuf.UninterpretedOption.NamePart seq // (2)
@@ -2661,8 +2684,9 @@ module SourceCodeInfo =
                     writeTrailingComments w m.TrailingComments
                     writeLeadingDetachedComments w m.LeadingDetachedComments
                 encode
-            }
+        }
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type Location = {
         // Field Declarations
         /// <summary>
@@ -2795,12 +2819,13 @@ let private _SourceCodeInfoProto : ProtoDef<SourceCodeInfo> =
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: SourceCodeInfo) =
                 writeLocation w m.Location
             encode
-        }
+    }
 /// <summary>
 /// Encapsulates information about the original source file from which a
 /// FileDescriptorProto was generated.
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type SourceCodeInfo = {
     // Field Declarations
     /// <summary>
@@ -2926,8 +2951,9 @@ module GeneratedCodeInfo =
                     writeBegin w m.Begin
                     writeEnd w m.End
                 encode
-            }
+        }
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type Annotation = {
         // Field Declarations
         /// <summary>
@@ -2992,13 +3018,14 @@ let private _GeneratedCodeInfoProto : ProtoDef<GeneratedCodeInfo> =
             let encode (w: System.Text.Json.Utf8JsonWriter) (m: GeneratedCodeInfo) =
                 writeAnnotations w m.Annotations
             encode
-        }
+    }
 /// <summary>
 /// Describes the relationship between generated code and its original source
 /// file. A GeneratedCodeInfo message is associated with only one generated
 /// source file, but may contain references to different source .proto files.
 /// </summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type GeneratedCodeInfo = {
     // Field Declarations
     /// <summary>

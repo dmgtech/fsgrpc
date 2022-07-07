@@ -73,9 +73,10 @@ let private _VersionProto : ProtoDef<Version> =
                 writePatch w m.Patch
                 writeSuffix w m.Suffix
             encode
-        }
+    }
 /// <summary>The version number of protocol compiler.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type Version = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("major")>] Major: int // (1)
@@ -160,9 +161,10 @@ let private _CodeGeneratorRequestProto : ProtoDef<CodeGeneratorRequest> =
                 writeProtoFiles w m.ProtoFiles
                 writeCompilerVersion w m.CompilerVersion
             encode
-        }
+    }
 /// <summary>An encoded CodeGeneratorRequest is written to the plugin's stdin.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type CodeGeneratorRequest = {
     // Field Declarations
     /// <summary>
@@ -260,9 +262,10 @@ module CodeGeneratorResponse =
                     writeInsertionPoint w m.InsertionPoint
                     writeContent w m.Content
                 encode
-            }
+        }
     /// <summary>Represents a single generated file.</summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+    [<FsGrpc.Protobuf.Message>]
     type File = {
         // Field Declarations
         /// <summary>
@@ -389,9 +392,10 @@ let private _CodeGeneratorResponseProto : ProtoDef<CodeGeneratorResponse> =
                 writeSupportedFeatures w m.SupportedFeatures
                 writeFiles w m.Files
             encode
-        }
+    }
 /// <summary>The plugin writes an encoded CodeGeneratorResponse to stdout.</summary>
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
 type CodeGeneratorResponse = {
     // Field Declarations
     /// <summary>
