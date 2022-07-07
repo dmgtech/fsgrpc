@@ -747,6 +747,7 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
     let fsName = toFsTypeName protoName
     let fsNs = toFsNamespace protoNs
     let fsFqName = $"%s{fsNs}.%s{fsName}"
+    let fsAlias = $"%s{fsNs}._%s{fsName}"
     // members contains all fields where oneofs are a single record
     let members = recordMembers typeMap protoMessageDef.OneofDecls protoMessageDef.Fields
     // fields contains all fields where oneofs are broken out into their options
@@ -794,7 +795,7 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
                     Line $"| _ -> reader.SkipLastField()"
                 ]
                 match (builderTakes |> Seq.length) with
-                | 0 -> Line $"member x.Build = _%s{fsName}Proto.Empty"
+                | 0 -> Line $"member x.Build = %s{fsName}.empty"
                 | _ ->
                     Line $"member x.Build : %s{fsFqName} = {{"
                     Block [
@@ -810,13 +811,6 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
     Frag [
     moduleDef
     Line ""
-    Line $"let private _{fsName}Proto : ProtoDef<{fsName}> ="
-    Block [
-        Line "// Field Definitions"
-        Frag fieldDefinitions
-        Line "// Proto Definition Implementation"
-        protoDefImpl
-    ]
     match memberCount with
     | 0 ->
         Frag[
@@ -825,11 +819,23 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
                 Line $"override _.Equals other : bool = other :? {fsName}"
                 Line $"override _.GetHashCode() : int = {md5_32 fsFqName}"
                 Line $"static member empty = new {fsName}()"
+                Line $"static member Proto : Lazy<ProtoDef<{fsName}>> ="
+                Block [
+                    Line "lazy"
+                    Line "// Proto Definition Implementation"
+                    protoDefImpl
+                ]
             ]
         ]
     | _ ->
         Frag[
         renderComment (commentFrom protoMessageDef.Sci)
+        // This seemingly weird construct, immediately below, is a workaround to deal with the behavior of F#
+        // fsgrpc takes advantage of the fact that you can have a module and a type with the same name
+        // (this allows relaxing the strict dependency ordering of F# to make it work well with protocol buffers which does not have this constraint)
+        // but upon seeing X.Y.Z, if X is a module and Y is a type, but X is also a type and Y is a non-static field of the type
+        // F# will always assume the latter, and thus for the former case you cannot reference any fields of the X.Y type.
+        Line $"type private _%s{fsName} = %s{fsName}"
         Line $"[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]"
         Line $"[<FsGrpc.Protobuf.Message>]"
         Line $"type {fsName} = {{"
@@ -838,8 +844,18 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
             Frag fieldDeclarations
             Line $"}}"
             Line "with"
-            Line $"static member empty = _%s{fsName}Proto.Empty"
-            Line $"static member Proto = lazy _%s{fsName}Proto"
+            Line $"static member Proto : Lazy<ProtoDef<{fsName}>> ="
+            Block [
+                Line "lazy"
+                Line "// Field Definitions"
+                Frag fieldDefinitions
+                Line "// Proto Definition Implementation"
+                protoDefImpl
+            ]
+            Line $"static member empty"
+            Block [
+                Line $"with get() = %s{fsAlias}.Proto.Value.Empty"
+            ]
             ]
         ]
     ]
@@ -907,8 +923,7 @@ let createTypeMap (files: FileDef seq) : TypeMap =
 
 let private toFsNamespaceDecl (package: string) =
     Frag [
-    Line $"[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]"
-    Line $"module rec {toFsNamespace package}"
+    Line $"namespace rec {toFsNamespace package}"
     Line $"open FsGrpc.Protobuf"
     Line $"#nowarn \"40\"" // TODO: need to see if we can eliminate this, possibly by having the implementation of the field writes be inlined by the generator itself
     ]

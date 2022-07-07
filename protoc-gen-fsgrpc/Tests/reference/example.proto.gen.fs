@@ -1,5 +1,4 @@
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module rec Ex.Ample
+namespace rec Ex.Ample
 open FsGrpc.Protobuf
 #nowarn "40"
 
@@ -45,62 +44,6 @@ module Inner =
             NestedEnum = x.NestedEnum
             }
 
-let private _InnerProto : ProtoDef<Inner> =
-    // Field Definitions
-    let IntFixed = FieldCodec.Primitive ValueCodec.SFixed32 (13, "intFixed")
-    let LongFixed = FieldCodec.Primitive ValueCodec.SFixed64 (14, "longFixed")
-    let ZigzagInt = FieldCodec.Primitive ValueCodec.SInt32 (15, "zigzagInt")
-    let ZigzagLong = FieldCodec.Primitive ValueCodec.SInt64 (16, "zigzagLong")
-    let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (17, "nested")
-    let NestedEnum = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Outer.NestEnumeration> (18, "nestedEnum")
-    // Proto Definition Implementation
-    { // ProtoDef<Inner>
-        Name = "Inner"
-        Empty = {
-            IntFixed = IntFixed.GetDefault()
-            LongFixed = LongFixed.GetDefault()
-            ZigzagInt = ZigzagInt.GetDefault()
-            ZigzagLong = ZigzagLong.GetDefault()
-            Nested = Nested.GetDefault()
-            NestedEnum = NestedEnum.GetDefault()
-            }
-        Size = fun (m: Inner) ->
-            0
-            + IntFixed.CalcFieldSize m.IntFixed
-            + LongFixed.CalcFieldSize m.LongFixed
-            + ZigzagInt.CalcFieldSize m.ZigzagInt
-            + ZigzagLong.CalcFieldSize m.ZigzagLong
-            + Nested.CalcFieldSize m.Nested
-            + NestedEnum.CalcFieldSize m.NestedEnum
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Inner) ->
-            IntFixed.WriteField w m.IntFixed
-            LongFixed.WriteField w m.LongFixed
-            ZigzagInt.WriteField w m.ZigzagInt
-            ZigzagLong.WriteField w m.ZigzagLong
-            Nested.WriteField w m.Nested
-            NestedEnum.WriteField w m.NestedEnum
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Ex.Ample.Inner.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeIntFixed = IntFixed.WriteJsonField o
-            let writeLongFixed = LongFixed.WriteJsonField o
-            let writeZigzagInt = ZigzagInt.WriteJsonField o
-            let writeZigzagLong = ZigzagLong.WriteJsonField o
-            let writeNested = Nested.WriteJsonField o
-            let writeNestedEnum = NestedEnum.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Inner) =
-                writeIntFixed w m.IntFixed
-                writeLongFixed w m.LongFixed
-                writeZigzagInt w m.ZigzagInt
-                writeZigzagLong w m.ZigzagLong
-                writeNested w m.Nested
-                writeNestedEnum w m.NestedEnum
-            encode
-    }
 /// <summary>
 /// This is a comment
 ///    that has multiple lines, where subsequent lines
@@ -110,6 +53,7 @@ let private _InnerProto : ProtoDef<Inner> =
 ///    of comments like these
 ///    is preserved
 /// </summary>
+type private _Inner = Inner
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Inner = {
@@ -122,8 +66,65 @@ type Inner = {
     [<System.Text.Json.Serialization.JsonPropertyName("nestedEnum")>] NestedEnum: Ex.Ample.Outer.NestEnumeration // (18)
     }
     with
-    static member empty = _InnerProto.Empty
-    static member Proto = lazy _InnerProto
+    static member Proto : Lazy<ProtoDef<Inner>> =
+        lazy
+        // Field Definitions
+        let IntFixed = FieldCodec.Primitive ValueCodec.SFixed32 (13, "intFixed")
+        let LongFixed = FieldCodec.Primitive ValueCodec.SFixed64 (14, "longFixed")
+        let ZigzagInt = FieldCodec.Primitive ValueCodec.SInt32 (15, "zigzagInt")
+        let ZigzagLong = FieldCodec.Primitive ValueCodec.SInt64 (16, "zigzagLong")
+        let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (17, "nested")
+        let NestedEnum = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Outer.NestEnumeration> (18, "nestedEnum")
+        // Proto Definition Implementation
+        { // ProtoDef<Inner>
+            Name = "Inner"
+            Empty = {
+                IntFixed = IntFixed.GetDefault()
+                LongFixed = LongFixed.GetDefault()
+                ZigzagInt = ZigzagInt.GetDefault()
+                ZigzagLong = ZigzagLong.GetDefault()
+                Nested = Nested.GetDefault()
+                NestedEnum = NestedEnum.GetDefault()
+                }
+            Size = fun (m: Inner) ->
+                0
+                + IntFixed.CalcFieldSize m.IntFixed
+                + LongFixed.CalcFieldSize m.LongFixed
+                + ZigzagInt.CalcFieldSize m.ZigzagInt
+                + ZigzagLong.CalcFieldSize m.ZigzagLong
+                + Nested.CalcFieldSize m.Nested
+                + NestedEnum.CalcFieldSize m.NestedEnum
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Inner) ->
+                IntFixed.WriteField w m.IntFixed
+                LongFixed.WriteField w m.LongFixed
+                ZigzagInt.WriteField w m.ZigzagInt
+                ZigzagLong.WriteField w m.ZigzagLong
+                Nested.WriteField w m.Nested
+                NestedEnum.WriteField w m.NestedEnum
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Ex.Ample.Inner.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeIntFixed = IntFixed.WriteJsonField o
+                let writeLongFixed = LongFixed.WriteJsonField o
+                let writeZigzagInt = ZigzagInt.WriteJsonField o
+                let writeZigzagLong = ZigzagLong.WriteJsonField o
+                let writeNested = Nested.WriteJsonField o
+                let writeNestedEnum = NestedEnum.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Inner) =
+                    writeIntFixed w m.IntFixed
+                    writeLongFixed w m.LongFixed
+                    writeZigzagInt w m.ZigzagInt
+                    writeZigzagLong w m.ZigzagLong
+                    writeNested w m.Nested
+                    writeNestedEnum w m.NestedEnum
+                encode
+        }
+    static member empty
+        with get() = Ex.Ample._Inner.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Outer =
@@ -155,29 +156,29 @@ module Outer =
                 member x.Put ((tag, reader): int * Reader) =
                     match tag with
                     | _ -> reader.SkipLastField()
-                member x.Build = _DoubleNestedProto.Empty
+                member x.Build = DoubleNested.empty
 
-        let private _DoubleNestedProto : ProtoDef<DoubleNested> =
-            // Field Definitions
-            // Proto Definition Implementation
-            { // ProtoDef<DoubleNested>
-                Name = "DoubleNested"
-                Empty = DoubleNested.empty
-                Size = fun (m: DoubleNested) ->
-                    0
-                Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: DoubleNested) ->
-                    ()
-                Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-                    let mutable tag = 0
-                    while read r &tag do
-                        r.SkipLastField()
-                    DoubleNested.empty
-                EncodeJson = fun _ _ _ -> ()
-            }
         type DoubleNested private() =
             override _.Equals other : bool = other :? DoubleNested
             override _.GetHashCode() : int = 424431930
             static member empty = new DoubleNested()
+            static member Proto : Lazy<ProtoDef<DoubleNested>> =
+                lazy
+                // Proto Definition Implementation
+                { // ProtoDef<DoubleNested>
+                    Name = "DoubleNested"
+                    Empty = DoubleNested.empty
+                    Size = fun (m: DoubleNested) ->
+                        0
+                    Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: DoubleNested) ->
+                        ()
+                    Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                        let mutable tag = 0
+                        while read r &tag do
+                            r.SkipLastField()
+                        DoubleNested.empty
+                    EncodeJson = fun _ _ _ -> ()
+                }
 
         [<System.Runtime.CompilerServices.IsByRefLike>]
         type Builder =
@@ -196,38 +197,7 @@ module Outer =
                 Inner = x.Inner.Build
                 }
 
-    let private _NestedProto : ProtoDef<Nested> =
-        // Field Definitions
-        let Enums = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Enum<Ex.Ample.Outer.NestEnumeration>) (1, "enums")
-        let Inner = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Inner> (2, "inner")
-        // Proto Definition Implementation
-        { // ProtoDef<Nested>
-            Name = "Nested"
-            Empty = {
-                Enums = Enums.GetDefault()
-                Inner = Inner.GetDefault()
-                }
-            Size = fun (m: Nested) ->
-                0
-                + Enums.CalcFieldSize m.Enums
-                + Inner.CalcFieldSize m.Inner
-            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Nested) ->
-                Enums.WriteField w m.Enums
-                Inner.WriteField w m.Inner
-            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-                let mutable builder = new Ex.Ample.Outer.Nested.Builder()
-                let mutable tag = 0
-                while read r &tag do
-                    builder.Put (tag, r)
-                builder.Build
-            EncodeJson = fun (o: JsonOptions) ->
-                let writeEnums = Enums.WriteJsonField o
-                let writeInner = Inner.WriteJsonField o
-                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Nested) =
-                    writeEnums w m.Enums
-                    writeInner w m.Inner
-                encode
-        }
+    type private _Nested = Nested
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
     type Nested = {
@@ -236,8 +206,41 @@ module Outer =
         [<System.Text.Json.Serialization.JsonPropertyName("inner")>] Inner: Ex.Ample.Inner option // (2)
         }
         with
-        static member empty = _NestedProto.Empty
-        static member Proto = lazy _NestedProto
+        static member Proto : Lazy<ProtoDef<Nested>> =
+            lazy
+            // Field Definitions
+            let Enums = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Enum<Ex.Ample.Outer.NestEnumeration>) (1, "enums")
+            let Inner = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Inner> (2, "inner")
+            // Proto Definition Implementation
+            { // ProtoDef<Nested>
+                Name = "Nested"
+                Empty = {
+                    Enums = Enums.GetDefault()
+                    Inner = Inner.GetDefault()
+                    }
+                Size = fun (m: Nested) ->
+                    0
+                    + Enums.CalcFieldSize m.Enums
+                    + Inner.CalcFieldSize m.Inner
+                Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Nested) ->
+                    Enums.WriteField w m.Enums
+                    Inner.WriteField w m.Inner
+                Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                    let mutable builder = new Ex.Ample.Outer.Nested.Builder()
+                    let mutable tag = 0
+                    while read r &tag do
+                        builder.Put (tag, r)
+                    builder.Build
+                EncodeJson = fun (o: JsonOptions) ->
+                    let writeEnums = Enums.WriteJsonField o
+                    let writeInner = Inner.WriteJsonField o
+                    let encode (w: System.Text.Json.Utf8JsonWriter) (m: Nested) =
+                        writeEnums w m.Enums
+                        writeInner w m.Inner
+                    encode
+            }
+        static member empty
+            with get() = Ex.Ample.Outer._Nested.Proto.Value.Empty
 
     /// <summary>this enumeration is nested under another class</summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<NestEnumeration>>)>]
@@ -373,275 +376,8 @@ module Outer =
             Timestamps = x.Timestamps.Build
             }
 
-let private _OuterProto : ProtoDef<Outer> =
-    // Field Definitions
-    let DoubleVal = FieldCodec.Primitive ValueCodec.Double (1, "doubleVal")
-    let FloatVal = FieldCodec.Primitive ValueCodec.Float (2, "floatVal")
-    let LongVal = FieldCodec.Primitive ValueCodec.Int64 (3, "longVal")
-    let UlongVal = FieldCodec.Primitive ValueCodec.UInt64 (4, "ulongVal")
-    let IntVal = FieldCodec.Primitive ValueCodec.Int32 (5, "intVal")
-    let UlongFixed = FieldCodec.Primitive ValueCodec.Fixed64 (6, "ulongFixed")
-    let UintFixed = FieldCodec.Primitive ValueCodec.Fixed32 (7, "uintFixed")
-    let BoolVal = FieldCodec.Primitive ValueCodec.Bool (8, "boolVal")
-    let StringVal = FieldCodec.Primitive ValueCodec.String (9, "stringVal")
-    let BytesVal = FieldCodec.Primitive ValueCodec.Bytes (10, "bytesVal")
-    let UintVal = FieldCodec.Primitive ValueCodec.UInt32 (11, "uintVal")
-    let EnumVal = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.EnumType> (12, "enumVal")
-    let Inner = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Inner> (17, "inner")
-    let Doubles = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Double) (18, "doubles")
-    let Inners = FieldCodec.Repeated ValueCodec.Message<Ex.Ample.Inner> (19, "inners")
-    let Map = FieldCodec.Map ValueCodec.String ValueCodec.String (20, "map")
-    let MapInner = FieldCodec.Map ValueCodec.String ValueCodec.Message<Ex.Ample.Inner> (21, "mapInner")
-    let MapInts = FieldCodec.Map ValueCodec.Int64 ValueCodec.Int32 (22, "mapInts")
-    let MapBool = FieldCodec.Map ValueCodec.Bool ValueCodec.String (23, "mapBool")
-    let Recursive = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer> (24, "recursive")
-    let Union = FieldCodec.Oneof "union"
-    let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
-    let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
-    let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
-    let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (27, "nested")
-    let Imported = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Importable.Imported> (28, "imported")
-    let EnumImported = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport> (29, "enumImported")
-    let MaybeDouble = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Double) (33, "maybeDouble")
-    let MaybeFloat = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Float) (34, "maybeFloat")
-    let MaybeInt64 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int64) (35, "maybeInt64")
-    let MaybeUint64 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.UInt64) (36, "maybeUint64")
-    let MaybeInt32 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int32) (37, "maybeInt32")
-    let MaybeUint32 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.UInt32) (38, "maybeUint32")
-    let MaybeBool = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Bool) (39, "maybeBool")
-    let MaybeString = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.String) (40, "maybeString")
-    let MaybeBytes = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Bytes) (41, "maybeBytes")
-    let Timestamp = FieldCodec.Optional ValueCodec.Timestamp (42, "timestamp")
-    let Duration = FieldCodec.Optional ValueCodec.Duration (43, "duration")
-    let OptionalInt32 = FieldCodec.Optional ValueCodec.Int32 (44, "optionalInt32")
-    let MaybesInt64 = FieldCodec.Repeated (ValueCodec.Wrap ValueCodec.Int64) (45, "maybesInt64")
-    let Timestamps = FieldCodec.Repeated ValueCodec.Timestamp (46, "timestamps")
-    // Proto Definition Implementation
-    { // ProtoDef<Outer>
-        Name = "Outer"
-        Empty = {
-            DoubleVal = DoubleVal.GetDefault()
-            FloatVal = FloatVal.GetDefault()
-            LongVal = LongVal.GetDefault()
-            UlongVal = UlongVal.GetDefault()
-            IntVal = IntVal.GetDefault()
-            UlongFixed = UlongFixed.GetDefault()
-            UintFixed = UintFixed.GetDefault()
-            BoolVal = BoolVal.GetDefault()
-            StringVal = StringVal.GetDefault()
-            BytesVal = BytesVal.GetDefault()
-            UintVal = UintVal.GetDefault()
-            EnumVal = EnumVal.GetDefault()
-            Inner = Inner.GetDefault()
-            Doubles = Doubles.GetDefault()
-            Inners = Inners.GetDefault()
-            Map = Map.GetDefault()
-            MapInner = MapInner.GetDefault()
-            MapInts = MapInts.GetDefault()
-            MapBool = MapBool.GetDefault()
-            Recursive = Recursive.GetDefault()
-            Union = Ex.Ample.Outer.UnionCase.None
-            Nested = Nested.GetDefault()
-            Imported = Imported.GetDefault()
-            EnumImported = EnumImported.GetDefault()
-            MaybeDouble = MaybeDouble.GetDefault()
-            MaybeFloat = MaybeFloat.GetDefault()
-            MaybeInt64 = MaybeInt64.GetDefault()
-            MaybeUint64 = MaybeUint64.GetDefault()
-            MaybeInt32 = MaybeInt32.GetDefault()
-            MaybeUint32 = MaybeUint32.GetDefault()
-            MaybeBool = MaybeBool.GetDefault()
-            MaybeString = MaybeString.GetDefault()
-            MaybeBytes = MaybeBytes.GetDefault()
-            Timestamp = Timestamp.GetDefault()
-            Duration = Duration.GetDefault()
-            OptionalInt32 = OptionalInt32.GetDefault()
-            MaybesInt64 = MaybesInt64.GetDefault()
-            Timestamps = Timestamps.GetDefault()
-            }
-        Size = fun (m: Outer) ->
-            0
-            + DoubleVal.CalcFieldSize m.DoubleVal
-            + FloatVal.CalcFieldSize m.FloatVal
-            + LongVal.CalcFieldSize m.LongVal
-            + UlongVal.CalcFieldSize m.UlongVal
-            + IntVal.CalcFieldSize m.IntVal
-            + UlongFixed.CalcFieldSize m.UlongFixed
-            + UintFixed.CalcFieldSize m.UintFixed
-            + BoolVal.CalcFieldSize m.BoolVal
-            + StringVal.CalcFieldSize m.StringVal
-            + BytesVal.CalcFieldSize m.BytesVal
-            + UintVal.CalcFieldSize m.UintVal
-            + EnumVal.CalcFieldSize m.EnumVal
-            + Inner.CalcFieldSize m.Inner
-            + Doubles.CalcFieldSize m.Doubles
-            + Inners.CalcFieldSize m.Inners
-            + Map.CalcFieldSize m.Map
-            + MapInner.CalcFieldSize m.MapInner
-            + MapInts.CalcFieldSize m.MapInts
-            + MapBool.CalcFieldSize m.MapBool
-            + Recursive.CalcFieldSize m.Recursive
-            + match m.Union with
-                | Ex.Ample.Outer.UnionCase.None -> 0
-                | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.CalcFieldSize v
-                | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.CalcFieldSize v
-                | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.CalcFieldSize v
-            + Nested.CalcFieldSize m.Nested
-            + Imported.CalcFieldSize m.Imported
-            + EnumImported.CalcFieldSize m.EnumImported
-            + MaybeDouble.CalcFieldSize m.MaybeDouble
-            + MaybeFloat.CalcFieldSize m.MaybeFloat
-            + MaybeInt64.CalcFieldSize m.MaybeInt64
-            + MaybeUint64.CalcFieldSize m.MaybeUint64
-            + MaybeInt32.CalcFieldSize m.MaybeInt32
-            + MaybeUint32.CalcFieldSize m.MaybeUint32
-            + MaybeBool.CalcFieldSize m.MaybeBool
-            + MaybeString.CalcFieldSize m.MaybeString
-            + MaybeBytes.CalcFieldSize m.MaybeBytes
-            + Timestamp.CalcFieldSize m.Timestamp
-            + Duration.CalcFieldSize m.Duration
-            + OptionalInt32.CalcFieldSize m.OptionalInt32
-            + MaybesInt64.CalcFieldSize m.MaybesInt64
-            + Timestamps.CalcFieldSize m.Timestamps
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Outer) ->
-            DoubleVal.WriteField w m.DoubleVal
-            FloatVal.WriteField w m.FloatVal
-            LongVal.WriteField w m.LongVal
-            UlongVal.WriteField w m.UlongVal
-            IntVal.WriteField w m.IntVal
-            UlongFixed.WriteField w m.UlongFixed
-            UintFixed.WriteField w m.UintFixed
-            BoolVal.WriteField w m.BoolVal
-            StringVal.WriteField w m.StringVal
-            BytesVal.WriteField w m.BytesVal
-            UintVal.WriteField w m.UintVal
-            EnumVal.WriteField w m.EnumVal
-            Inner.WriteField w m.Inner
-            Doubles.WriteField w m.Doubles
-            Inners.WriteField w m.Inners
-            Map.WriteField w m.Map
-            MapInner.WriteField w m.MapInner
-            MapInts.WriteField w m.MapInts
-            MapBool.WriteField w m.MapBool
-            Recursive.WriteField w m.Recursive
-            (match m.Union with
-            | Ex.Ample.Outer.UnionCase.None -> ()
-            | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.WriteField w v
-            | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.WriteField w v
-            | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.WriteField w v
-            )
-            Nested.WriteField w m.Nested
-            Imported.WriteField w m.Imported
-            EnumImported.WriteField w m.EnumImported
-            MaybeDouble.WriteField w m.MaybeDouble
-            MaybeFloat.WriteField w m.MaybeFloat
-            MaybeInt64.WriteField w m.MaybeInt64
-            MaybeUint64.WriteField w m.MaybeUint64
-            MaybeInt32.WriteField w m.MaybeInt32
-            MaybeUint32.WriteField w m.MaybeUint32
-            MaybeBool.WriteField w m.MaybeBool
-            MaybeString.WriteField w m.MaybeString
-            MaybeBytes.WriteField w m.MaybeBytes
-            Timestamp.WriteField w m.Timestamp
-            Duration.WriteField w m.Duration
-            OptionalInt32.WriteField w m.OptionalInt32
-            MaybesInt64.WriteField w m.MaybesInt64
-            Timestamps.WriteField w m.Timestamps
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Ex.Ample.Outer.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeDoubleVal = DoubleVal.WriteJsonField o
-            let writeFloatVal = FloatVal.WriteJsonField o
-            let writeLongVal = LongVal.WriteJsonField o
-            let writeUlongVal = UlongVal.WriteJsonField o
-            let writeIntVal = IntVal.WriteJsonField o
-            let writeUlongFixed = UlongFixed.WriteJsonField o
-            let writeUintFixed = UintFixed.WriteJsonField o
-            let writeBoolVal = BoolVal.WriteJsonField o
-            let writeStringVal = StringVal.WriteJsonField o
-            let writeBytesVal = BytesVal.WriteJsonField o
-            let writeUintVal = UintVal.WriteJsonField o
-            let writeEnumVal = EnumVal.WriteJsonField o
-            let writeInner = Inner.WriteJsonField o
-            let writeDoubles = Doubles.WriteJsonField o
-            let writeInners = Inners.WriteJsonField o
-            let writeMap = Map.WriteJsonField o
-            let writeMapInner = MapInner.WriteJsonField o
-            let writeMapInts = MapInts.WriteJsonField o
-            let writeMapBool = MapBool.WriteJsonField o
-            let writeRecursive = Recursive.WriteJsonField o
-            let writeUnionNone = Union.WriteJsonNoneCase o
-            let writeInnerOption = InnerOption.WriteJsonField o
-            let writeStringOption = StringOption.WriteJsonField o
-            let writeImportedOption = ImportedOption.WriteJsonField o
-            let writeNested = Nested.WriteJsonField o
-            let writeImported = Imported.WriteJsonField o
-            let writeEnumImported = EnumImported.WriteJsonField o
-            let writeMaybeDouble = MaybeDouble.WriteJsonField o
-            let writeMaybeFloat = MaybeFloat.WriteJsonField o
-            let writeMaybeInt64 = MaybeInt64.WriteJsonField o
-            let writeMaybeUint64 = MaybeUint64.WriteJsonField o
-            let writeMaybeInt32 = MaybeInt32.WriteJsonField o
-            let writeMaybeUint32 = MaybeUint32.WriteJsonField o
-            let writeMaybeBool = MaybeBool.WriteJsonField o
-            let writeMaybeString = MaybeString.WriteJsonField o
-            let writeMaybeBytes = MaybeBytes.WriteJsonField o
-            let writeTimestamp = Timestamp.WriteJsonField o
-            let writeDuration = Duration.WriteJsonField o
-            let writeOptionalInt32 = OptionalInt32.WriteJsonField o
-            let writeMaybesInt64 = MaybesInt64.WriteJsonField o
-            let writeTimestamps = Timestamps.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Outer) =
-                writeDoubleVal w m.DoubleVal
-                writeFloatVal w m.FloatVal
-                writeLongVal w m.LongVal
-                writeUlongVal w m.UlongVal
-                writeIntVal w m.IntVal
-                writeUlongFixed w m.UlongFixed
-                writeUintFixed w m.UintFixed
-                writeBoolVal w m.BoolVal
-                writeStringVal w m.StringVal
-                writeBytesVal w m.BytesVal
-                writeUintVal w m.UintVal
-                writeEnumVal w m.EnumVal
-                writeInner w m.Inner
-                writeDoubles w m.Doubles
-                writeInners w m.Inners
-                writeMap w m.Map
-                writeMapInner w m.MapInner
-                writeMapInts w m.MapInts
-                writeMapBool w m.MapBool
-                writeRecursive w m.Recursive
-                (match m.Union with
-                | Ex.Ample.Outer.UnionCase.None -> writeUnionNone w
-                | Ex.Ample.Outer.UnionCase.InnerOption v -> writeInnerOption w v
-                | Ex.Ample.Outer.UnionCase.StringOption v -> writeStringOption w v
-                | Ex.Ample.Outer.UnionCase.ImportedOption v -> writeImportedOption w v
-                )
-                writeNested w m.Nested
-                writeImported w m.Imported
-                writeEnumImported w m.EnumImported
-                writeMaybeDouble w m.MaybeDouble
-                writeMaybeFloat w m.MaybeFloat
-                writeMaybeInt64 w m.MaybeInt64
-                writeMaybeUint64 w m.MaybeUint64
-                writeMaybeInt32 w m.MaybeInt32
-                writeMaybeUint32 w m.MaybeUint32
-                writeMaybeBool w m.MaybeBool
-                writeMaybeString w m.MaybeString
-                writeMaybeBytes w m.MaybeBytes
-                writeTimestamp w m.Timestamp
-                writeDuration w m.Duration
-                writeOptionalInt32 w m.OptionalInt32
-                writeMaybesInt64 w m.MaybesInt64
-                writeTimestamps w m.Timestamps
-            encode
-    }
 /// <summary>This is an "outer" message that will contain other messages</summary>
+type private _Outer = Outer
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Outer = {
@@ -724,8 +460,277 @@ type Outer = {
     [<System.Text.Json.Serialization.JsonPropertyName("timestamps")>] Timestamps: NodaTime.Instant seq // (46)
     }
     with
-    static member empty = _OuterProto.Empty
-    static member Proto = lazy _OuterProto
+    static member Proto : Lazy<ProtoDef<Outer>> =
+        lazy
+        // Field Definitions
+        let DoubleVal = FieldCodec.Primitive ValueCodec.Double (1, "doubleVal")
+        let FloatVal = FieldCodec.Primitive ValueCodec.Float (2, "floatVal")
+        let LongVal = FieldCodec.Primitive ValueCodec.Int64 (3, "longVal")
+        let UlongVal = FieldCodec.Primitive ValueCodec.UInt64 (4, "ulongVal")
+        let IntVal = FieldCodec.Primitive ValueCodec.Int32 (5, "intVal")
+        let UlongFixed = FieldCodec.Primitive ValueCodec.Fixed64 (6, "ulongFixed")
+        let UintFixed = FieldCodec.Primitive ValueCodec.Fixed32 (7, "uintFixed")
+        let BoolVal = FieldCodec.Primitive ValueCodec.Bool (8, "boolVal")
+        let StringVal = FieldCodec.Primitive ValueCodec.String (9, "stringVal")
+        let BytesVal = FieldCodec.Primitive ValueCodec.Bytes (10, "bytesVal")
+        let UintVal = FieldCodec.Primitive ValueCodec.UInt32 (11, "uintVal")
+        let EnumVal = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.EnumType> (12, "enumVal")
+        let Inner = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Inner> (17, "inner")
+        let Doubles = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Double) (18, "doubles")
+        let Inners = FieldCodec.Repeated ValueCodec.Message<Ex.Ample.Inner> (19, "inners")
+        let Map = FieldCodec.Map ValueCodec.String ValueCodec.String (20, "map")
+        let MapInner = FieldCodec.Map ValueCodec.String ValueCodec.Message<Ex.Ample.Inner> (21, "mapInner")
+        let MapInts = FieldCodec.Map ValueCodec.Int64 ValueCodec.Int32 (22, "mapInts")
+        let MapBool = FieldCodec.Map ValueCodec.Bool ValueCodec.String (23, "mapBool")
+        let Recursive = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer> (24, "recursive")
+        let Union = FieldCodec.Oneof "union"
+        let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
+        let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
+        let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+        let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (27, "nested")
+        let Imported = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Importable.Imported> (28, "imported")
+        let EnumImported = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport> (29, "enumImported")
+        let MaybeDouble = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Double) (33, "maybeDouble")
+        let MaybeFloat = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Float) (34, "maybeFloat")
+        let MaybeInt64 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int64) (35, "maybeInt64")
+        let MaybeUint64 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.UInt64) (36, "maybeUint64")
+        let MaybeInt32 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int32) (37, "maybeInt32")
+        let MaybeUint32 = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.UInt32) (38, "maybeUint32")
+        let MaybeBool = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Bool) (39, "maybeBool")
+        let MaybeString = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.String) (40, "maybeString")
+        let MaybeBytes = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Bytes) (41, "maybeBytes")
+        let Timestamp = FieldCodec.Optional ValueCodec.Timestamp (42, "timestamp")
+        let Duration = FieldCodec.Optional ValueCodec.Duration (43, "duration")
+        let OptionalInt32 = FieldCodec.Optional ValueCodec.Int32 (44, "optionalInt32")
+        let MaybesInt64 = FieldCodec.Repeated (ValueCodec.Wrap ValueCodec.Int64) (45, "maybesInt64")
+        let Timestamps = FieldCodec.Repeated ValueCodec.Timestamp (46, "timestamps")
+        // Proto Definition Implementation
+        { // ProtoDef<Outer>
+            Name = "Outer"
+            Empty = {
+                DoubleVal = DoubleVal.GetDefault()
+                FloatVal = FloatVal.GetDefault()
+                LongVal = LongVal.GetDefault()
+                UlongVal = UlongVal.GetDefault()
+                IntVal = IntVal.GetDefault()
+                UlongFixed = UlongFixed.GetDefault()
+                UintFixed = UintFixed.GetDefault()
+                BoolVal = BoolVal.GetDefault()
+                StringVal = StringVal.GetDefault()
+                BytesVal = BytesVal.GetDefault()
+                UintVal = UintVal.GetDefault()
+                EnumVal = EnumVal.GetDefault()
+                Inner = Inner.GetDefault()
+                Doubles = Doubles.GetDefault()
+                Inners = Inners.GetDefault()
+                Map = Map.GetDefault()
+                MapInner = MapInner.GetDefault()
+                MapInts = MapInts.GetDefault()
+                MapBool = MapBool.GetDefault()
+                Recursive = Recursive.GetDefault()
+                Union = Ex.Ample.Outer.UnionCase.None
+                Nested = Nested.GetDefault()
+                Imported = Imported.GetDefault()
+                EnumImported = EnumImported.GetDefault()
+                MaybeDouble = MaybeDouble.GetDefault()
+                MaybeFloat = MaybeFloat.GetDefault()
+                MaybeInt64 = MaybeInt64.GetDefault()
+                MaybeUint64 = MaybeUint64.GetDefault()
+                MaybeInt32 = MaybeInt32.GetDefault()
+                MaybeUint32 = MaybeUint32.GetDefault()
+                MaybeBool = MaybeBool.GetDefault()
+                MaybeString = MaybeString.GetDefault()
+                MaybeBytes = MaybeBytes.GetDefault()
+                Timestamp = Timestamp.GetDefault()
+                Duration = Duration.GetDefault()
+                OptionalInt32 = OptionalInt32.GetDefault()
+                MaybesInt64 = MaybesInt64.GetDefault()
+                Timestamps = Timestamps.GetDefault()
+                }
+            Size = fun (m: Outer) ->
+                0
+                + DoubleVal.CalcFieldSize m.DoubleVal
+                + FloatVal.CalcFieldSize m.FloatVal
+                + LongVal.CalcFieldSize m.LongVal
+                + UlongVal.CalcFieldSize m.UlongVal
+                + IntVal.CalcFieldSize m.IntVal
+                + UlongFixed.CalcFieldSize m.UlongFixed
+                + UintFixed.CalcFieldSize m.UintFixed
+                + BoolVal.CalcFieldSize m.BoolVal
+                + StringVal.CalcFieldSize m.StringVal
+                + BytesVal.CalcFieldSize m.BytesVal
+                + UintVal.CalcFieldSize m.UintVal
+                + EnumVal.CalcFieldSize m.EnumVal
+                + Inner.CalcFieldSize m.Inner
+                + Doubles.CalcFieldSize m.Doubles
+                + Inners.CalcFieldSize m.Inners
+                + Map.CalcFieldSize m.Map
+                + MapInner.CalcFieldSize m.MapInner
+                + MapInts.CalcFieldSize m.MapInts
+                + MapBool.CalcFieldSize m.MapBool
+                + Recursive.CalcFieldSize m.Recursive
+                + match m.Union with
+                    | Ex.Ample.Outer.UnionCase.None -> 0
+                    | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.CalcFieldSize v
+                    | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.CalcFieldSize v
+                    | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.CalcFieldSize v
+                + Nested.CalcFieldSize m.Nested
+                + Imported.CalcFieldSize m.Imported
+                + EnumImported.CalcFieldSize m.EnumImported
+                + MaybeDouble.CalcFieldSize m.MaybeDouble
+                + MaybeFloat.CalcFieldSize m.MaybeFloat
+                + MaybeInt64.CalcFieldSize m.MaybeInt64
+                + MaybeUint64.CalcFieldSize m.MaybeUint64
+                + MaybeInt32.CalcFieldSize m.MaybeInt32
+                + MaybeUint32.CalcFieldSize m.MaybeUint32
+                + MaybeBool.CalcFieldSize m.MaybeBool
+                + MaybeString.CalcFieldSize m.MaybeString
+                + MaybeBytes.CalcFieldSize m.MaybeBytes
+                + Timestamp.CalcFieldSize m.Timestamp
+                + Duration.CalcFieldSize m.Duration
+                + OptionalInt32.CalcFieldSize m.OptionalInt32
+                + MaybesInt64.CalcFieldSize m.MaybesInt64
+                + Timestamps.CalcFieldSize m.Timestamps
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Outer) ->
+                DoubleVal.WriteField w m.DoubleVal
+                FloatVal.WriteField w m.FloatVal
+                LongVal.WriteField w m.LongVal
+                UlongVal.WriteField w m.UlongVal
+                IntVal.WriteField w m.IntVal
+                UlongFixed.WriteField w m.UlongFixed
+                UintFixed.WriteField w m.UintFixed
+                BoolVal.WriteField w m.BoolVal
+                StringVal.WriteField w m.StringVal
+                BytesVal.WriteField w m.BytesVal
+                UintVal.WriteField w m.UintVal
+                EnumVal.WriteField w m.EnumVal
+                Inner.WriteField w m.Inner
+                Doubles.WriteField w m.Doubles
+                Inners.WriteField w m.Inners
+                Map.WriteField w m.Map
+                MapInner.WriteField w m.MapInner
+                MapInts.WriteField w m.MapInts
+                MapBool.WriteField w m.MapBool
+                Recursive.WriteField w m.Recursive
+                (match m.Union with
+                | Ex.Ample.Outer.UnionCase.None -> ()
+                | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.WriteField w v
+                | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.WriteField w v
+                | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.WriteField w v
+                )
+                Nested.WriteField w m.Nested
+                Imported.WriteField w m.Imported
+                EnumImported.WriteField w m.EnumImported
+                MaybeDouble.WriteField w m.MaybeDouble
+                MaybeFloat.WriteField w m.MaybeFloat
+                MaybeInt64.WriteField w m.MaybeInt64
+                MaybeUint64.WriteField w m.MaybeUint64
+                MaybeInt32.WriteField w m.MaybeInt32
+                MaybeUint32.WriteField w m.MaybeUint32
+                MaybeBool.WriteField w m.MaybeBool
+                MaybeString.WriteField w m.MaybeString
+                MaybeBytes.WriteField w m.MaybeBytes
+                Timestamp.WriteField w m.Timestamp
+                Duration.WriteField w m.Duration
+                OptionalInt32.WriteField w m.OptionalInt32
+                MaybesInt64.WriteField w m.MaybesInt64
+                Timestamps.WriteField w m.Timestamps
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Ex.Ample.Outer.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeDoubleVal = DoubleVal.WriteJsonField o
+                let writeFloatVal = FloatVal.WriteJsonField o
+                let writeLongVal = LongVal.WriteJsonField o
+                let writeUlongVal = UlongVal.WriteJsonField o
+                let writeIntVal = IntVal.WriteJsonField o
+                let writeUlongFixed = UlongFixed.WriteJsonField o
+                let writeUintFixed = UintFixed.WriteJsonField o
+                let writeBoolVal = BoolVal.WriteJsonField o
+                let writeStringVal = StringVal.WriteJsonField o
+                let writeBytesVal = BytesVal.WriteJsonField o
+                let writeUintVal = UintVal.WriteJsonField o
+                let writeEnumVal = EnumVal.WriteJsonField o
+                let writeInner = Inner.WriteJsonField o
+                let writeDoubles = Doubles.WriteJsonField o
+                let writeInners = Inners.WriteJsonField o
+                let writeMap = Map.WriteJsonField o
+                let writeMapInner = MapInner.WriteJsonField o
+                let writeMapInts = MapInts.WriteJsonField o
+                let writeMapBool = MapBool.WriteJsonField o
+                let writeRecursive = Recursive.WriteJsonField o
+                let writeUnionNone = Union.WriteJsonNoneCase o
+                let writeInnerOption = InnerOption.WriteJsonField o
+                let writeStringOption = StringOption.WriteJsonField o
+                let writeImportedOption = ImportedOption.WriteJsonField o
+                let writeNested = Nested.WriteJsonField o
+                let writeImported = Imported.WriteJsonField o
+                let writeEnumImported = EnumImported.WriteJsonField o
+                let writeMaybeDouble = MaybeDouble.WriteJsonField o
+                let writeMaybeFloat = MaybeFloat.WriteJsonField o
+                let writeMaybeInt64 = MaybeInt64.WriteJsonField o
+                let writeMaybeUint64 = MaybeUint64.WriteJsonField o
+                let writeMaybeInt32 = MaybeInt32.WriteJsonField o
+                let writeMaybeUint32 = MaybeUint32.WriteJsonField o
+                let writeMaybeBool = MaybeBool.WriteJsonField o
+                let writeMaybeString = MaybeString.WriteJsonField o
+                let writeMaybeBytes = MaybeBytes.WriteJsonField o
+                let writeTimestamp = Timestamp.WriteJsonField o
+                let writeDuration = Duration.WriteJsonField o
+                let writeOptionalInt32 = OptionalInt32.WriteJsonField o
+                let writeMaybesInt64 = MaybesInt64.WriteJsonField o
+                let writeTimestamps = Timestamps.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Outer) =
+                    writeDoubleVal w m.DoubleVal
+                    writeFloatVal w m.FloatVal
+                    writeLongVal w m.LongVal
+                    writeUlongVal w m.UlongVal
+                    writeIntVal w m.IntVal
+                    writeUlongFixed w m.UlongFixed
+                    writeUintFixed w m.UintFixed
+                    writeBoolVal w m.BoolVal
+                    writeStringVal w m.StringVal
+                    writeBytesVal w m.BytesVal
+                    writeUintVal w m.UintVal
+                    writeEnumVal w m.EnumVal
+                    writeInner w m.Inner
+                    writeDoubles w m.Doubles
+                    writeInners w m.Inners
+                    writeMap w m.Map
+                    writeMapInner w m.MapInner
+                    writeMapInts w m.MapInts
+                    writeMapBool w m.MapBool
+                    writeRecursive w m.Recursive
+                    (match m.Union with
+                    | Ex.Ample.Outer.UnionCase.None -> writeUnionNone w
+                    | Ex.Ample.Outer.UnionCase.InnerOption v -> writeInnerOption w v
+                    | Ex.Ample.Outer.UnionCase.StringOption v -> writeStringOption w v
+                    | Ex.Ample.Outer.UnionCase.ImportedOption v -> writeImportedOption w v
+                    )
+                    writeNested w m.Nested
+                    writeImported w m.Imported
+                    writeEnumImported w m.EnumImported
+                    writeMaybeDouble w m.MaybeDouble
+                    writeMaybeFloat w m.MaybeFloat
+                    writeMaybeInt64 w m.MaybeInt64
+                    writeMaybeUint64 w m.MaybeUint64
+                    writeMaybeInt32 w m.MaybeInt32
+                    writeMaybeUint32 w m.MaybeUint32
+                    writeMaybeBool w m.MaybeBool
+                    writeMaybeString w m.MaybeString
+                    writeMaybeBytes w m.MaybeBytes
+                    writeTimestamp w m.Timestamp
+                    writeDuration w m.Duration
+                    writeOptionalInt32 w m.OptionalInt32
+                    writeMaybesInt64 w m.MaybesInt64
+                    writeTimestamps w m.Timestamps
+                encode
+        }
+    static member empty
+        with get() = Ex.Ample._Outer.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module ResultEvent =
@@ -750,38 +755,7 @@ module ResultEvent =
                 Value = x.Value |> orEmptyString
                 }
 
-    let private _RecordProto : ProtoDef<Record> =
-        // Field Definitions
-        let Key = FieldCodec.Primitive ValueCodec.String (1, "key")
-        let Value = FieldCodec.Primitive ValueCodec.String (2, "value")
-        // Proto Definition Implementation
-        { // ProtoDef<Record>
-            Name = "Record"
-            Empty = {
-                Key = Key.GetDefault()
-                Value = Value.GetDefault()
-                }
-            Size = fun (m: Record) ->
-                0
-                + Key.CalcFieldSize m.Key
-                + Value.CalcFieldSize m.Value
-            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Record) ->
-                Key.WriteField w m.Key
-                Value.WriteField w m.Value
-            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-                let mutable builder = new Ex.Ample.ResultEvent.Record.Builder()
-                let mutable tag = 0
-                while read r &tag do
-                    builder.Put (tag, r)
-                builder.Build
-            EncodeJson = fun (o: JsonOptions) ->
-                let writeKey = Key.WriteJsonField o
-                let writeValue = Value.WriteJsonField o
-                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Record) =
-                    writeKey w m.Key
-                    writeValue w m.Value
-                encode
-        }
+    type private _Record = Record
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
     type Record = {
@@ -790,8 +764,41 @@ module ResultEvent =
         [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (2)
         }
         with
-        static member empty = _RecordProto.Empty
-        static member Proto = lazy _RecordProto
+        static member Proto : Lazy<ProtoDef<Record>> =
+            lazy
+            // Field Definitions
+            let Key = FieldCodec.Primitive ValueCodec.String (1, "key")
+            let Value = FieldCodec.Primitive ValueCodec.String (2, "value")
+            // Proto Definition Implementation
+            { // ProtoDef<Record>
+                Name = "Record"
+                Empty = {
+                    Key = Key.GetDefault()
+                    Value = Value.GetDefault()
+                    }
+                Size = fun (m: Record) ->
+                    0
+                    + Key.CalcFieldSize m.Key
+                    + Value.CalcFieldSize m.Value
+                Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Record) ->
+                    Key.WriteField w m.Key
+                    Value.WriteField w m.Value
+                Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                    let mutable builder = new Ex.Ample.ResultEvent.Record.Builder()
+                    let mutable tag = 0
+                    while read r &tag do
+                        builder.Put (tag, r)
+                    builder.Build
+                EncodeJson = fun (o: JsonOptions) ->
+                    let writeKey = Key.WriteJsonField o
+                    let writeValue = Value.WriteJsonField o
+                    let encode (w: System.Text.Json.Utf8JsonWriter) (m: Record) =
+                        writeKey w m.Key
+                        writeValue w m.Value
+                    encode
+            }
+        static member empty
+            with get() = Ex.Ample.ResultEvent._Record.Proto.Value.Empty
 
     [<System.Runtime.CompilerServices.IsByRefLike>]
     type Builder =
@@ -810,42 +817,11 @@ module ResultEvent =
             Records = x.Records.Build
             }
 
-let private _ResultEventProto : ProtoDef<ResultEvent> =
-    // Field Definitions
-    let SubscriptionState = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.EnumType> (1, "subscriptionState")
-    let Records = FieldCodec.Repeated ValueCodec.Message<Ex.Ample.ResultEvent.Record> (2, "records")
-    // Proto Definition Implementation
-    { // ProtoDef<ResultEvent>
-        Name = "ResultEvent"
-        Empty = {
-            SubscriptionState = SubscriptionState.GetDefault()
-            Records = Records.GetDefault()
-            }
-        Size = fun (m: ResultEvent) ->
-            0
-            + SubscriptionState.CalcFieldSize m.SubscriptionState
-            + Records.CalcFieldSize m.Records
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: ResultEvent) ->
-            SubscriptionState.WriteField w m.SubscriptionState
-            Records.WriteField w m.Records
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Ex.Ample.ResultEvent.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeSubscriptionState = SubscriptionState.WriteJsonField o
-            let writeRecords = Records.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: ResultEvent) =
-                writeSubscriptionState w m.SubscriptionState
-                writeRecords w m.Records
-            encode
-    }
 /// <summary>
 /// This is an example of a
 /// multiline-style comment
 /// </summary>
+type private _ResultEvent = ResultEvent
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type ResultEvent = {
@@ -854,5 +830,38 @@ type ResultEvent = {
     [<System.Text.Json.Serialization.JsonPropertyName("records")>] Records: Ex.Ample.ResultEvent.Record seq // (2)
     }
     with
-    static member empty = _ResultEventProto.Empty
-    static member Proto = lazy _ResultEventProto
+    static member Proto : Lazy<ProtoDef<ResultEvent>> =
+        lazy
+        // Field Definitions
+        let SubscriptionState = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.EnumType> (1, "subscriptionState")
+        let Records = FieldCodec.Repeated ValueCodec.Message<Ex.Ample.ResultEvent.Record> (2, "records")
+        // Proto Definition Implementation
+        { // ProtoDef<ResultEvent>
+            Name = "ResultEvent"
+            Empty = {
+                SubscriptionState = SubscriptionState.GetDefault()
+                Records = Records.GetDefault()
+                }
+            Size = fun (m: ResultEvent) ->
+                0
+                + SubscriptionState.CalcFieldSize m.SubscriptionState
+                + Records.CalcFieldSize m.Records
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: ResultEvent) ->
+                SubscriptionState.WriteField w m.SubscriptionState
+                Records.WriteField w m.Records
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Ex.Ample.ResultEvent.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeSubscriptionState = SubscriptionState.WriteJsonField o
+                let writeRecords = Records.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: ResultEvent) =
+                    writeSubscriptionState w m.SubscriptionState
+                    writeRecords w m.Records
+                encode
+        }
+    static member empty
+        with get() = Ex.Ample._ResultEvent.Proto.Value.Empty
