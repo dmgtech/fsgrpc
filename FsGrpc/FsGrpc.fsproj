@@ -10,7 +10,7 @@
     <RepositoryUrl>https://github.com/Divisions-Maintenance-Group/fsgrpc</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageVersion>0.9.1$(VersionSuffix)</PackageVersion>
+    <PackageVersion>$(FSGRPC_VERSION)$(VersionSuffix)</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>
