@@ -290,6 +290,7 @@ module Outer =
             val mutable OptionalInt32: OptionBuilder<int> // (44)
             val mutable MaybesInt64: RepeatedBuilder<int64> // (45)
             val mutable Timestamps: RepeatedBuilder<NodaTime.Instant> // (46)
+            val mutable Anything: OptionBuilder<FsGrpc.Protobuf.Any> // (47)
         end
         with
         member x.Put ((tag, reader): int * Reader) =
@@ -334,6 +335,7 @@ module Outer =
             | 44 -> x.OptionalInt32.Set (ValueCodec.Int32.ReadValue reader)
             | 45 -> x.MaybesInt64.Add ((ValueCodec.Wrap ValueCodec.Int64).ReadValue reader)
             | 46 -> x.Timestamps.Add (ValueCodec.Timestamp.ReadValue reader)
+            | 47 -> x.Anything.Set (ValueCodec.Any.ReadValue reader)
             | _ -> reader.SkipLastField()
         member x.Build : Ex.Ample.Outer = {
             DoubleVal = x.DoubleVal
@@ -374,6 +376,7 @@ module Outer =
             OptionalInt32 = x.OptionalInt32.Build
             MaybesInt64 = x.MaybesInt64.Build
             Timestamps = x.Timestamps.Build
+            Anything = x.Anything.Build
             }
 
 /// <summary>This is an "outer" message that will contain other messages</summary>
@@ -458,6 +461,8 @@ type Outer = {
     [<System.Text.Json.Serialization.JsonPropertyName("maybesInt64")>] MaybesInt64: int64 seq // (45)
     /// <summary>a repeated of the well-known timestamp</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("timestamps")>] Timestamps: NodaTime.Instant seq // (46)
+    /// <summary>the Any type</summary>
+    [<System.Text.Json.Serialization.JsonPropertyName("anything")>] Anything: FsGrpc.Protobuf.Any option // (47)
     }
     with
     static member Proto : Lazy<ProtoDef<Outer>> =
@@ -504,6 +509,7 @@ type Outer = {
         let OptionalInt32 = FieldCodec.Optional ValueCodec.Int32 (44, "optionalInt32")
         let MaybesInt64 = FieldCodec.Repeated (ValueCodec.Wrap ValueCodec.Int64) (45, "maybesInt64")
         let Timestamps = FieldCodec.Repeated ValueCodec.Timestamp (46, "timestamps")
+        let Anything = FieldCodec.Optional ValueCodec.Any (47, "anything")
         // Proto Definition Implementation
         { // ProtoDef<Outer>
             Name = "Outer"
@@ -546,6 +552,7 @@ type Outer = {
                 OptionalInt32 = OptionalInt32.GetDefault()
                 MaybesInt64 = MaybesInt64.GetDefault()
                 Timestamps = Timestamps.GetDefault()
+                Anything = Anything.GetDefault()
                 }
             Size = fun (m: Outer) ->
                 0
@@ -591,6 +598,7 @@ type Outer = {
                 + OptionalInt32.CalcFieldSize m.OptionalInt32
                 + MaybesInt64.CalcFieldSize m.MaybesInt64
                 + Timestamps.CalcFieldSize m.Timestamps
+                + Anything.CalcFieldSize m.Anything
             Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Outer) ->
                 DoubleVal.WriteField w m.DoubleVal
                 FloatVal.WriteField w m.FloatVal
@@ -635,6 +643,7 @@ type Outer = {
                 OptionalInt32.WriteField w m.OptionalInt32
                 MaybesInt64.WriteField w m.MaybesInt64
                 Timestamps.WriteField w m.Timestamps
+                Anything.WriteField w m.Anything
             Decode = fun (r: Google.Protobuf.CodedInputStream) ->
                 let mutable builder = new Ex.Ample.Outer.Builder()
                 let mutable tag = 0
@@ -683,6 +692,7 @@ type Outer = {
                 let writeOptionalInt32 = OptionalInt32.WriteJsonField o
                 let writeMaybesInt64 = MaybesInt64.WriteJsonField o
                 let writeTimestamps = Timestamps.WriteJsonField o
+                let writeAnything = Anything.WriteJsonField o
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: Outer) =
                     writeDoubleVal w m.DoubleVal
                     writeFloatVal w m.FloatVal
@@ -727,6 +737,7 @@ type Outer = {
                     writeOptionalInt32 w m.OptionalInt32
                     writeMaybesInt64 w m.MaybesInt64
                     writeTimestamps w m.Timestamps
+                    writeAnything w m.Anything
                 encode
         }
     static member empty

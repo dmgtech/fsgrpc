@@ -4,6 +4,7 @@ import "importable/importMe.proto";
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/any.proto";
 
 // This is an enumeration
 enum EnumType {
@@ -123,6 +124,8 @@ message Outer {
     repeated google.protobuf.Int64Value maybes_int64 = 45;
     // a repeated of the well-known timestamp
     repeated google.protobuf.Timestamp timestamps = 46;
+    // the Any type
+    google.protobuf.Any anything = 47;
 
     message Nested {
         repeated NestEnumeration enums = 1;

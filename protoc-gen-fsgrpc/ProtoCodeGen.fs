@@ -146,6 +146,7 @@ type ValueType =
 | Wrap of ValueType
 | Timestamp
 | Duration
+| Any
 with
     static member From (typeMap: TypeMap) (proto: FieldDescriptorProto.Type) (typeName: string) =
         match proto with
@@ -178,6 +179,7 @@ with
             | ".google.protobuf.BytesValue" -> ValueType.Wrap ValueType.Bytes
             | ".google.protobuf.Timestamp" -> ValueType.Timestamp
             | ".google.protobuf.Duration" -> ValueType.Duration
+            | ".google.protobuf.Any" -> ValueType.Any
             | other -> ValueType.Message (typeMap other)
         | _ -> failwith $"Don't know how to handle type {proto}"
 
@@ -300,6 +302,7 @@ let rec private fsValueTypeOf (valueType: ValueType) =
     | ValueType.Packed vt -> $"%s{fsValueTypeOf vt} seq"
     | ValueType.Timestamp -> "NodaTime.Instant"
     | ValueType.Duration -> "NodaTime.Duration"
+    | ValueType.Any -> "FsGrpc.Protobuf.Any"
 
 type FsBuilderType = {
     Name: string
@@ -351,6 +354,8 @@ let rec private fsBuilderTypeOf (valueType: ValueType) =
         { Name = "NodaTime.Instant"; BuildExprPattern = "{0}"; PutExprPattern = " <- {0}.ReadValue reader" }
     | ValueType.Duration ->
         { Name = "NodaTime.Duration"; BuildExprPattern = "{0}"; PutExprPattern = " <- {0}.ReadValue reader" }
+    | ValueType.Any ->
+        { Name = "FsGrpc.Protobuf.Any"; BuildExprPattern = "{0}"; PutExprPattern = " <- {0}.ReadValue reader" }
 
 let private fsTypeOf (fieldType: FieldType) =
     let fsTypeName =

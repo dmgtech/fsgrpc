@@ -6,6 +6,11 @@ type private JsonSerializerOptions = System.Text.Json.JsonSerializerOptions
 
 let private ``???``<'T> : 'T = raise (System.NotImplementedException())
 
+type Any = {
+    TypeUrl: String
+    Value: FsGrpc.Bytes
+}
+
 /// <summary>Signifies that a record is a protobuf message</summary>
 [<AttributeUsage(AttributeTargets.Class)>]
 type MessageAttribute() =
@@ -840,6 +845,53 @@ module ValueCodec =
         { MessageFrom durationProto with
             WriteJsonValue = encodeForJson durationToProto3String String.WriteJsonValue 
         }
+
+    let private anyProto  : Lazy<ProtoDef<Any>> =
+        lazy
+        // Field Definitions
+        let calcTypeUrlSize = calcFieldSize String 1
+        let calcValueSize = calcFieldSize Bytes 2
+        let writeTypeUrl = writeField String 1
+        let writeValue = writeField Bytes 2
+        let writeJson o (w: JsonWriter) (v: Any) =
+            // this is implemented but is not used because the structured form is not serialized to JSON
+            // it might be possible to implement the canonical Any form here because it serializes the fields and adds a @type field
+            // but we would need to determine whether we can actually get the underlying fields encoded in this Any and this might not be the best place to do it
+            w.WriteString ("typeUrl", v.TypeUrl)
+            w.WriteBase64StringValue v.Value.Data.Span
+        // Proto Definition Implementation
+        { // ProtoDef<Any>
+            Name = "Any"
+            Empty = {
+                TypeUrl = ""
+                Value = FsGrpc.Bytes.Empty
+                }
+            Size = fun (m: Any) ->
+                0
+                + calcTypeUrlSize m.TypeUrl
+                + calcValueSize m.Value
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Any) ->
+                writeTypeUrl w m.TypeUrl
+                writeValue w m.Value
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable typeUrl: string = ""
+                let mutable value: FsGrpc.Bytes = FsGrpc.Bytes.Empty
+                let mutable tag = 0
+                while read r &tag do
+                    match tag with
+                    | 1 -> typeUrl <- String.ReadValue r
+                    | 2 -> value <- Bytes.ReadValue r
+                    | _ -> r.SkipLastField()
+                let any: Any = {
+                    TypeUrl = typeUrl
+                    Value = value
+                }
+                any
+            EncodeJson = writeJson
+        }
+    
+    let Any =
+        MessageFrom anyProto
 
 // A "Field" has a value and a tag
 // 'V is the type of the value of the field on the record
