@@ -78,10 +78,12 @@ let contentsOfFolder folder =
         result
     contentsOfFolder folder "" |> Seq.map essentials
 
+let runProtoc = run "inputs/protoc"
+
 [<Fact>]
-let ``Generates correct files`` () =
+let ``Can run protoc`` () =
     // check that we can run protoc
-    let result = run "inputs/protoc" "--version"
+    let result = runProtoc "--version"
     let result =
         match result with
         | Error e -> failwith e
@@ -89,6 +91,10 @@ let ``Generates correct files`` () =
     Assert.Equal(0, result.ExitCode)
     // Note: other versions are probably fine, but for now we assert that it works with this version
     Assert.Equal("libprotoc 3.19.1\n", result.Output)
+
+
+[<Fact>]
+let ``Generates correct files`` () =
 
     // lookup where the assembly is of the main project's output that we have as a dependency
     // this will give us the dll output, but the exe should be next to it
@@ -106,7 +112,7 @@ let ``Generates correct files`` () =
 
     System.IO.Directory.CreateDirectory(outFolder) |> ignore
 
-    let result = run "inputs/protoc" $"--plugin=protoc-gen-fsgrpc={fullPathToPlugin} -Iinclude -Iinputs/proto --fsgrpc_out={outFolder} example.proto importable/importMe.proto"
+    let result = runProtoc $"--plugin=protoc-gen-fsgrpc={fullPathToPlugin} -Iinclude -Iinputs/proto --fsgrpc_out={outFolder} example.proto importable/importMe.proto"
     let result =
         match result with
         | Error e -> failwith e
