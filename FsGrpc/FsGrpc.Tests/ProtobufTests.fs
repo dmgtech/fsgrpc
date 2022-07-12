@@ -20,12 +20,12 @@ let ``Can get the size of a message containing a map`` () =
 
 [<Fact>]
 let ``Can get the size of a message containing a packed`` () =
-    let size = Special.Proto.Force().Size { Special.empty with IntList = [|1; 2; 3|] }
+    let size = Special.Proto.Force().Size { Special.empty with IntList = [1; 2; 3] }
     Assert.Equal(5, size)
 
 [<Fact>]
 let ``Can get the size of a message containing a repeated`` () =
-    let size = Special.Proto.Force().Size { Special.empty with StringList = [|"one"; "two"; "three"|] }
+    let size = Special.Proto.Force().Size { Special.empty with StringList = ["one"; "two"; "three"] }
     Assert.Equal(17, size)
 
 [<Fact>]
@@ -101,7 +101,7 @@ let ``Can round trip test messages`` () =
 let ``Can handle split packed fields`` () =
     let hex = "0a030102030 a03040506"
     let actual : Special = hex |> bytesFromHex |> decode
-    let expected = { Special.empty with IntList = [|1; 2; 3; 4; 5; 6|]}
+    let expected = { Special.empty with IntList = [1; 2; 3; 4; 5; 6]}
     Assert.Equal(expected, actual)
 
 [<Fact>]

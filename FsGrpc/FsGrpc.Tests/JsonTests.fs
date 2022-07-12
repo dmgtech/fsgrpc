@@ -15,7 +15,7 @@ open NodaTime
 
 let trim (s: string) = s.Trim()
 let unindent (s: string) =
-    let lines = s.Trim([|'\n'|]).Split([|'\n'|])
+    let lines = s.Trim([|'\r'|]).Trim([|'\n'|]).Split([|'\n'|])
     let minIndent = lines |> Seq.map (fun line -> System.Text.RegularExpressions.Regex.Match(line, "^ *").Length) |> Seq.min
     let sinIndent = lines |> Seq.map (fun line -> line.Substring(minIndent));
     sinIndent |> String.concat "\n" |> trim
@@ -146,7 +146,7 @@ let ``Complex structures serialize with generic serializer`` () =
             { Nest.empty with
                 Name = "Name" }
             { Nest.empty with
-                Children = seq [
+                Children = [
                     { Nest.empty with Name = "Two" }
                     { Nest.empty with Name = "Three" }
                 ]}

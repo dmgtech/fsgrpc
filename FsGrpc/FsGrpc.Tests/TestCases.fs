@@ -31,21 +31,21 @@ let Value2 = { TestMessage.empty with TestString = "🤔" }
 let Value3 =
     { Nest.empty with
         Name = "Animal"
-        Children = [|
+        Children = [
             { Nest.empty with
                 Name = "Mammal" }
             { Nest.empty with
                 Name = "Fish"
                 Special = Some Special.empty }
-        |]
+        ]
         Inner = Some { Nest.Inner.empty with InnerName = "inner" }
         }
 
 let Value4 =
     { Special.empty with
-        IntList = [|1; 2|]
-        DoubleList = [|2.0; 3.0|]
-        StringList = [|"One"; ""; "Three"|]
+        IntList = [1; 2]
+        DoubleList = [2.0; 3.0]
+        StringList = ["One"; ""; "Three"]
         Dictionary = Map [("One", "Uno"); ("Two", "Dos")]
         }
 
@@ -53,7 +53,7 @@ open Enums
 let Value5 =
     { Enums.empty with
         MainColor = Color.Red
-        OtherColors = [|Color.Black; Color.Red; Color.Blue|]
+        OtherColors = [Color.Black; Color.Red; Color.Blue]
         ByName = Map [("red", Color.Red); ("blue", Color.Blue)]
         Union = UnionCase.Name "green"
         }

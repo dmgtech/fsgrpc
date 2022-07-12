@@ -1,6 +1,7 @@
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module rec Test.Name.Space
+namespace rec Test.Name.Space
 open FsGrpc.Protobuf
+open FsGrpc.Optics
+open System.Runtime.CompilerServices
 #nowarn "40"
 
 
@@ -63,116 +64,7 @@ module TestMessage =
             TestSint64 = x.TestSint64
             }
 
-let private _TestMessageProto : ProtoDef<TestMessage> =
-    // Field Definitions
-    let TestInt = FieldCodec.Primitive ValueCodec.Int32 (1, "testInt")
-    let TestDouble = FieldCodec.Primitive ValueCodec.Double (2, "testDouble")
-    let TestFixed32 = FieldCodec.Primitive ValueCodec.Fixed32 (3, "testFixed32")
-    let TestString = FieldCodec.Primitive ValueCodec.String (4, "testString")
-    let TestBytes = FieldCodec.Primitive ValueCodec.Bytes (5, "testBytes")
-    let TestFloat = FieldCodec.Primitive ValueCodec.Float (6, "testFloat")
-    let TestInt64 = FieldCodec.Primitive ValueCodec.Int64 (7, "testInt64")
-    let TestUint64 = FieldCodec.Primitive ValueCodec.UInt64 (8, "testUint64")
-    let TestFixed64 = FieldCodec.Primitive ValueCodec.Fixed64 (9, "testFixed64")
-    let TestBool = FieldCodec.Primitive ValueCodec.Bool (10, "testBool")
-    let TestUint32 = FieldCodec.Primitive ValueCodec.UInt32 (11, "testUint32")
-    let TestSfixed32 = FieldCodec.Primitive ValueCodec.SFixed32 (12, "testSfixed32")
-    let TestSfixed64 = FieldCodec.Primitive ValueCodec.SFixed64 (13, "testSfixed64")
-    let TestSint32 = FieldCodec.Primitive ValueCodec.SInt32 (14, "testSint32")
-    let TestSint64 = FieldCodec.Primitive ValueCodec.SInt64 (15, "testSint64")
-    // Proto Definition Implementation
-    { // ProtoDef<TestMessage>
-        Name = "TestMessage"
-        Empty = {
-            TestInt = TestInt.GetDefault()
-            TestDouble = TestDouble.GetDefault()
-            TestFixed32 = TestFixed32.GetDefault()
-            TestString = TestString.GetDefault()
-            TestBytes = TestBytes.GetDefault()
-            TestFloat = TestFloat.GetDefault()
-            TestInt64 = TestInt64.GetDefault()
-            TestUint64 = TestUint64.GetDefault()
-            TestFixed64 = TestFixed64.GetDefault()
-            TestBool = TestBool.GetDefault()
-            TestUint32 = TestUint32.GetDefault()
-            TestSfixed32 = TestSfixed32.GetDefault()
-            TestSfixed64 = TestSfixed64.GetDefault()
-            TestSint32 = TestSint32.GetDefault()
-            TestSint64 = TestSint64.GetDefault()
-            }
-        Size = fun (m: TestMessage) ->
-            0
-            + TestInt.CalcFieldSize m.TestInt
-            + TestDouble.CalcFieldSize m.TestDouble
-            + TestFixed32.CalcFieldSize m.TestFixed32
-            + TestString.CalcFieldSize m.TestString
-            + TestBytes.CalcFieldSize m.TestBytes
-            + TestFloat.CalcFieldSize m.TestFloat
-            + TestInt64.CalcFieldSize m.TestInt64
-            + TestUint64.CalcFieldSize m.TestUint64
-            + TestFixed64.CalcFieldSize m.TestFixed64
-            + TestBool.CalcFieldSize m.TestBool
-            + TestUint32.CalcFieldSize m.TestUint32
-            + TestSfixed32.CalcFieldSize m.TestSfixed32
-            + TestSfixed64.CalcFieldSize m.TestSfixed64
-            + TestSint32.CalcFieldSize m.TestSint32
-            + TestSint64.CalcFieldSize m.TestSint64
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: TestMessage) ->
-            TestInt.WriteField w m.TestInt
-            TestDouble.WriteField w m.TestDouble
-            TestFixed32.WriteField w m.TestFixed32
-            TestString.WriteField w m.TestString
-            TestBytes.WriteField w m.TestBytes
-            TestFloat.WriteField w m.TestFloat
-            TestInt64.WriteField w m.TestInt64
-            TestUint64.WriteField w m.TestUint64
-            TestFixed64.WriteField w m.TestFixed64
-            TestBool.WriteField w m.TestBool
-            TestUint32.WriteField w m.TestUint32
-            TestSfixed32.WriteField w m.TestSfixed32
-            TestSfixed64.WriteField w m.TestSfixed64
-            TestSint32.WriteField w m.TestSint32
-            TestSint64.WriteField w m.TestSint64
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.TestMessage.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeTestInt = TestInt.WriteJsonField o
-            let writeTestDouble = TestDouble.WriteJsonField o
-            let writeTestFixed32 = TestFixed32.WriteJsonField o
-            let writeTestString = TestString.WriteJsonField o
-            let writeTestBytes = TestBytes.WriteJsonField o
-            let writeTestFloat = TestFloat.WriteJsonField o
-            let writeTestInt64 = TestInt64.WriteJsonField o
-            let writeTestUint64 = TestUint64.WriteJsonField o
-            let writeTestFixed64 = TestFixed64.WriteJsonField o
-            let writeTestBool = TestBool.WriteJsonField o
-            let writeTestUint32 = TestUint32.WriteJsonField o
-            let writeTestSfixed32 = TestSfixed32.WriteJsonField o
-            let writeTestSfixed64 = TestSfixed64.WriteJsonField o
-            let writeTestSint32 = TestSint32.WriteJsonField o
-            let writeTestSint64 = TestSint64.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: TestMessage) =
-                writeTestInt w m.TestInt
-                writeTestDouble w m.TestDouble
-                writeTestFixed32 w m.TestFixed32
-                writeTestString w m.TestString
-                writeTestBytes w m.TestBytes
-                writeTestFloat w m.TestFloat
-                writeTestInt64 w m.TestInt64
-                writeTestUint64 w m.TestUint64
-                writeTestFixed64 w m.TestFixed64
-                writeTestBool w m.TestBool
-                writeTestUint32 w m.TestUint32
-                writeTestSfixed32 w m.TestSfixed32
-                writeTestSfixed64 w m.TestSfixed64
-                writeTestSint32 w m.TestSint32
-                writeTestSint64 w m.TestSint64
-            encode
-    }
+type private _TestMessage = TestMessage
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type TestMessage = {
@@ -194,8 +86,119 @@ type TestMessage = {
     [<System.Text.Json.Serialization.JsonPropertyName("testSint64")>] TestSint64: int64 // (15)
     }
     with
-    static member empty = _TestMessageProto.Empty
-    static member Proto = lazy _TestMessageProto
+    static member Proto : Lazy<ProtoDef<TestMessage>> =
+        lazy
+        // Field Definitions
+        let TestInt = FieldCodec.Primitive ValueCodec.Int32 (1, "testInt")
+        let TestDouble = FieldCodec.Primitive ValueCodec.Double (2, "testDouble")
+        let TestFixed32 = FieldCodec.Primitive ValueCodec.Fixed32 (3, "testFixed32")
+        let TestString = FieldCodec.Primitive ValueCodec.String (4, "testString")
+        let TestBytes = FieldCodec.Primitive ValueCodec.Bytes (5, "testBytes")
+        let TestFloat = FieldCodec.Primitive ValueCodec.Float (6, "testFloat")
+        let TestInt64 = FieldCodec.Primitive ValueCodec.Int64 (7, "testInt64")
+        let TestUint64 = FieldCodec.Primitive ValueCodec.UInt64 (8, "testUint64")
+        let TestFixed64 = FieldCodec.Primitive ValueCodec.Fixed64 (9, "testFixed64")
+        let TestBool = FieldCodec.Primitive ValueCodec.Bool (10, "testBool")
+        let TestUint32 = FieldCodec.Primitive ValueCodec.UInt32 (11, "testUint32")
+        let TestSfixed32 = FieldCodec.Primitive ValueCodec.SFixed32 (12, "testSfixed32")
+        let TestSfixed64 = FieldCodec.Primitive ValueCodec.SFixed64 (13, "testSfixed64")
+        let TestSint32 = FieldCodec.Primitive ValueCodec.SInt32 (14, "testSint32")
+        let TestSint64 = FieldCodec.Primitive ValueCodec.SInt64 (15, "testSint64")
+        // Proto Definition Implementation
+        { // ProtoDef<TestMessage>
+            Name = "TestMessage"
+            Empty = {
+                TestInt = TestInt.GetDefault()
+                TestDouble = TestDouble.GetDefault()
+                TestFixed32 = TestFixed32.GetDefault()
+                TestString = TestString.GetDefault()
+                TestBytes = TestBytes.GetDefault()
+                TestFloat = TestFloat.GetDefault()
+                TestInt64 = TestInt64.GetDefault()
+                TestUint64 = TestUint64.GetDefault()
+                TestFixed64 = TestFixed64.GetDefault()
+                TestBool = TestBool.GetDefault()
+                TestUint32 = TestUint32.GetDefault()
+                TestSfixed32 = TestSfixed32.GetDefault()
+                TestSfixed64 = TestSfixed64.GetDefault()
+                TestSint32 = TestSint32.GetDefault()
+                TestSint64 = TestSint64.GetDefault()
+                }
+            Size = fun (m: TestMessage) ->
+                0
+                + TestInt.CalcFieldSize m.TestInt
+                + TestDouble.CalcFieldSize m.TestDouble
+                + TestFixed32.CalcFieldSize m.TestFixed32
+                + TestString.CalcFieldSize m.TestString
+                + TestBytes.CalcFieldSize m.TestBytes
+                + TestFloat.CalcFieldSize m.TestFloat
+                + TestInt64.CalcFieldSize m.TestInt64
+                + TestUint64.CalcFieldSize m.TestUint64
+                + TestFixed64.CalcFieldSize m.TestFixed64
+                + TestBool.CalcFieldSize m.TestBool
+                + TestUint32.CalcFieldSize m.TestUint32
+                + TestSfixed32.CalcFieldSize m.TestSfixed32
+                + TestSfixed64.CalcFieldSize m.TestSfixed64
+                + TestSint32.CalcFieldSize m.TestSint32
+                + TestSint64.CalcFieldSize m.TestSint64
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: TestMessage) ->
+                TestInt.WriteField w m.TestInt
+                TestDouble.WriteField w m.TestDouble
+                TestFixed32.WriteField w m.TestFixed32
+                TestString.WriteField w m.TestString
+                TestBytes.WriteField w m.TestBytes
+                TestFloat.WriteField w m.TestFloat
+                TestInt64.WriteField w m.TestInt64
+                TestUint64.WriteField w m.TestUint64
+                TestFixed64.WriteField w m.TestFixed64
+                TestBool.WriteField w m.TestBool
+                TestUint32.WriteField w m.TestUint32
+                TestSfixed32.WriteField w m.TestSfixed32
+                TestSfixed64.WriteField w m.TestSfixed64
+                TestSint32.WriteField w m.TestSint32
+                TestSint64.WriteField w m.TestSint64
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.TestMessage.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeTestInt = TestInt.WriteJsonField o
+                let writeTestDouble = TestDouble.WriteJsonField o
+                let writeTestFixed32 = TestFixed32.WriteJsonField o
+                let writeTestString = TestString.WriteJsonField o
+                let writeTestBytes = TestBytes.WriteJsonField o
+                let writeTestFloat = TestFloat.WriteJsonField o
+                let writeTestInt64 = TestInt64.WriteJsonField o
+                let writeTestUint64 = TestUint64.WriteJsonField o
+                let writeTestFixed64 = TestFixed64.WriteJsonField o
+                let writeTestBool = TestBool.WriteJsonField o
+                let writeTestUint32 = TestUint32.WriteJsonField o
+                let writeTestSfixed32 = TestSfixed32.WriteJsonField o
+                let writeTestSfixed64 = TestSfixed64.WriteJsonField o
+                let writeTestSint32 = TestSint32.WriteJsonField o
+                let writeTestSint64 = TestSint64.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: TestMessage) =
+                    writeTestInt w m.TestInt
+                    writeTestDouble w m.TestDouble
+                    writeTestFixed32 w m.TestFixed32
+                    writeTestString w m.TestString
+                    writeTestBytes w m.TestBytes
+                    writeTestFloat w m.TestFloat
+                    writeTestInt64 w m.TestInt64
+                    writeTestUint64 w m.TestUint64
+                    writeTestFixed64 w m.TestFixed64
+                    writeTestBool w m.TestBool
+                    writeTestUint32 w m.TestUint32
+                    writeTestSfixed32 w m.TestSfixed32
+                    writeTestSfixed64 w m.TestSfixed64
+                    writeTestSint32 w m.TestSint32
+                    writeTestSint64 w m.TestSint64
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._TestMessage.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Nest =
@@ -217,32 +220,7 @@ module Nest =
                 InnerName = x.InnerName |> orEmptyString
                 }
 
-    let private _InnerProto : ProtoDef<Inner> =
-        // Field Definitions
-        let InnerName = FieldCodec.Primitive ValueCodec.String (1, "innerName")
-        // Proto Definition Implementation
-        { // ProtoDef<Inner>
-            Name = "Inner"
-            Empty = {
-                InnerName = InnerName.GetDefault()
-                }
-            Size = fun (m: Inner) ->
-                0
-                + InnerName.CalcFieldSize m.InnerName
-            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Inner) ->
-                InnerName.WriteField w m.InnerName
-            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-                let mutable builder = new Test.Name.Space.Nest.Inner.Builder()
-                let mutable tag = 0
-                while read r &tag do
-                    builder.Put (tag, r)
-                builder.Build
-            EncodeJson = fun (o: JsonOptions) ->
-                let writeInnerName = InnerName.WriteJsonField o
-                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Inner) =
-                    writeInnerName w m.InnerName
-                encode
-        }
+    type private _Inner = Inner
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
     type Inner = {
@@ -250,8 +228,35 @@ module Nest =
         [<System.Text.Json.Serialization.JsonPropertyName("innerName")>] InnerName: string // (1)
         }
         with
-        static member empty = _InnerProto.Empty
-        static member Proto = lazy _InnerProto
+        static member Proto : Lazy<ProtoDef<Inner>> =
+            lazy
+            // Field Definitions
+            let InnerName = FieldCodec.Primitive ValueCodec.String (1, "innerName")
+            // Proto Definition Implementation
+            { // ProtoDef<Inner>
+                Name = "Inner"
+                Empty = {
+                    InnerName = InnerName.GetDefault()
+                    }
+                Size = fun (m: Inner) ->
+                    0
+                    + InnerName.CalcFieldSize m.InnerName
+                Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Inner) ->
+                    InnerName.WriteField w m.InnerName
+                Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                    let mutable builder = new Test.Name.Space.Nest.Inner.Builder()
+                    let mutable tag = 0
+                    while read r &tag do
+                        builder.Put (tag, r)
+                    builder.Build
+                EncodeJson = fun (o: JsonOptions) ->
+                    let writeInnerName = InnerName.WriteJsonField o
+                    let encode (w: System.Text.Json.Utf8JsonWriter) (m: Inner) =
+                        writeInnerName w m.InnerName
+                    encode
+            }
+        static member empty
+            with get() = Test.Name.Space.Nest._Inner.Proto.Value.Empty
 
     [<System.Runtime.CompilerServices.IsByRefLike>]
     type Builder =
@@ -276,62 +281,64 @@ module Nest =
             Special = x.Special.Build
             }
 
-let private _NestProto : ProtoDef<Nest> =
-    // Field Definitions
-    let Name = FieldCodec.Primitive ValueCodec.String (1, "name")
-    let Children = FieldCodec.Repeated ValueCodec.Message<Test.Name.Space.Nest> (2, "children")
-    let Inner = FieldCodec.Optional ValueCodec.Message<Test.Name.Space.Nest.Inner> (3, "inner")
-    let Special = FieldCodec.Optional ValueCodec.Message<Test.Name.Space.Special> (4, "special")
-    // Proto Definition Implementation
-    { // ProtoDef<Nest>
-        Name = "Nest"
-        Empty = {
-            Name = Name.GetDefault()
-            Children = Children.GetDefault()
-            Inner = Inner.GetDefault()
-            Special = Special.GetDefault()
-            }
-        Size = fun (m: Nest) ->
-            0
-            + Name.CalcFieldSize m.Name
-            + Children.CalcFieldSize m.Children
-            + Inner.CalcFieldSize m.Inner
-            + Special.CalcFieldSize m.Special
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Nest) ->
-            Name.WriteField w m.Name
-            Children.WriteField w m.Children
-            Inner.WriteField w m.Inner
-            Special.WriteField w m.Special
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.Nest.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeName = Name.WriteJsonField o
-            let writeChildren = Children.WriteJsonField o
-            let writeInner = Inner.WriteJsonField o
-            let writeSpecial = Special.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Nest) =
-                writeName w m.Name
-                writeChildren w m.Children
-                writeInner w m.Inner
-                writeSpecial w m.Special
-            encode
-    }
+type private _Nest = Nest
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Nest = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("children")>] Children: Test.Name.Space.Nest seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("children")>] Children: Test.Name.Space.Nest list // (2)
     [<System.Text.Json.Serialization.JsonPropertyName("inner")>] Inner: Test.Name.Space.Nest.Inner option // (3)
     [<System.Text.Json.Serialization.JsonPropertyName("special")>] Special: Test.Name.Space.Special option // (4)
     }
     with
-    static member empty = _NestProto.Empty
-    static member Proto = lazy _NestProto
+    static member Proto : Lazy<ProtoDef<Nest>> =
+        lazy
+        // Field Definitions
+        let Name = FieldCodec.Primitive ValueCodec.String (1, "name")
+        let Children = FieldCodec.Repeated ValueCodec.Message<Test.Name.Space.Nest> (2, "children")
+        let Inner = FieldCodec.Optional ValueCodec.Message<Test.Name.Space.Nest.Inner> (3, "inner")
+        let Special = FieldCodec.Optional ValueCodec.Message<Test.Name.Space.Special> (4, "special")
+        // Proto Definition Implementation
+        { // ProtoDef<Nest>
+            Name = "Nest"
+            Empty = {
+                Name = Name.GetDefault()
+                Children = Children.GetDefault()
+                Inner = Inner.GetDefault()
+                Special = Special.GetDefault()
+                }
+            Size = fun (m: Nest) ->
+                0
+                + Name.CalcFieldSize m.Name
+                + Children.CalcFieldSize m.Children
+                + Inner.CalcFieldSize m.Inner
+                + Special.CalcFieldSize m.Special
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Nest) ->
+                Name.WriteField w m.Name
+                Children.WriteField w m.Children
+                Inner.WriteField w m.Inner
+                Special.WriteField w m.Special
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.Nest.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeName = Name.WriteJsonField o
+                let writeChildren = Children.WriteJsonField o
+                let writeInner = Inner.WriteJsonField o
+                let writeSpecial = Special.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Nest) =
+                    writeName w m.Name
+                    writeChildren w m.Children
+                    writeInner w m.Inner
+                    writeSpecial w m.Special
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._Nest.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Special =
@@ -362,69 +369,71 @@ module Special =
             Dictionary = x.Dictionary.Build
             }
 
-let private _SpecialProto : ProtoDef<Special> =
-    // Field Definitions
-    let IntList = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Int32) (1, "intList")
-    let DoubleList = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Double) (2, "doubleList")
-    let Fixed32List = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Fixed32) (3, "fixed32List")
-    let StringList = FieldCodec.Repeated ValueCodec.String (4, "stringList")
-    let Dictionary = FieldCodec.Map ValueCodec.String ValueCodec.String (16, "dictionary")
-    // Proto Definition Implementation
-    { // ProtoDef<Special>
-        Name = "Special"
-        Empty = {
-            IntList = IntList.GetDefault()
-            DoubleList = DoubleList.GetDefault()
-            Fixed32List = Fixed32List.GetDefault()
-            StringList = StringList.GetDefault()
-            Dictionary = Dictionary.GetDefault()
-            }
-        Size = fun (m: Special) ->
-            0
-            + IntList.CalcFieldSize m.IntList
-            + DoubleList.CalcFieldSize m.DoubleList
-            + Fixed32List.CalcFieldSize m.Fixed32List
-            + StringList.CalcFieldSize m.StringList
-            + Dictionary.CalcFieldSize m.Dictionary
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Special) ->
-            IntList.WriteField w m.IntList
-            DoubleList.WriteField w m.DoubleList
-            Fixed32List.WriteField w m.Fixed32List
-            StringList.WriteField w m.StringList
-            Dictionary.WriteField w m.Dictionary
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.Special.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeIntList = IntList.WriteJsonField o
-            let writeDoubleList = DoubleList.WriteJsonField o
-            let writeFixed32List = Fixed32List.WriteJsonField o
-            let writeStringList = StringList.WriteJsonField o
-            let writeDictionary = Dictionary.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Special) =
-                writeIntList w m.IntList
-                writeDoubleList w m.DoubleList
-                writeFixed32List w m.Fixed32List
-                writeStringList w m.StringList
-                writeDictionary w m.Dictionary
-            encode
-    }
+type private _Special = Special
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Special = {
     // Field Declarations
-    [<System.Text.Json.Serialization.JsonPropertyName("intList")>] IntList: int seq // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("doubleList")>] DoubleList: double seq // (2)
-    [<System.Text.Json.Serialization.JsonPropertyName("fixed32List")>] Fixed32List: uint seq // (3)
-    [<System.Text.Json.Serialization.JsonPropertyName("stringList")>] StringList: string seq // (4)
+    [<System.Text.Json.Serialization.JsonPropertyName("intList")>] IntList: int list // (1)
+    [<System.Text.Json.Serialization.JsonPropertyName("doubleList")>] DoubleList: double list // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("fixed32List")>] Fixed32List: uint list // (3)
+    [<System.Text.Json.Serialization.JsonPropertyName("stringList")>] StringList: string list // (4)
     [<System.Text.Json.Serialization.JsonPropertyName("dictionary")>] Dictionary: Map<string, string> // (16)
     }
     with
-    static member empty = _SpecialProto.Empty
-    static member Proto = lazy _SpecialProto
+    static member Proto : Lazy<ProtoDef<Special>> =
+        lazy
+        // Field Definitions
+        let IntList = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Int32) (1, "intList")
+        let DoubleList = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Double) (2, "doubleList")
+        let Fixed32List = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Fixed32) (3, "fixed32List")
+        let StringList = FieldCodec.Repeated ValueCodec.String (4, "stringList")
+        let Dictionary = FieldCodec.Map ValueCodec.String ValueCodec.String (16, "dictionary")
+        // Proto Definition Implementation
+        { // ProtoDef<Special>
+            Name = "Special"
+            Empty = {
+                IntList = IntList.GetDefault()
+                DoubleList = DoubleList.GetDefault()
+                Fixed32List = Fixed32List.GetDefault()
+                StringList = StringList.GetDefault()
+                Dictionary = Dictionary.GetDefault()
+                }
+            Size = fun (m: Special) ->
+                0
+                + IntList.CalcFieldSize m.IntList
+                + DoubleList.CalcFieldSize m.DoubleList
+                + Fixed32List.CalcFieldSize m.Fixed32List
+                + StringList.CalcFieldSize m.StringList
+                + Dictionary.CalcFieldSize m.Dictionary
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Special) ->
+                IntList.WriteField w m.IntList
+                DoubleList.WriteField w m.DoubleList
+                Fixed32List.WriteField w m.Fixed32List
+                StringList.WriteField w m.StringList
+                Dictionary.WriteField w m.Dictionary
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.Special.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeIntList = IntList.WriteJsonField o
+                let writeDoubleList = DoubleList.WriteJsonField o
+                let writeFixed32List = Fixed32List.WriteJsonField o
+                let writeStringList = StringList.WriteJsonField o
+                let writeDictionary = Dictionary.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Special) =
+                    writeIntList w m.IntList
+                    writeDoubleList w m.DoubleList
+                    writeFixed32List w m.Fixed32List
+                    writeStringList w m.StringList
+                    writeDictionary w m.Dictionary
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._Special.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Enums =
@@ -472,84 +481,86 @@ module Enums =
             MaybeColor = x.MaybeColor.Build
             }
 
-let private _EnumsProto : ProtoDef<Enums> =
-    // Field Definitions
-    let MainColor = FieldCodec.Primitive ValueCodec.Enum<Test.Name.Space.Enums.Color> (1, "mainColor")
-    let OtherColors = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Enum<Test.Name.Space.Enums.Color>) (2, "otherColors")
-    let ByName = FieldCodec.Map ValueCodec.String ValueCodec.Enum<Test.Name.Space.Enums.Color> (3, "byName")
-    let Union = FieldCodec.Oneof "union"
-    let Color = FieldCodec.OneofCase "union" ValueCodec.Enum<Test.Name.Space.Enums.Color> (4, "color")
-    let Name = FieldCodec.OneofCase "union" ValueCodec.String (5, "name")
-    let MaybeColor = FieldCodec.Optional ValueCodec.Enum<Test.Name.Space.Enums.Color> (6, "maybeColor")
-    // Proto Definition Implementation
-    { // ProtoDef<Enums>
-        Name = "Enums"
-        Empty = {
-            MainColor = MainColor.GetDefault()
-            OtherColors = OtherColors.GetDefault()
-            ByName = ByName.GetDefault()
-            Union = Test.Name.Space.Enums.UnionCase.None
-            MaybeColor = MaybeColor.GetDefault()
-            }
-        Size = fun (m: Enums) ->
-            0
-            + MainColor.CalcFieldSize m.MainColor
-            + OtherColors.CalcFieldSize m.OtherColors
-            + ByName.CalcFieldSize m.ByName
-            + match m.Union with
-                | Test.Name.Space.Enums.UnionCase.None -> 0
-                | Test.Name.Space.Enums.UnionCase.Color v -> Color.CalcFieldSize v
-                | Test.Name.Space.Enums.UnionCase.Name v -> Name.CalcFieldSize v
-            + MaybeColor.CalcFieldSize m.MaybeColor
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Enums) ->
-            MainColor.WriteField w m.MainColor
-            OtherColors.WriteField w m.OtherColors
-            ByName.WriteField w m.ByName
-            (match m.Union with
-            | Test.Name.Space.Enums.UnionCase.None -> ()
-            | Test.Name.Space.Enums.UnionCase.Color v -> Color.WriteField w v
-            | Test.Name.Space.Enums.UnionCase.Name v -> Name.WriteField w v
-            )
-            MaybeColor.WriteField w m.MaybeColor
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.Enums.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeMainColor = MainColor.WriteJsonField o
-            let writeOtherColors = OtherColors.WriteJsonField o
-            let writeByName = ByName.WriteJsonField o
-            let writeUnionNone = Union.WriteJsonNoneCase o
-            let writeColor = Color.WriteJsonField o
-            let writeName = Name.WriteJsonField o
-            let writeMaybeColor = MaybeColor.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Enums) =
-                writeMainColor w m.MainColor
-                writeOtherColors w m.OtherColors
-                writeByName w m.ByName
-                (match m.Union with
-                | Test.Name.Space.Enums.UnionCase.None -> writeUnionNone w
-                | Test.Name.Space.Enums.UnionCase.Color v -> writeColor w v
-                | Test.Name.Space.Enums.UnionCase.Name v -> writeName w v
-                )
-                writeMaybeColor w m.MaybeColor
-            encode
-    }
+type private _Enums = Enums
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Enums = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("mainColor")>] MainColor: Test.Name.Space.Enums.Color // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("otherColors")>] OtherColors: Test.Name.Space.Enums.Color seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("otherColors")>] OtherColors: Test.Name.Space.Enums.Color list // (2)
     [<System.Text.Json.Serialization.JsonPropertyName("byName")>] ByName: Map<string, Test.Name.Space.Enums.Color> // (3)
     Union: Test.Name.Space.Enums.UnionCase
     [<System.Text.Json.Serialization.JsonPropertyName("maybeColor")>] MaybeColor: Test.Name.Space.Enums.Color option // (6)
     }
     with
-    static member empty = _EnumsProto.Empty
-    static member Proto = lazy _EnumsProto
+    static member Proto : Lazy<ProtoDef<Enums>> =
+        lazy
+        // Field Definitions
+        let MainColor = FieldCodec.Primitive ValueCodec.Enum<Test.Name.Space.Enums.Color> (1, "mainColor")
+        let OtherColors = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Enum<Test.Name.Space.Enums.Color>) (2, "otherColors")
+        let ByName = FieldCodec.Map ValueCodec.String ValueCodec.Enum<Test.Name.Space.Enums.Color> (3, "byName")
+        let Union = FieldCodec.Oneof "union"
+        let Color = FieldCodec.OneofCase "union" ValueCodec.Enum<Test.Name.Space.Enums.Color> (4, "color")
+        let Name = FieldCodec.OneofCase "union" ValueCodec.String (5, "name")
+        let MaybeColor = FieldCodec.Optional ValueCodec.Enum<Test.Name.Space.Enums.Color> (6, "maybeColor")
+        // Proto Definition Implementation
+        { // ProtoDef<Enums>
+            Name = "Enums"
+            Empty = {
+                MainColor = MainColor.GetDefault()
+                OtherColors = OtherColors.GetDefault()
+                ByName = ByName.GetDefault()
+                Union = Test.Name.Space.Enums.UnionCase.None
+                MaybeColor = MaybeColor.GetDefault()
+                }
+            Size = fun (m: Enums) ->
+                0
+                + MainColor.CalcFieldSize m.MainColor
+                + OtherColors.CalcFieldSize m.OtherColors
+                + ByName.CalcFieldSize m.ByName
+                + match m.Union with
+                    | Test.Name.Space.Enums.UnionCase.None -> 0
+                    | Test.Name.Space.Enums.UnionCase.Color v -> Color.CalcFieldSize v
+                    | Test.Name.Space.Enums.UnionCase.Name v -> Name.CalcFieldSize v
+                + MaybeColor.CalcFieldSize m.MaybeColor
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Enums) ->
+                MainColor.WriteField w m.MainColor
+                OtherColors.WriteField w m.OtherColors
+                ByName.WriteField w m.ByName
+                (match m.Union with
+                | Test.Name.Space.Enums.UnionCase.None -> ()
+                | Test.Name.Space.Enums.UnionCase.Color v -> Color.WriteField w v
+                | Test.Name.Space.Enums.UnionCase.Name v -> Name.WriteField w v
+                )
+                MaybeColor.WriteField w m.MaybeColor
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.Enums.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeMainColor = MainColor.WriteJsonField o
+                let writeOtherColors = OtherColors.WriteJsonField o
+                let writeByName = ByName.WriteJsonField o
+                let writeUnionNone = Union.WriteJsonNoneCase o
+                let writeColor = Color.WriteJsonField o
+                let writeName = Name.WriteJsonField o
+                let writeMaybeColor = MaybeColor.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Enums) =
+                    writeMainColor w m.MainColor
+                    writeOtherColors w m.OtherColors
+                    writeByName w m.ByName
+                    (match m.Union with
+                    | Test.Name.Space.Enums.UnionCase.None -> writeUnionNone w
+                    | Test.Name.Space.Enums.UnionCase.Color v -> writeColor w v
+                    | Test.Name.Space.Enums.UnionCase.Name v -> writeName w v
+                    )
+                    writeMaybeColor w m.MaybeColor
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._Enums.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module Google =
@@ -577,50 +588,7 @@ module Google =
             Duration = x.Duration.Build
             }
 
-let private _GoogleProto : ProtoDef<Google> =
-    // Field Definitions
-    let Int32Val = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int32) (1, "int32Val")
-    let StringVal = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.String) (2, "stringVal")
-    let Timestamp = FieldCodec.Optional ValueCodec.Timestamp (3, "timestamp")
-    let Duration = FieldCodec.Optional ValueCodec.Duration (4, "duration")
-    // Proto Definition Implementation
-    { // ProtoDef<Google>
-        Name = "Google"
-        Empty = {
-            Int32Val = Int32Val.GetDefault()
-            StringVal = StringVal.GetDefault()
-            Timestamp = Timestamp.GetDefault()
-            Duration = Duration.GetDefault()
-            }
-        Size = fun (m: Google) ->
-            0
-            + Int32Val.CalcFieldSize m.Int32Val
-            + StringVal.CalcFieldSize m.StringVal
-            + Timestamp.CalcFieldSize m.Timestamp
-            + Duration.CalcFieldSize m.Duration
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Google) ->
-            Int32Val.WriteField w m.Int32Val
-            StringVal.WriteField w m.StringVal
-            Timestamp.WriteField w m.Timestamp
-            Duration.WriteField w m.Duration
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.Google.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeInt32Val = Int32Val.WriteJsonField o
-            let writeStringVal = StringVal.WriteJsonField o
-            let writeTimestamp = Timestamp.WriteJsonField o
-            let writeDuration = Duration.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Google) =
-                writeInt32Val w m.Int32Val
-                writeStringVal w m.StringVal
-                writeTimestamp w m.Timestamp
-                writeDuration w m.Duration
-            encode
-    }
+type private _Google = Google
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Google = {
@@ -631,8 +599,53 @@ type Google = {
     [<System.Text.Json.Serialization.JsonPropertyName("duration")>] Duration: NodaTime.Duration option // (4)
     }
     with
-    static member empty = _GoogleProto.Empty
-    static member Proto = lazy _GoogleProto
+    static member Proto : Lazy<ProtoDef<Google>> =
+        lazy
+        // Field Definitions
+        let Int32Val = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.Int32) (1, "int32Val")
+        let StringVal = FieldCodec.Optional (ValueCodec.Wrap ValueCodec.String) (2, "stringVal")
+        let Timestamp = FieldCodec.Optional ValueCodec.Timestamp (3, "timestamp")
+        let Duration = FieldCodec.Optional ValueCodec.Duration (4, "duration")
+        // Proto Definition Implementation
+        { // ProtoDef<Google>
+            Name = "Google"
+            Empty = {
+                Int32Val = Int32Val.GetDefault()
+                StringVal = StringVal.GetDefault()
+                Timestamp = Timestamp.GetDefault()
+                Duration = Duration.GetDefault()
+                }
+            Size = fun (m: Google) ->
+                0
+                + Int32Val.CalcFieldSize m.Int32Val
+                + StringVal.CalcFieldSize m.StringVal
+                + Timestamp.CalcFieldSize m.Timestamp
+                + Duration.CalcFieldSize m.Duration
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Google) ->
+                Int32Val.WriteField w m.Int32Val
+                StringVal.WriteField w m.StringVal
+                Timestamp.WriteField w m.Timestamp
+                Duration.WriteField w m.Duration
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.Google.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeInt32Val = Int32Val.WriteJsonField o
+                let writeStringVal = StringVal.WriteJsonField o
+                let writeTimestamp = Timestamp.WriteJsonField o
+                let writeDuration = Duration.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Google) =
+                    writeInt32Val w m.Int32Val
+                    writeStringVal w m.StringVal
+                    writeTimestamp w m.Timestamp
+                    writeDuration w m.Duration
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._Google.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module IntMap =
@@ -651,32 +664,7 @@ module IntMap =
             IntMap = x.IntMap.Build
             }
 
-let private _IntMapProto : ProtoDef<IntMap> =
-    // Field Definitions
-    let IntMap = FieldCodec.Map ValueCodec.Int32 ValueCodec.String (1, "intMap")
-    // Proto Definition Implementation
-    { // ProtoDef<IntMap>
-        Name = "IntMap"
-        Empty = {
-            IntMap = IntMap.GetDefault()
-            }
-        Size = fun (m: IntMap) ->
-            0
-            + IntMap.CalcFieldSize m.IntMap
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: IntMap) ->
-            IntMap.WriteField w m.IntMap
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Test.Name.Space.IntMap.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeIntMap = IntMap.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: IntMap) =
-                writeIntMap w m.IntMap
-            encode
-    }
+type private _IntMap = IntMap
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type IntMap = {
@@ -684,5 +672,491 @@ type IntMap = {
     [<System.Text.Json.Serialization.JsonPropertyName("intMap")>] IntMap: Map<int, string> // (1)
     }
     with
-    static member empty = _IntMapProto.Empty
-    static member Proto = lazy _IntMapProto
+    static member Proto : Lazy<ProtoDef<IntMap>> =
+        lazy
+        // Field Definitions
+        let IntMap = FieldCodec.Map ValueCodec.Int32 ValueCodec.String (1, "intMap")
+        // Proto Definition Implementation
+        { // ProtoDef<IntMap>
+            Name = "IntMap"
+            Empty = {
+                IntMap = IntMap.GetDefault()
+                }
+            Size = fun (m: IntMap) ->
+                0
+                + IntMap.CalcFieldSize m.IntMap
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: IntMap) ->
+                IntMap.WriteField w m.IntMap
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.IntMap.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeIntMap = IntMap.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: IntMap) =
+                    writeIntMap w m.IntMap
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._IntMap.Proto.Value.Empty
+module Optics =
+    module TestMessage =
+        let _id : ILens'<Test.Name.Space.TestMessage,Test.Name.Space.TestMessage> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.TestMessage) -> a2b s }
+            }
+        let testInt : ILens'<Test.Name.Space.TestMessage,int> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt }
+                _setter = { _over = fun a2b s -> { s with TestInt = a2b s.TestInt } }
+            }
+        let testDouble : ILens'<Test.Name.Space.TestMessage,double> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestDouble }
+                _setter = { _over = fun a2b s -> { s with TestDouble = a2b s.TestDouble } }
+            }
+        let testFixed32 : ILens'<Test.Name.Space.TestMessage,uint> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed32 }
+                _setter = { _over = fun a2b s -> { s with TestFixed32 = a2b s.TestFixed32 } }
+            }
+        let testString : ILens'<Test.Name.Space.TestMessage,string> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestString }
+                _setter = { _over = fun a2b s -> { s with TestString = a2b s.TestString } }
+            }
+        let testBytes : ILens'<Test.Name.Space.TestMessage,FsGrpc.Bytes> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBytes }
+                _setter = { _over = fun a2b s -> { s with TestBytes = a2b s.TestBytes } }
+            }
+        let testFloat : ILens'<Test.Name.Space.TestMessage,float32> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFloat }
+                _setter = { _over = fun a2b s -> { s with TestFloat = a2b s.TestFloat } }
+            }
+        let testInt64 : ILens'<Test.Name.Space.TestMessage,int64> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt64 }
+                _setter = { _over = fun a2b s -> { s with TestInt64 = a2b s.TestInt64 } }
+            }
+        let testUint64 : ILens'<Test.Name.Space.TestMessage,uint64> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint64 }
+                _setter = { _over = fun a2b s -> { s with TestUint64 = a2b s.TestUint64 } }
+            }
+        let testFixed64 : ILens'<Test.Name.Space.TestMessage,uint64> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed64 }
+                _setter = { _over = fun a2b s -> { s with TestFixed64 = a2b s.TestFixed64 } }
+            }
+        let testBool : ILens'<Test.Name.Space.TestMessage,bool> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBool }
+                _setter = { _over = fun a2b s -> { s with TestBool = a2b s.TestBool } }
+            }
+        let testUint32 : ILens'<Test.Name.Space.TestMessage,uint32> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint32 }
+                _setter = { _over = fun a2b s -> { s with TestUint32 = a2b s.TestUint32 } }
+            }
+        let testSfixed32 : ILens'<Test.Name.Space.TestMessage,int> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed32 }
+                _setter = { _over = fun a2b s -> { s with TestSfixed32 = a2b s.TestSfixed32 } }
+            }
+        let testSfixed64 : ILens'<Test.Name.Space.TestMessage,int64> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed64 }
+                _setter = { _over = fun a2b s -> { s with TestSfixed64 = a2b s.TestSfixed64 } }
+            }
+        let testSint32 : ILens'<Test.Name.Space.TestMessage,int> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint32 }
+                _setter = { _over = fun a2b s -> { s with TestSint32 = a2b s.TestSint32 } }
+            }
+        let testSint64 : ILens'<Test.Name.Space.TestMessage,int64> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint64 }
+                _setter = { _over = fun a2b s -> { s with TestSint64 = a2b s.TestSint64 } }
+            }
+    module Nest =
+        let _id : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.Nest) -> a2b s }
+            }
+        let name : ILens'<Test.Name.Space.Nest,string> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Name }
+                _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
+            }
+        let children : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Children }
+                _setter = { _over = fun a2b s -> { s with Children = a2b s.Children } }
+            }
+        let inner : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest.Inner option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Inner }
+                _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
+            }
+        let special : ILens'<Test.Name.Space.Nest,Test.Name.Space.Special option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Special }
+                _setter = { _over = fun a2b s -> { s with Special = a2b s.Special } }
+            }
+        module Inner =
+            let _id : ILens'<Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner> =
+                {
+                    _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s }
+                    _setter = { _over = fun a2b (s: Test.Name.Space.Nest.Inner) -> a2b s }
+                }
+            let innerName : ILens'<Test.Name.Space.Nest.Inner,string> =
+                {
+                    _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s.InnerName }
+                    _setter = { _over = fun a2b s -> { s with InnerName = a2b s.InnerName } }
+                }
+    module Special =
+        let _id : ILens'<Test.Name.Space.Special,Test.Name.Space.Special> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.Special) -> a2b s }
+            }
+        let intList : ILens'<Test.Name.Space.Special,int list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.IntList }
+                _setter = { _over = fun a2b s -> { s with IntList = a2b s.IntList } }
+            }
+        let doubleList : ILens'<Test.Name.Space.Special,double list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.DoubleList }
+                _setter = { _over = fun a2b s -> { s with DoubleList = a2b s.DoubleList } }
+            }
+        let fixed32List : ILens'<Test.Name.Space.Special,uint list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Fixed32List }
+                _setter = { _over = fun a2b s -> { s with Fixed32List = a2b s.Fixed32List } }
+            }
+        let stringList : ILens'<Test.Name.Space.Special,string list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.StringList }
+                _setter = { _over = fun a2b s -> { s with StringList = a2b s.StringList } }
+            }
+        let dictionary : ILens'<Test.Name.Space.Special,Map<string, string>> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Dictionary }
+                _setter = { _over = fun a2b s -> { s with Dictionary = a2b s.Dictionary } }
+            }
+    module Enums =
+        let _id : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.Enums) -> a2b s }
+            }
+        module UnionPrisms =
+            let asColor : IPrism'<Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.Color> =
+                {
+                    _unto = fun a -> Test.Name.Space.Enums.UnionCase.Color a
+                    _which = fun s ->
+                        match s with
+                        | Test.Name.Space.Enums.UnionCase.Color a -> Ok a
+                        | _ -> Error s
+                }
+            let asName : IPrism'<Test.Name.Space.Enums.UnionCase,string> =
+                {
+                    _unto = fun a -> Test.Name.Space.Enums.UnionCase.Name a
+                    _which = fun s ->
+                        match s with
+                        | Test.Name.Space.Enums.UnionCase.Name a -> Ok a
+                        | _ -> Error s
+                }
+        let mainColor : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MainColor }
+                _setter = { _over = fun a2b s -> { s with MainColor = a2b s.MainColor } }
+            }
+        let otherColors : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color list> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.OtherColors }
+                _setter = { _over = fun a2b s -> { s with OtherColors = a2b s.OtherColors } }
+            }
+        let byName : ILens'<Test.Name.Space.Enums,Map<string, Test.Name.Space.Enums.Color>> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.ByName }
+                _setter = { _over = fun a2b s -> { s with ByName = a2b s.ByName } }
+            }
+        let union : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.UnionCase> =
+            {
+                _getter = { _get = fun s -> s.Union }
+                _setter = { _over = fun a2b s -> { s with Union = a2b s.Union } }
+            }
+        let maybeColor : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MaybeColor }
+                _setter = { _over = fun a2b s -> { s with MaybeColor = a2b s.MaybeColor } }
+            }
+    module Google =
+        let _id : ILens'<Test.Name.Space.Google,Test.Name.Space.Google> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Google) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.Google) -> a2b s }
+            }
+        let int32Val : ILens'<Test.Name.Space.Google,int option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Int32Val }
+                _setter = { _over = fun a2b s -> { s with Int32Val = a2b s.Int32Val } }
+            }
+        let stringVal : ILens'<Test.Name.Space.Google,string option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.StringVal }
+                _setter = { _over = fun a2b s -> { s with StringVal = a2b s.StringVal } }
+            }
+        let timestamp : ILens'<Test.Name.Space.Google,NodaTime.Instant option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Timestamp }
+                _setter = { _over = fun a2b s -> { s with Timestamp = a2b s.Timestamp } }
+            }
+        let duration : ILens'<Test.Name.Space.Google,NodaTime.Duration option> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Duration }
+                _setter = { _over = fun a2b s -> { s with Duration = a2b s.Duration } }
+            }
+    module IntMap =
+        let _id : ILens'<Test.Name.Space.IntMap,Test.Name.Space.IntMap> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.IntMap) -> a2b s }
+            }
+        let intMap : ILens'<Test.Name.Space.IntMap,Map<int, string>> =
+            {
+                _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s.IntMap }
+                _setter = { _over = fun a2b s -> { s with IntMap = a2b s.IntMap } }
+            }
+[<Extension>]
+type OpticsExtensionMethods =
+    [<Extension>]
+    static member inline TestInt(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.TestMessage.testInt)
+    [<Extension>]
+    static member inline TestInt(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.TestMessage.testInt)
+    [<Extension>]
+    static member inline TestDouble(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,double,double> =
+        lens.ComposeWith(Optics.TestMessage.testDouble)
+    [<Extension>]
+    static member inline TestDouble(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,double,double> =
+        traversal.ComposeWith(Optics.TestMessage.testDouble)
+    [<Extension>]
+    static member inline TestFixed32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint,uint> =
+        lens.ComposeWith(Optics.TestMessage.testFixed32)
+    [<Extension>]
+    static member inline TestFixed32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint,uint> =
+        traversal.ComposeWith(Optics.TestMessage.testFixed32)
+    [<Extension>]
+    static member inline TestString(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.TestMessage.testString)
+    [<Extension>]
+    static member inline TestString(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.TestMessage.testString)
+    [<Extension>]
+    static member inline TestBytes(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
+        lens.ComposeWith(Optics.TestMessage.testBytes)
+    [<Extension>]
+    static member inline TestBytes(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
+        traversal.ComposeWith(Optics.TestMessage.testBytes)
+    [<Extension>]
+    static member inline TestFloat(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,float32,float32> =
+        lens.ComposeWith(Optics.TestMessage.testFloat)
+    [<Extension>]
+    static member inline TestFloat(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,float32,float32> =
+        traversal.ComposeWith(Optics.TestMessage.testFloat)
+    [<Extension>]
+    static member inline TestInt64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.TestMessage.testInt64)
+    [<Extension>]
+    static member inline TestInt64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.TestMessage.testInt64)
+    [<Extension>]
+    static member inline TestUint64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint64,uint64> =
+        lens.ComposeWith(Optics.TestMessage.testUint64)
+    [<Extension>]
+    static member inline TestUint64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint64,uint64> =
+        traversal.ComposeWith(Optics.TestMessage.testUint64)
+    [<Extension>]
+    static member inline TestFixed64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint64,uint64> =
+        lens.ComposeWith(Optics.TestMessage.testFixed64)
+    [<Extension>]
+    static member inline TestFixed64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint64,uint64> =
+        traversal.ComposeWith(Optics.TestMessage.testFixed64)
+    [<Extension>]
+    static member inline TestBool(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,bool,bool> =
+        lens.ComposeWith(Optics.TestMessage.testBool)
+    [<Extension>]
+    static member inline TestBool(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,bool,bool> =
+        traversal.ComposeWith(Optics.TestMessage.testBool)
+    [<Extension>]
+    static member inline TestUint32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint32,uint32> =
+        lens.ComposeWith(Optics.TestMessage.testUint32)
+    [<Extension>]
+    static member inline TestUint32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint32,uint32> =
+        traversal.ComposeWith(Optics.TestMessage.testUint32)
+    [<Extension>]
+    static member inline TestSfixed32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.TestMessage.testSfixed32)
+    [<Extension>]
+    static member inline TestSfixed32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.TestMessage.testSfixed32)
+    [<Extension>]
+    static member inline TestSfixed64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.TestMessage.testSfixed64)
+    [<Extension>]
+    static member inline TestSfixed64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.TestMessage.testSfixed64)
+    [<Extension>]
+    static member inline TestSint32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.TestMessage.testSint32)
+    [<Extension>]
+    static member inline TestSint32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.TestMessage.testSint32)
+    [<Extension>]
+    static member inline TestSint64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.TestMessage.testSint64)
+    [<Extension>]
+    static member inline TestSint64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.TestMessage.testSint64)
+    [<Extension>]
+    static member inline Name(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.Nest.name)
+    [<Extension>]
+    static member inline Name(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.Nest.name)
+    [<Extension>]
+    static member inline Children(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Nest list,Test.Name.Space.Nest list> =
+        lens.ComposeWith(Optics.Nest.children)
+    [<Extension>]
+    static member inline Children(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Nest list,Test.Name.Space.Nest list> =
+        traversal.ComposeWith(Optics.Nest.children)
+    [<Extension>]
+    static member inline Inner(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Nest.Inner option,Test.Name.Space.Nest.Inner option> =
+        lens.ComposeWith(Optics.Nest.inner)
+    [<Extension>]
+    static member inline Inner(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Nest.Inner option,Test.Name.Space.Nest.Inner option> =
+        traversal.ComposeWith(Optics.Nest.inner)
+    [<Extension>]
+    static member inline Special(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Special option,Test.Name.Space.Special option> =
+        lens.ComposeWith(Optics.Nest.special)
+    [<Extension>]
+    static member inline Special(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Special option,Test.Name.Space.Special option> =
+        traversal.ComposeWith(Optics.Nest.special)
+    [<Extension>]
+    static member inline InnerName(lens : ILens<'a,'b,Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.Nest.Inner.innerName)
+    [<Extension>]
+    static member inline InnerName(traversal : ITraversal<'a,'b,Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.Nest.Inner.innerName)
+    [<Extension>]
+    static member inline IntList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,int list,int list> =
+        lens.ComposeWith(Optics.Special.intList)
+    [<Extension>]
+    static member inline IntList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,int list,int list> =
+        traversal.ComposeWith(Optics.Special.intList)
+    [<Extension>]
+    static member inline DoubleList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,double list,double list> =
+        lens.ComposeWith(Optics.Special.doubleList)
+    [<Extension>]
+    static member inline DoubleList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,double list,double list> =
+        traversal.ComposeWith(Optics.Special.doubleList)
+    [<Extension>]
+    static member inline Fixed32List(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,uint list,uint list> =
+        lens.ComposeWith(Optics.Special.fixed32List)
+    [<Extension>]
+    static member inline Fixed32List(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,uint list,uint list> =
+        traversal.ComposeWith(Optics.Special.fixed32List)
+    [<Extension>]
+    static member inline StringList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,string list,string list> =
+        lens.ComposeWith(Optics.Special.stringList)
+    [<Extension>]
+    static member inline StringList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,string list,string list> =
+        traversal.ComposeWith(Optics.Special.stringList)
+    [<Extension>]
+    static member inline Dictionary(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,Map<string, string>,Map<string, string>> =
+        lens.ComposeWith(Optics.Special.dictionary)
+    [<Extension>]
+    static member inline Dictionary(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,Map<string, string>,Map<string, string>> =
+        traversal.ComposeWith(Optics.Special.dictionary)
+    [<Extension>]
+    static member inline MainColor(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> =
+        lens.ComposeWith(Optics.Enums.mainColor)
+    [<Extension>]
+    static member inline MainColor(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> =
+        traversal.ComposeWith(Optics.Enums.mainColor)
+    [<Extension>]
+    static member inline OtherColors(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color list,Test.Name.Space.Enums.Color list> =
+        lens.ComposeWith(Optics.Enums.otherColors)
+    [<Extension>]
+    static member inline OtherColors(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color list,Test.Name.Space.Enums.Color list> =
+        traversal.ComposeWith(Optics.Enums.otherColors)
+    [<Extension>]
+    static member inline ByName(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Map<string, Test.Name.Space.Enums.Color>,Map<string, Test.Name.Space.Enums.Color>> =
+        lens.ComposeWith(Optics.Enums.byName)
+    [<Extension>]
+    static member inline ByName(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Map<string, Test.Name.Space.Enums.Color>,Map<string, Test.Name.Space.Enums.Color>> =
+        traversal.ComposeWith(Optics.Enums.byName)
+    [<Extension>]
+    static member inline Union(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase> =
+        lens.ComposeWith(Optics.Enums.union)
+    [<Extension>]
+    static member inline Union(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase> =
+        traversal.ComposeWith(Optics.Enums.union)
+    [<Extension>]
+    static member inline MaybeColor(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color option,Test.Name.Space.Enums.Color option> =
+        lens.ComposeWith(Optics.Enums.maybeColor)
+    [<Extension>]
+    static member inline MaybeColor(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color option,Test.Name.Space.Enums.Color option> =
+        traversal.ComposeWith(Optics.Enums.maybeColor)
+    [<Extension>]
+    static member inline IfColor(prism : IPrism<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : IPrism<'s,'t,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> = 
+        prism.ComposeWith(Optics.Enums.UnionPrisms.asColor)
+    [<Extension>]
+    static member inline IfColor(traversal : ITraversal<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : ITraversal<'s,'t,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> = 
+        traversal.ComposeWith(Optics.Enums.UnionPrisms.asColor)
+    [<Extension>]
+    static member inline IfName(prism : IPrism<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : IPrism<'s,'t,string,string> = 
+        prism.ComposeWith(Optics.Enums.UnionPrisms.asName)
+    [<Extension>]
+    static member inline IfName(traversal : ITraversal<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : ITraversal<'s,'t,string,string> = 
+        traversal.ComposeWith(Optics.Enums.UnionPrisms.asName)
+    [<Extension>]
+    static member inline Int32Val(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,int option,int option> =
+        lens.ComposeWith(Optics.Google.int32Val)
+    [<Extension>]
+    static member inline Int32Val(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,int option,int option> =
+        traversal.ComposeWith(Optics.Google.int32Val)
+    [<Extension>]
+    static member inline StringVal(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,string option,string option> =
+        lens.ComposeWith(Optics.Google.stringVal)
+    [<Extension>]
+    static member inline StringVal(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,string option,string option> =
+        traversal.ComposeWith(Optics.Google.stringVal)
+    [<Extension>]
+    static member inline Timestamp(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
+        lens.ComposeWith(Optics.Google.timestamp)
+    [<Extension>]
+    static member inline Timestamp(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
+        traversal.ComposeWith(Optics.Google.timestamp)
+    [<Extension>]
+    static member inline Duration(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
+        lens.ComposeWith(Optics.Google.duration)
+    [<Extension>]
+    static member inline Duration(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
+        traversal.ComposeWith(Optics.Google.duration)
+    [<Extension>]
+    static member inline IntMap(lens : ILens<'a,'b,Test.Name.Space.IntMap,Test.Name.Space.IntMap>) : ILens<'a,'b,Map<int, string>,Map<int, string>> =
+        lens.ComposeWith(Optics.IntMap.intMap)
+    [<Extension>]
+    static member inline IntMap(traversal : ITraversal<'a,'b,Test.Name.Space.IntMap,Test.Name.Space.IntMap>) : ITraversal<'a,'b,Map<int, string>,Map<int, string>> =
+        traversal.ComposeWith(Optics.IntMap.intMap)

@@ -26,6 +26,11 @@ let private toFsNamespace (package: string) =
 let private toRecordFieldName (protoName: string) =
     protoName |> toPascalCase
 
+let camelCase str = 
+    match str with
+    | "" -> ""
+    | s -> s.Substring(0,1).ToLower() + s.Substring(1)
+
 type NsNode =
 | Message of (NsNode option * MessageDef)
 | Enum of (NsNode option * EnumDef)
@@ -299,7 +304,7 @@ let rec private fsValueTypeOf (valueType: ValueType) =
     | ValueType.Enum {FsName = name} -> $"%s{name}"
     | ValueType.Message {FsName = name} -> $"%s{name}"
     | ValueType.Wrap vt -> $"%s{fsValueTypeOf vt}"
-    | ValueType.Packed vt -> $"%s{fsValueTypeOf vt} seq"
+    | ValueType.Packed vt -> $"%s{fsValueTypeOf vt} list"
     | ValueType.Timestamp -> "NodaTime.Instant"
     | ValueType.Duration -> "NodaTime.Duration"
     | ValueType.Any -> "FsGrpc.Protobuf.Any"
@@ -365,7 +370,7 @@ let private fsTypeOf (fieldType: FieldType) =
         | Optional vt ->
             $"%s{fsValueTypeOf vt} option"
         | Repeated vt ->
-            $"%s{fsValueTypeOf vt} seq"
+            $"%s{fsValueTypeOf vt} list"
         | OneofCase (vt, _) ->
             $"%s{fsValueTypeOf vt}"
         | Map { Key = k; Value = v } ->
@@ -456,6 +461,93 @@ let private toFsRecordFieldDef (field: MemberType) : CodeNode =
         Frag [
             Line $"let %s{field.FsName} = %s{fieldCodecExpr} (%d{tag}, \"%s{jsonName}\")"
         ]
+
+let private toRecordMemberLens (fsFqName: string) (memberField: MemberType) : CodeNode =
+    match memberField with
+    | Field field ->
+        Frag [
+            Line $"let %s{camelCase field.FsName} : ILens'<%s{fsFqName},%s{field.FsTypeName}> ="
+            Block [
+                Line "{"
+                Block [
+                    Line $"_getter = {{ _get = fun (s: %s{fsFqName}) -> s.%s{field.FsName} }}"
+                    Line $"_setter = {{ _over = fun a2b s -> {{ s with %s{field.FsName} = a2b s.%s{field.FsName} }} }}"
+                ]
+                Line "}"
+            ]
+        ]
+    | Oneof oneof -> 
+        Frag [
+            Line $"let %s{camelCase oneof.FsName} : ILens'<%s{fsFqName},%s{fsFqName}.%s{oneof.FsName}Case> ="
+            Block [
+                Line "{"
+                Block [
+                    Line $"_getter = {{ _get = fun s -> s.%s{oneof.FsName} }}"
+                    Line $"_setter = {{ _over = fun a2b s -> {{ s with %s{oneof.FsName} = a2b s.%s{oneof.FsName} }} }}"
+                ]
+                Line "}"
+            ]
+        ]
+
+let private toOneofPrismModule (fsFqName: string) (oneofInfo: OneofInfo) : CodeNode =
+    let unionTypeName = $"%s{fsFqName}.%s{oneofInfo.FsName}Case"
+    let fieldPrism (field: FieldInfo) =
+        Frag [
+        Line $"let as%s{field.FsName} : IPrism'<%s{unionTypeName},%s{field.FsTypeName}> ="
+        Block [
+            Line "{"
+            Block [
+                Line $"_unto = fun a -> %s{unionTypeName}.%s{field.FsName} a"
+                Line "_which = fun s ->"
+                Block [
+                    Line "match s with"
+                    Line $"| %s{unionTypeName}.%s{field.FsName} a -> Ok a"
+                    Line $"| _ -> Error s"
+                ]
+            ]
+            Line "}"
+        ]
+        ]
+    Frag [
+    Line $"module %s{oneofInfo.FsName}Prisms ="
+    Block (List.map fieldPrism oneofInfo.Options)
+    ]
+
+let private toRecordMemberLensExtension (opticsModuleName: string) (fsFqName: string) (memberField: MemberType) : CodeNode =
+    let (memberFsName, memberFsTypeName) =
+        match memberField with
+        | Field field -> (field.FsName, field.FsTypeName)
+        | Oneof oneof -> (oneof.FsName, $"%s{fsFqName}.%s{oneof.FsName}Case")
+    Frag [
+    Line "[<Extension>]"
+    Line $"static member inline %s{memberFsName}(lens : ILens<'a,'b,%s{fsFqName},%s{fsFqName}>) : ILens<'a,'b,%s{memberFsTypeName},%s{memberFsTypeName}> ="
+    Block [
+        Line $"lens.ComposeWith(%s{opticsModuleName}.%s{camelCase memberFsName})"
+    ]
+    Line "[<Extension>]"
+    Line $"static member inline %s{memberFsName}(traversal : ITraversal<'a,'b,%s{fsFqName},%s{fsFqName}>) : ITraversal<'a,'b,%s{memberFsTypeName},%s{memberFsTypeName}> ="
+    Block [
+        Line $"traversal.ComposeWith(%s{opticsModuleName}.%s{camelCase memberFsName})"
+    ]
+    ]
+
+let private toOneofPrismExtension (fsFqName : string) (opticsModuleName: string) (oneofInfo: OneofInfo) : CodeNode =
+    let unionTypeName = $"%s{fsFqName}.%s{oneofInfo.FsName}Case"
+    let fieldPrismExtension (field: FieldInfo) =
+        Frag [
+        Line "[<Extension>]"
+        Line $"static member inline If%s{field.FsName}(prism : IPrism<'s,'t,%s{unionTypeName},%s{unionTypeName}>) : IPrism<'s,'t,%s{field.FsTypeName},%s{field.FsTypeName}> = "
+        Block [
+            Line $"prism.ComposeWith(%s{opticsModuleName}.%s{oneofInfo.FsName}Prisms.as%s{field.FsName})"
+        ]
+        Line "[<Extension>]"
+        Line $"static member inline If%s{field.FsName}(traversal : ITraversal<'s,'t,%s{unionTypeName},%s{unionTypeName}>) : ITraversal<'s,'t,%s{field.FsTypeName},%s{field.FsTypeName}> = "
+        Block [
+            Line $"traversal.ComposeWith(%s{opticsModuleName}.%s{oneofInfo.FsName}Prisms.as%s{field.FsName})"
+        ]
+        ]
+    Frag (List.map fieldPrismExtension oneofInfo.Options)
+
 
 let private toFsRecordFieldDecl (recordType: string) (field: MemberType) : CodeNode =
     match field with
@@ -747,6 +839,54 @@ let toBuilderInit (m: MemberType) : CodeNode =
         let builderExpr = System.String.Format(builder.BuildExprPattern, fieldExpr)
         Line $"%s{field.FsName} = {builderExpr}"
 
+let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode =
+    let protoName = protoMessageDef.Name
+    let fsName = toFsTypeName protoName
+    let fsNs = toFsNamespace protoNs
+    let fsFqName = $"%s{fsNs}.%s{fsName}"
+    // members contains all fields where oneofs are a single record
+    let members = recordMembers typeMap protoMessageDef.OneofDecls protoMessageDef.Fields
+
+    let oneofUnions = members |> Seq.choose (fun m -> match m with | MemberType.Oneof oneof -> Some oneof | _ -> None)
+    let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsDefinitions typeMap $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}")
+
+    let opticsModuleName = $"%s{fsName}"
+    Frag [
+    Line $"module {opticsModuleName} ="
+    Block [
+        Line $"let _id : ILens'<{fsFqName},{fsFqName}> ="
+        Block [
+            Line "{"
+            Block [
+                Line $"_getter = {{ _get = fun (s: {fsFqName}) -> s }}"
+                Line $"_setter = {{ _over = fun a2b (s: {fsFqName}) -> a2b s }}"
+            ]
+            Line "}"
+        ]
+        Frag (Seq.map (toOneofPrismModule fsFqName) oneofUnions)
+        Frag (Seq.map (toRecordMemberLens fsFqName) members)
+        Frag nestedTypes        
+    ]
+    ]
+
+let rec private toOpticsExtensionMethods (typeMap: TypeMap) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode =
+    let protoName = protoMessageDef.Name
+    let fsName = toFsTypeName protoName
+    let fsNs = toFsNamespace protoNs
+    let fsFqName = $"%s{fsNs}.%s{fsName}"
+    // members contains all fields where oneofs are a single record
+    let members = recordMembers typeMap protoMessageDef.OneofDecls protoMessageDef.Fields
+
+    let oneofUnions = members |> Seq.choose (fun m -> match m with | MemberType.Oneof oneof -> Some oneof | _ -> None)
+    let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsExtensionMethods typeMap $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}")
+
+    let opticsModuleName = $"Optics.%s{relativeNs}.%s{fsName}".Replace("..", ".")
+    Frag [
+    Frag (Seq.map (toRecordMemberLensExtension opticsModuleName fsFqName) members)
+    Frag (Seq.map (toOneofPrismExtension fsFqName opticsModuleName) oneofUnions)
+    Frag nestedTypes
+    ]
+
 let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessageDef: MessageDef) : CodeNode =
     let protoName = protoMessageDef.Name
     let fsName = toFsTypeName protoName
@@ -869,13 +1009,18 @@ let private toFsRecordDefs (typeMap: TypeMap) (protoNs: string) (protoMessageDef
     Frag [
     Frag (protoEnumDefs |> Seq.map toFsEnumDef)
     Frag (protoMessageDefs |> Seq.map (toFsRecordDef typeMap protoNs))
+    Line "module Optics ="
+    Block (protoMessageDefs |> Seq.map (toOpticsDefinitions typeMap protoNs ""))
+    Line "[<Extension>]"
+    Line "type OpticsExtensionMethods ="
+    Block (protoMessageDefs |> Seq.map (toOpticsExtensionMethods typeMap protoNs ""))
     ]
 
 let private getComments (scinfo: SourceCodeInfo option) : Map<string, string> =
     let locations =
         match scinfo with
         | Some {Location = locations} -> locations
-        | _ -> seq []
+        | _ -> List.empty
     let records = locations |> Seq.map (fun location ->
         let path = location.Paths |> Seq.map (fun s -> $"/{s}") |> String.concat ""
         let leadingComments = location.LeadingComments.Trim()
@@ -930,6 +1075,8 @@ let private toFsNamespaceDecl (package: string) =
     Frag [
     Line $"namespace rec {toFsNamespace package}"
     Line $"open FsGrpc.Protobuf"
+    Line $"open FsGrpc.Optics"
+    Line $"open System.Runtime.CompilerServices"
     Line $"#nowarn \"40\"" // TODO: need to see if we can eliminate this, possibly by having the implementation of the field writes be inlined by the generator itself
     ]
 

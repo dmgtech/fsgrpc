@@ -55,7 +55,7 @@ let private _FileDescriptorSetProto : ProtoDef<FileDescriptorSet> =
 [<FsGrpc.Protobuf.Message>]
 type FileDescriptorSet = {
     // Field Declarations
-    [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.FileDescriptorProto seq // (1)
+    [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.FileDescriptorProto list // (1)
     }
     with
     static member empty = _FileDescriptorSetProto.Empty
@@ -211,19 +211,19 @@ type FileDescriptorProto = {
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
     [<System.Text.Json.Serialization.JsonPropertyName("package")>] Package: string // (2)
     /// <summary>Names of files imported by this file.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("dependencies")>] Dependencies: string seq // (3)
+    [<System.Text.Json.Serialization.JsonPropertyName("dependencies")>] Dependencies: string list // (3)
     /// <summary>Indexes of the public imported files in the dependency list above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("publicDependencies")>] PublicDependencies: int seq // (10)
+    [<System.Text.Json.Serialization.JsonPropertyName("publicDependencies")>] PublicDependencies: int list // (10)
     /// <summary>
     /// Indexes of the weak imported files in the dependency list.
     /// For Google-internal migration only. Do not use.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("weakDependencies")>] WeakDependencies: int seq // (11)
+    [<System.Text.Json.Serialization.JsonPropertyName("weakDependencies")>] WeakDependencies: int list // (11)
     /// <summary>All top-level definitions in this file.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("messageTypes")>] MessageTypes: Google.Protobuf.DescriptorProto seq // (4)
-    [<System.Text.Json.Serialization.JsonPropertyName("enumTypes")>] EnumTypes: Google.Protobuf.EnumDescriptorProto seq // (5)
-    [<System.Text.Json.Serialization.JsonPropertyName("services")>] Services: Google.Protobuf.ServiceDescriptorProto seq // (6)
-    [<System.Text.Json.Serialization.JsonPropertyName("extensions")>] Extensions: Google.Protobuf.FieldDescriptorProto seq // (7)
+    [<System.Text.Json.Serialization.JsonPropertyName("messageTypes")>] MessageTypes: Google.Protobuf.DescriptorProto list // (4)
+    [<System.Text.Json.Serialization.JsonPropertyName("enumTypes")>] EnumTypes: Google.Protobuf.EnumDescriptorProto list // (5)
+    [<System.Text.Json.Serialization.JsonPropertyName("services")>] Services: Google.Protobuf.ServiceDescriptorProto list // (6)
+    [<System.Text.Json.Serialization.JsonPropertyName("extensions")>] Extensions: Google.Protobuf.FieldDescriptorProto list // (7)
     [<System.Text.Json.Serialization.JsonPropertyName("options")>] Options: Google.Protobuf.FileOptions option // (8)
     /// <summary>
     /// This field contains optional information about the original source code.
@@ -513,19 +513,19 @@ let private _DescriptorProtoProto : ProtoDef<DescriptorProto> =
 type DescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("fields")>] Fields: Google.Protobuf.FieldDescriptorProto seq // (2)
-    [<System.Text.Json.Serialization.JsonPropertyName("extensions")>] Extensions: Google.Protobuf.FieldDescriptorProto seq // (6)
-    [<System.Text.Json.Serialization.JsonPropertyName("nestedTypes")>] NestedTypes: Google.Protobuf.DescriptorProto seq // (3)
-    [<System.Text.Json.Serialization.JsonPropertyName("enumTypes")>] EnumTypes: Google.Protobuf.EnumDescriptorProto seq // (4)
-    [<System.Text.Json.Serialization.JsonPropertyName("extensionRanges")>] ExtensionRanges: Google.Protobuf.DescriptorProto.ExtensionRange seq // (5)
-    [<System.Text.Json.Serialization.JsonPropertyName("oneofDecls")>] OneofDecls: Google.Protobuf.OneofDescriptorProto seq // (8)
+    [<System.Text.Json.Serialization.JsonPropertyName("fields")>] Fields: Google.Protobuf.FieldDescriptorProto list // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("extensions")>] Extensions: Google.Protobuf.FieldDescriptorProto list // (6)
+    [<System.Text.Json.Serialization.JsonPropertyName("nestedTypes")>] NestedTypes: Google.Protobuf.DescriptorProto list // (3)
+    [<System.Text.Json.Serialization.JsonPropertyName("enumTypes")>] EnumTypes: Google.Protobuf.EnumDescriptorProto list // (4)
+    [<System.Text.Json.Serialization.JsonPropertyName("extensionRanges")>] ExtensionRanges: Google.Protobuf.DescriptorProto.ExtensionRange list // (5)
+    [<System.Text.Json.Serialization.JsonPropertyName("oneofDecls")>] OneofDecls: Google.Protobuf.OneofDescriptorProto list // (8)
     [<System.Text.Json.Serialization.JsonPropertyName("options")>] Options: Google.Protobuf.MessageOptions option // (7)
-    [<System.Text.Json.Serialization.JsonPropertyName("reservedRanges")>] ReservedRanges: Google.Protobuf.DescriptorProto.ReservedRange seq // (9)
+    [<System.Text.Json.Serialization.JsonPropertyName("reservedRanges")>] ReservedRanges: Google.Protobuf.DescriptorProto.ReservedRange list // (9)
     /// <summary>
     /// Reserved field names, which may not be used by fields in the same message.
     /// A given name may only be reserved once.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("reservedNames")>] ReservedNames: string seq // (10)
+    [<System.Text.Json.Serialization.JsonPropertyName("reservedNames")>] ReservedNames: string list // (10)
     }
     with
     static member empty = _DescriptorProtoProto.Empty
@@ -579,7 +579,7 @@ let private _ExtensionRangeOptionsProto : ProtoDef<ExtensionRangeOptions> =
 type ExtensionRangeOptions = {
     // Field Declarations
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _ExtensionRangeOptionsProto.Empty
@@ -1064,19 +1064,19 @@ let private _EnumDescriptorProtoProto : ProtoDef<EnumDescriptorProto> =
 type EnumDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("values")>] Values: Google.Protobuf.EnumValueDescriptorProto seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("values")>] Values: Google.Protobuf.EnumValueDescriptorProto list // (2)
     [<System.Text.Json.Serialization.JsonPropertyName("options")>] Options: Google.Protobuf.EnumOptions option // (3)
     /// <summary>
     /// Range of reserved numeric values. Reserved numeric values may not be used
     /// by enum values in the same enum declaration. Reserved ranges may not
     /// overlap.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("reservedRanges")>] ReservedRanges: Google.Protobuf.EnumDescriptorProto.EnumReservedRange seq // (4)
+    [<System.Text.Json.Serialization.JsonPropertyName("reservedRanges")>] ReservedRanges: Google.Protobuf.EnumDescriptorProto.EnumReservedRange list // (4)
     /// <summary>
     /// Reserved enum value names, which may not be reused. A given name may only
     /// be reserved once.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("reservedNames")>] ReservedNames: string seq // (5)
+    [<System.Text.Json.Serialization.JsonPropertyName("reservedNames")>] ReservedNames: string list // (5)
     }
     with
     static member empty = _EnumDescriptorProtoProto.Empty
@@ -1223,7 +1223,7 @@ let private _ServiceDescriptorProtoProto : ProtoDef<ServiceDescriptorProto> =
 type ServiceDescriptorProto = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("methods")>] Methods: Google.Protobuf.MethodDescriptorProto seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("methods")>] Methods: Google.Protobuf.MethodDescriptorProto list // (2)
     [<System.Text.Json.Serialization.JsonPropertyName("options")>] Options: Google.Protobuf.ServiceOptions option // (3)
     }
     with
@@ -1689,7 +1689,7 @@ type FileOptions = {
     /// The parser stores options it doesn't recognize here.
     /// See the documentation for the "Options" section above.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _FileOptionsProto.Empty
@@ -1837,7 +1837,7 @@ type MessageOptions = {
     /// </summary>
     [<System.Text.Json.Serialization.JsonPropertyName("mapEntry")>] MapEntry: bool // (7)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _MessageOptionsProto.Empty
@@ -2030,7 +2030,7 @@ type FieldOptions = {
     /// <summary>For Google-internal migration only. Do not use.</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("weak")>] Weak: bool // (10)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _FieldOptionsProto.Empty
@@ -2084,7 +2084,7 @@ let private _OneofOptionsProto : ProtoDef<OneofOptions> =
 type OneofOptions = {
     // Field Declarations
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _OneofOptionsProto.Empty
@@ -2168,7 +2168,7 @@ type EnumOptions = {
     /// </summary>
     [<System.Text.Json.Serialization.JsonPropertyName("deprecated")>] Deprecated: bool // (3)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _EnumOptionsProto.Empty
@@ -2238,7 +2238,7 @@ type EnumValueOptions = {
     /// </summary>
     [<System.Text.Json.Serialization.JsonPropertyName("deprecated")>] Deprecated: bool // (1)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _EnumValueOptionsProto.Empty
@@ -2308,7 +2308,7 @@ type ServiceOptions = {
     /// </summary>
     [<System.Text.Json.Serialization.JsonPropertyName("deprecated")>] Deprecated: bool // (33)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _ServiceOptionsProto.Empty
@@ -2399,7 +2399,7 @@ type MethodOptions = {
     [<System.Text.Json.Serialization.JsonPropertyName("deprecated")>] Deprecated: bool // (33)
     [<System.Text.Json.Serialization.JsonPropertyName("idempotencyLevel")>] IdempotencyLevel: Google.Protobuf.MethodOptions.IdempotencyLevel // (34)
     /// <summary>The parser stores options it doesn't recognize here. See above.</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption seq // (999)
+    [<System.Text.Json.Serialization.JsonPropertyName("uninterpretedOptions")>] UninterpretedOptions: Google.Protobuf.UninterpretedOption list // (999)
     }
     with
     static member empty = _MethodOptionsProto.Empty
@@ -2592,7 +2592,7 @@ let private _UninterpretedOptionProto : ProtoDef<UninterpretedOption> =
 [<FsGrpc.Protobuf.Message>]
 type UninterpretedOption = {
     // Field Declarations
-    [<System.Text.Json.Serialization.JsonPropertyName("names")>] Names: Google.Protobuf.UninterpretedOption.NamePart seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("names")>] Names: Google.Protobuf.UninterpretedOption.NamePart list // (2)
     /// <summary>
     /// The value of the uninterpreted option, in whatever type the tokenizer
     /// identified it as during parsing. Exactly one of these should be set.
@@ -2714,7 +2714,7 @@ module SourceCodeInfo =
         /// this path refers to the whole field declaration (from the beginning
         /// of the label to the terminating semicolon).
         /// </summary>
-        [<System.Text.Json.Serialization.JsonPropertyName("paths")>] Paths: int seq // (1)
+        [<System.Text.Json.Serialization.JsonPropertyName("paths")>] Paths: int list // (1)
         /// <summary>
         /// Always has exactly three or four elements: start line, start column,
         /// end line (optional, otherwise assumed same as start line), end column.
@@ -2722,7 +2722,7 @@ module SourceCodeInfo =
         /// and column numbers are zero-based -- typically you will want to add
         /// 1 to each before displaying to a user.
         /// </summary>
-        [<System.Text.Json.Serialization.JsonPropertyName("spans")>] Spans: int seq // (2)
+        [<System.Text.Json.Serialization.JsonPropertyName("spans")>] Spans: int list // (2)
         /// <summary>
         /// If this SourceCodeInfo represents a complete declaration, these are any
         /// comments appearing before and after the declaration which appear to be
@@ -2774,7 +2774,7 @@ module SourceCodeInfo =
         /// </summary>
         [<System.Text.Json.Serialization.JsonPropertyName("leadingComments")>] LeadingComments: string // (3)
         [<System.Text.Json.Serialization.JsonPropertyName("trailingComments")>] TrailingComments: string // (4)
-        [<System.Text.Json.Serialization.JsonPropertyName("leadingDetachedComments")>] LeadingDetachedComments: string seq // (6)
+        [<System.Text.Json.Serialization.JsonPropertyName("leadingDetachedComments")>] LeadingDetachedComments: string list // (6)
         }
         with
         static member empty = _LocationProto.Empty
@@ -2873,7 +2873,7 @@ type SourceCodeInfo = {
     ///   ignore those that it doesn't understand, as more types of locations could
     ///   be recorded in the future.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("location")>] Location: Google.Protobuf.SourceCodeInfo.Location seq // (1)
+    [<System.Text.Json.Serialization.JsonPropertyName("location")>] Location: Google.Protobuf.SourceCodeInfo.Location list // (1)
     }
     with
     static member empty = _SourceCodeInfoProto.Empty
@@ -2960,7 +2960,7 @@ module GeneratedCodeInfo =
         /// Identifies the element in the original source .proto file. This field
         /// is formatted the same as SourceCodeInfo.Location.path.
         /// </summary>
-        [<System.Text.Json.Serialization.JsonPropertyName("paths")>] Paths: int seq // (1)
+        [<System.Text.Json.Serialization.JsonPropertyName("paths")>] Paths: int list // (1)
         /// <summary>Identifies the filesystem path to the original source .proto.</summary>
         [<System.Text.Json.Serialization.JsonPropertyName("sourceFile")>] SourceFile: string // (2)
         /// <summary>
@@ -3032,7 +3032,7 @@ type GeneratedCodeInfo = {
     /// An Annotation connects some span of text in generated code to an element
     /// of its generating .proto file.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("annotations")>] Annotations: Google.Protobuf.GeneratedCodeInfo.Annotation seq // (1)
+    [<System.Text.Json.Serialization.JsonPropertyName("annotations")>] Annotations: Google.Protobuf.GeneratedCodeInfo.Annotation list // (1)
     }
     with
     static member empty = _GeneratedCodeInfoProto.Empty

@@ -143,7 +143,7 @@ let ``Basic roundtrip decoding and encoding work from generated file`` () =
         {
             BoolVal = true
             BytesVal = Bytes.FromUtf8("test")
-            Doubles = [|1.1; 2.2|]
+            Doubles = [1.1; 2.2]
             DoubleVal = 3.3;
             Duration = Some (NodaTime.Duration.FromDays 1)
             EnumImported = Ex.Ample.Importable.Imported.EnumForImport.Yes
@@ -160,18 +160,18 @@ let ``Basic roundtrip decoding and encoding work from generated file`` () =
                     ZigzagLong = -567L
                     Nested = Some
                         { Nested.empty with
-                            Enums = [| Ex.Ample.Outer.NestEnumeration.Blue; Ex.Ample.Outer.NestEnumeration.Red |]
+                            Enums = [ Ex.Ample.Outer.NestEnumeration.Blue; Ex.Ample.Outer.NestEnumeration.Red ]
                             Inner = Some
                                 { Ex.Ample.Inner.empty with IntFixed = 789 }
                             }
                     NestedEnum = Ex.Ample.Outer.NestEnumeration.Blue
                     }
-            Inners = [|
+            Inners = [
                 { Ex.Ample.Inner.empty with
                     IntFixed = 123 }
                 { Ex.Ample.Inner.empty with
                     IntFixed = 321 }
-                |]
+                ]
             IntVal = 1234(* int *)
             LongVal = 4567L (* int64 *)
             Map = Map [
@@ -196,7 +196,7 @@ let ``Basic roundtrip decoding and encoding work from generated file`` () =
             MaybeFloat = None
             MaybeInt32 = Some 0
             MaybeInt64 = None
-            MaybesInt64 = [|1234; 0|]
+            MaybesInt64 = [1234; 0]
             MaybeString = None
             MaybeUint32 = None
             MaybeUint64 = None
@@ -209,15 +209,16 @@ let ``Basic roundtrip decoding and encoding work from generated file`` () =
             Recursive = Some { Ex.Ample.Outer.empty with StringVal = "Hi" }
             StringVal = "There"
             Timestamp = Some (NodaTime.Instant.FromUnixTimeSeconds 100000)
-            Timestamps = [|
+            Timestamps = [
                 (NodaTime.Instant.FromUnixTimeSeconds 100000)
                 (NodaTime.Instant.FromUnixTimeSeconds 100001)
-                |]
+                ]
             UintFixed = 123456u
             UintVal = 123456u
             UlongFixed = 12345UL
             UlongVal = 12345UL
             Union = Ex.Ample.Outer.UnionCase.StringOption "World"
+            Anything = None
             }
     let actual = expected |> Protobuf.encode |> Protobuf.decode
     Assert.Equal(expected, actual)

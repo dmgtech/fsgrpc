@@ -55,7 +55,7 @@ let doGeneration (fromFile: string option) : Google.Protobuf.Compiler.CodeGenera
     
     let outFiles =
         outFiles
-        |> Seq.map (fun (path, contents) ->
+        |> List.map (fun (path, contents) ->
             let file =
                 { Compiler.CodeGeneratorResponse.File.empty with
                     Name = path
@@ -116,7 +116,7 @@ let main =
                     for file in response.Files do
                         let path = System.IO.Path.Combine(outFolder, file.Name)
                         createFile path file.Content
-                    { response with Files = seq []}
+                    { response with Files = List.empty }
             response
         | _ -> doDump dump
     let response =

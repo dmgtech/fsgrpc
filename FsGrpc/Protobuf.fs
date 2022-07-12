@@ -617,7 +617,7 @@ module ValueCodec =
             WriteJsonValue = primitive.WriteJsonValue
         }
     
-    let Packed<'P> (primitive: ValueCodec<'P>) : ValueCodec<'P seq> =
+    let Packed<'P> (primitive: ValueCodec<'P>) : ValueCodec<'P list> =
         let valtype =
             match primitive.RepeatEncoding with
             | Packed valtype -> valtype
@@ -642,7 +642,7 @@ module ValueCodec =
                     writer.WriteEndArray()
                 writeSeq
             writeSeq
-        let readValue (r: Reader) : 'P seq =
+        let readValue (r: Reader) : 'P list =
             match valtype with
             | Fixed size ->
                 let sub = r.ReadBytes()
@@ -652,7 +652,7 @@ module ValueCodec =
                 for i = 0 to count - 1 do
                     let item = primitive.ReadValue subreader
                     output[i] <- item
-                output
+                output |> Seq.toList
             | Variable _ -> 
                 let builder = new System.Collections.Generic.List<'P>()
                 let sub = r.ReadBytes()
@@ -660,13 +660,13 @@ module ValueCodec =
                 while not subreader.IsAtEnd do
                     let item = primitive.ReadValue subreader
                     builder.Add item
-                builder.ToArray()
+                builder |> Seq.toList
         let calcSize (value: 'P seq) =
             let dataSize = sizeOf value
             let lengthSize = Codec.ComputeLengthSize(dataSize)
             lengthSize + dataSize
         let getDefault () =
-            seq []
+            List.empty
         let isNonDefault (v: 'P seq) =
             not (v |> Seq.isEmpty)
         {
@@ -1005,7 +1005,7 @@ module FieldCodec =
             GetDefault = valcodec.GetDefault
         }
     
-    let Repeated (valcodec: ValueCodec<'T>) (tag: int, jsonName: string) : FieldCodec<'T seq> =
+    let Repeated (valcodec: ValueCodec<'T>) (tag: int, jsonName: string) : FieldCodec<'T list> =
         match valcodec.RepeatEncoding with
         | Packed _ -> failwith "Invalid use of FieldCodec.Repeated for Packed field"
         | Repeat -> ()
@@ -1014,7 +1014,7 @@ module FieldCodec =
             let dataSize = valcodec.CalcSize value
             tagSize + dataSize
 
-        let sizeOfRepeated (value: 'T seq) =
+        let sizeOfRepeated (value: 'T list) =
             if value |> Seq.isEmpty then
                 0
             else
@@ -1022,7 +1022,7 @@ module FieldCodec =
                 value |> Seq.sumBy (itemFieldSize tagSize)
 
         let hasItems (value: 'T seq) = not (value |> Seq.isEmpty)
-        let writeRepeated (writer: Writer) (value: 'T seq) =
+        let writeRepeated (writer: Writer) (value: 'T list) =
             if hasItems value then
                 for v in value do
                     valcodec.WriteTag writer tag
@@ -1032,7 +1032,7 @@ module FieldCodec =
             let writeItem = valcodec.WriteJsonValue o
             let writeSeq (writer: JsonWriter) =
                 let writeItem = writeItem writer
-                let writeSeq (value: 'T seq) =
+                let writeSeq (value: 'T list) =
                     writer.WritePropertyName jsonName
                     writer.WriteStartArray()
                     for item in value do
@@ -1041,16 +1041,16 @@ module FieldCodec =
                 match shouldWriteEmpty with
                 | true -> writeSeq
                 | false ->
-                    let writeNonEmptySeq (value: 'T seq) =
+                    let writeNonEmptyList (value: 'T list) =
                         if hasItems value then
                             writeSeq value
-                    writeNonEmptySeq
+                    writeNonEmptyList
             writeSeq
         {
             CalcFieldSize = sizeOfRepeated
             WriteField = writeRepeated
             WriteJsonField = writeRepeatedJson
-            GetDefault = defer (seq [])
+            GetDefault = defer List.empty
         }
     
     type MapRecord<'K,'V> = ('K * 'V)
@@ -1136,14 +1136,11 @@ type RepeatedBuilder<'T> =
             asList.AddRange values
         | Building list, _ ->
             list.AddRange values
-    member x.Build : 'T seq =
+    member x.Build : 'T list =
         match x.list with
-        | Empty -> seq []
-        | Prebuilt array ->
-            array
-        | Building list ->
-            let array = list.ToArray ()
-            array
+        | Empty -> List.empty
+        | Prebuilt array -> Array.toList array
+        | Building list -> Seq.toList list
 
 [<Struct>]
 type MapBuilder<'K, 'V when 'K : comparison> =

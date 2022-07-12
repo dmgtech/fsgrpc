@@ -1,5 +1,7 @@
 namespace rec Ex.Ample
 open FsGrpc.Protobuf
+open FsGrpc.Optics
+open System.Runtime.CompilerServices
 #nowarn "40"
 
 
@@ -202,7 +204,7 @@ module Outer =
     [<FsGrpc.Protobuf.Message>]
     type Nested = {
         // Field Declarations
-        [<System.Text.Json.Serialization.JsonPropertyName("enums")>] Enums: Ex.Ample.Outer.NestEnumeration seq // (1)
+        [<System.Text.Json.Serialization.JsonPropertyName("enums")>] Enums: Ex.Ample.Outer.NestEnumeration list // (1)
         [<System.Text.Json.Serialization.JsonPropertyName("inner")>] Inner: Ex.Ample.Inner option // (2)
         }
         with
@@ -412,9 +414,9 @@ type Outer = {
     /// <summary>message value (inner)</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("inner")>] Inner: Ex.Ample.Inner option // (17)
     /// <summary>repeated of packable primitive</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("doubles")>] Doubles: double seq // (18)
+    [<System.Text.Json.Serialization.JsonPropertyName("doubles")>] Doubles: double list // (18)
     /// <summary>repeated of message</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("inners")>] Inners: Ex.Ample.Inner seq // (19)
+    [<System.Text.Json.Serialization.JsonPropertyName("inners")>] Inners: Ex.Ample.Inner list // (19)
     /// <summary>map with string keys</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("map")>] Map: Map<string, string> // (20)
     /// <summary>map with message values</summary>
@@ -458,9 +460,9 @@ type Outer = {
     /// <summary>a proto3 optional int</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("optionalInt32")>] OptionalInt32: int option // (44)
     /// <summary>a repeated of the old wrapped int64</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("maybesInt64")>] MaybesInt64: int64 seq // (45)
+    [<System.Text.Json.Serialization.JsonPropertyName("maybesInt64")>] MaybesInt64: int64 list // (45)
     /// <summary>a repeated of the well-known timestamp</summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("timestamps")>] Timestamps: NodaTime.Instant seq // (46)
+    [<System.Text.Json.Serialization.JsonPropertyName("timestamps")>] Timestamps: NodaTime.Instant list // (46)
     /// <summary>the Any type</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("anything")>] Anything: FsGrpc.Protobuf.Any option // (47)
     }
@@ -838,7 +840,7 @@ type private _ResultEvent = ResultEvent
 type ResultEvent = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("subscriptionState")>] SubscriptionState: Ex.Ample.EnumType // (1)
-    [<System.Text.Json.Serialization.JsonPropertyName("records")>] Records: Ex.Ample.ResultEvent.Record seq // (2)
+    [<System.Text.Json.Serialization.JsonPropertyName("records")>] Records: Ex.Ample.ResultEvent.Record list // (2)
     }
     with
     static member Proto : Lazy<ProtoDef<ResultEvent>> =
@@ -876,3 +878,646 @@ type ResultEvent = {
         }
     static member empty
         with get() = Ex.Ample._ResultEvent.Proto.Value.Empty
+module Optics =
+    module Inner =
+        let _id : ILens'<Ex.Ample.Inner,Ex.Ample.Inner> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s }
+                _setter = { _over = fun a2b (s: Ex.Ample.Inner) -> a2b s }
+            }
+        let intFixed : ILens'<Ex.Ample.Inner,int> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.IntFixed }
+                _setter = { _over = fun a2b s -> { s with IntFixed = a2b s.IntFixed } }
+            }
+        let longFixed : ILens'<Ex.Ample.Inner,int64> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.LongFixed }
+                _setter = { _over = fun a2b s -> { s with LongFixed = a2b s.LongFixed } }
+            }
+        let zigzagInt : ILens'<Ex.Ample.Inner,int> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.ZigzagInt }
+                _setter = { _over = fun a2b s -> { s with ZigzagInt = a2b s.ZigzagInt } }
+            }
+        let zigzagLong : ILens'<Ex.Ample.Inner,int64> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.ZigzagLong }
+                _setter = { _over = fun a2b s -> { s with ZigzagLong = a2b s.ZigzagLong } }
+            }
+        let nested : ILens'<Ex.Ample.Inner,Ex.Ample.Outer.Nested option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.Nested }
+                _setter = { _over = fun a2b s -> { s with Nested = a2b s.Nested } }
+            }
+        let nestedEnum : ILens'<Ex.Ample.Inner,Ex.Ample.Outer.NestEnumeration> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Inner) -> s.NestedEnum }
+                _setter = { _over = fun a2b s -> { s with NestedEnum = a2b s.NestedEnum } }
+            }
+    module Outer =
+        let _id : ILens'<Ex.Ample.Outer,Ex.Ample.Outer> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s }
+                _setter = { _over = fun a2b (s: Ex.Ample.Outer) -> a2b s }
+            }
+        module UnionPrisms =
+            let asInnerOption : IPrism'<Ex.Ample.Outer.UnionCase,Ex.Ample.Inner> =
+                {
+                    _unto = fun a -> Ex.Ample.Outer.UnionCase.InnerOption a
+                    _which = fun s ->
+                        match s with
+                        | Ex.Ample.Outer.UnionCase.InnerOption a -> Ok a
+                        | _ -> Error s
+                }
+            let asStringOption : IPrism'<Ex.Ample.Outer.UnionCase,string> =
+                {
+                    _unto = fun a -> Ex.Ample.Outer.UnionCase.StringOption a
+                    _which = fun s ->
+                        match s with
+                        | Ex.Ample.Outer.UnionCase.StringOption a -> Ok a
+                        | _ -> Error s
+                }
+            let asImportedOption : IPrism'<Ex.Ample.Outer.UnionCase,Ex.Ample.Importable.Args> =
+                {
+                    _unto = fun a -> Ex.Ample.Outer.UnionCase.ImportedOption a
+                    _which = fun s ->
+                        match s with
+                        | Ex.Ample.Outer.UnionCase.ImportedOption a -> Ok a
+                        | _ -> Error s
+                }
+        let doubleVal : ILens'<Ex.Ample.Outer,double> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.DoubleVal }
+                _setter = { _over = fun a2b s -> { s with DoubleVal = a2b s.DoubleVal } }
+            }
+        let floatVal : ILens'<Ex.Ample.Outer,float32> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.FloatVal }
+                _setter = { _over = fun a2b s -> { s with FloatVal = a2b s.FloatVal } }
+            }
+        let longVal : ILens'<Ex.Ample.Outer,int64> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.LongVal }
+                _setter = { _over = fun a2b s -> { s with LongVal = a2b s.LongVal } }
+            }
+        let ulongVal : ILens'<Ex.Ample.Outer,uint64> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.UlongVal }
+                _setter = { _over = fun a2b s -> { s with UlongVal = a2b s.UlongVal } }
+            }
+        let intVal : ILens'<Ex.Ample.Outer,int> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.IntVal }
+                _setter = { _over = fun a2b s -> { s with IntVal = a2b s.IntVal } }
+            }
+        let ulongFixed : ILens'<Ex.Ample.Outer,uint64> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.UlongFixed }
+                _setter = { _over = fun a2b s -> { s with UlongFixed = a2b s.UlongFixed } }
+            }
+        let uintFixed : ILens'<Ex.Ample.Outer,uint> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.UintFixed }
+                _setter = { _over = fun a2b s -> { s with UintFixed = a2b s.UintFixed } }
+            }
+        let boolVal : ILens'<Ex.Ample.Outer,bool> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.BoolVal }
+                _setter = { _over = fun a2b s -> { s with BoolVal = a2b s.BoolVal } }
+            }
+        let stringVal : ILens'<Ex.Ample.Outer,string> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.StringVal }
+                _setter = { _over = fun a2b s -> { s with StringVal = a2b s.StringVal } }
+            }
+        let bytesVal : ILens'<Ex.Ample.Outer,FsGrpc.Bytes> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.BytesVal }
+                _setter = { _over = fun a2b s -> { s with BytesVal = a2b s.BytesVal } }
+            }
+        let uintVal : ILens'<Ex.Ample.Outer,uint32> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.UintVal }
+                _setter = { _over = fun a2b s -> { s with UintVal = a2b s.UintVal } }
+            }
+        let enumVal : ILens'<Ex.Ample.Outer,Ex.Ample.EnumType> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.EnumVal }
+                _setter = { _over = fun a2b s -> { s with EnumVal = a2b s.EnumVal } }
+            }
+        let inner : ILens'<Ex.Ample.Outer,Ex.Ample.Inner option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Inner }
+                _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
+            }
+        let doubles : ILens'<Ex.Ample.Outer,double list> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Doubles }
+                _setter = { _over = fun a2b s -> { s with Doubles = a2b s.Doubles } }
+            }
+        let inners : ILens'<Ex.Ample.Outer,Ex.Ample.Inner list> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Inners }
+                _setter = { _over = fun a2b s -> { s with Inners = a2b s.Inners } }
+            }
+        let map : ILens'<Ex.Ample.Outer,Map<string, string>> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Map }
+                _setter = { _over = fun a2b s -> { s with Map = a2b s.Map } }
+            }
+        let mapInner : ILens'<Ex.Ample.Outer,Map<string, Ex.Ample.Inner>> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MapInner }
+                _setter = { _over = fun a2b s -> { s with MapInner = a2b s.MapInner } }
+            }
+        let mapInts : ILens'<Ex.Ample.Outer,Map<int64, int>> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MapInts }
+                _setter = { _over = fun a2b s -> { s with MapInts = a2b s.MapInts } }
+            }
+        let mapBool : ILens'<Ex.Ample.Outer,Map<bool, string>> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MapBool }
+                _setter = { _over = fun a2b s -> { s with MapBool = a2b s.MapBool } }
+            }
+        let recursive : ILens'<Ex.Ample.Outer,Ex.Ample.Outer option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Recursive }
+                _setter = { _over = fun a2b s -> { s with Recursive = a2b s.Recursive } }
+            }
+        let union : ILens'<Ex.Ample.Outer,Ex.Ample.Outer.UnionCase> =
+            {
+                _getter = { _get = fun s -> s.Union }
+                _setter = { _over = fun a2b s -> { s with Union = a2b s.Union } }
+            }
+        let nested : ILens'<Ex.Ample.Outer,Ex.Ample.Outer.Nested option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Nested }
+                _setter = { _over = fun a2b s -> { s with Nested = a2b s.Nested } }
+            }
+        let imported : ILens'<Ex.Ample.Outer,Ex.Ample.Importable.Imported option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Imported }
+                _setter = { _over = fun a2b s -> { s with Imported = a2b s.Imported } }
+            }
+        let enumImported : ILens'<Ex.Ample.Outer,Ex.Ample.Importable.Imported.EnumForImport> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.EnumImported }
+                _setter = { _over = fun a2b s -> { s with EnumImported = a2b s.EnumImported } }
+            }
+        let maybeDouble : ILens'<Ex.Ample.Outer,double option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeDouble }
+                _setter = { _over = fun a2b s -> { s with MaybeDouble = a2b s.MaybeDouble } }
+            }
+        let maybeFloat : ILens'<Ex.Ample.Outer,float32 option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeFloat }
+                _setter = { _over = fun a2b s -> { s with MaybeFloat = a2b s.MaybeFloat } }
+            }
+        let maybeInt64 : ILens'<Ex.Ample.Outer,int64 option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeInt64 }
+                _setter = { _over = fun a2b s -> { s with MaybeInt64 = a2b s.MaybeInt64 } }
+            }
+        let maybeUint64 : ILens'<Ex.Ample.Outer,uint64 option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeUint64 }
+                _setter = { _over = fun a2b s -> { s with MaybeUint64 = a2b s.MaybeUint64 } }
+            }
+        let maybeInt32 : ILens'<Ex.Ample.Outer,int option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeInt32 }
+                _setter = { _over = fun a2b s -> { s with MaybeInt32 = a2b s.MaybeInt32 } }
+            }
+        let maybeUint32 : ILens'<Ex.Ample.Outer,uint32 option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeUint32 }
+                _setter = { _over = fun a2b s -> { s with MaybeUint32 = a2b s.MaybeUint32 } }
+            }
+        let maybeBool : ILens'<Ex.Ample.Outer,bool option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeBool }
+                _setter = { _over = fun a2b s -> { s with MaybeBool = a2b s.MaybeBool } }
+            }
+        let maybeString : ILens'<Ex.Ample.Outer,string option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeString }
+                _setter = { _over = fun a2b s -> { s with MaybeString = a2b s.MaybeString } }
+            }
+        let maybeBytes : ILens'<Ex.Ample.Outer,FsGrpc.Bytes option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybeBytes }
+                _setter = { _over = fun a2b s -> { s with MaybeBytes = a2b s.MaybeBytes } }
+            }
+        let timestamp : ILens'<Ex.Ample.Outer,NodaTime.Instant option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Timestamp }
+                _setter = { _over = fun a2b s -> { s with Timestamp = a2b s.Timestamp } }
+            }
+        let duration : ILens'<Ex.Ample.Outer,NodaTime.Duration option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Duration }
+                _setter = { _over = fun a2b s -> { s with Duration = a2b s.Duration } }
+            }
+        let optionalInt32 : ILens'<Ex.Ample.Outer,int option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.OptionalInt32 }
+                _setter = { _over = fun a2b s -> { s with OptionalInt32 = a2b s.OptionalInt32 } }
+            }
+        let maybesInt64 : ILens'<Ex.Ample.Outer,int64 list> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.MaybesInt64 }
+                _setter = { _over = fun a2b s -> { s with MaybesInt64 = a2b s.MaybesInt64 } }
+            }
+        let timestamps : ILens'<Ex.Ample.Outer,NodaTime.Instant list> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Timestamps }
+                _setter = { _over = fun a2b s -> { s with Timestamps = a2b s.Timestamps } }
+            }
+        let anything : ILens'<Ex.Ample.Outer,FsGrpc.Protobuf.Any option> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Outer) -> s.Anything }
+                _setter = { _over = fun a2b s -> { s with Anything = a2b s.Anything } }
+            }
+        module Nested =
+            let _id : ILens'<Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s }
+                    _setter = { _over = fun a2b (s: Ex.Ample.Outer.Nested) -> a2b s }
+                }
+            let enums : ILens'<Ex.Ample.Outer.Nested,Ex.Ample.Outer.NestEnumeration list> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s.Enums }
+                    _setter = { _over = fun a2b s -> { s with Enums = a2b s.Enums } }
+                }
+            let inner : ILens'<Ex.Ample.Outer.Nested,Ex.Ample.Inner option> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s.Inner }
+                    _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
+                }
+            module DoubleNested =
+                let _id : ILens'<Ex.Ample.Outer.Nested.DoubleNested,Ex.Ample.Outer.Nested.DoubleNested> =
+                    {
+                        _getter = { _get = fun (s: Ex.Ample.Outer.Nested.DoubleNested) -> s }
+                        _setter = { _over = fun a2b (s: Ex.Ample.Outer.Nested.DoubleNested) -> a2b s }
+                    }
+    module ResultEvent =
+        let _id : ILens'<Ex.Ample.ResultEvent,Ex.Ample.ResultEvent> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.ResultEvent) -> s }
+                _setter = { _over = fun a2b (s: Ex.Ample.ResultEvent) -> a2b s }
+            }
+        let subscriptionState : ILens'<Ex.Ample.ResultEvent,Ex.Ample.EnumType> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.ResultEvent) -> s.SubscriptionState }
+                _setter = { _over = fun a2b s -> { s with SubscriptionState = a2b s.SubscriptionState } }
+            }
+        let records : ILens'<Ex.Ample.ResultEvent,Ex.Ample.ResultEvent.Record list> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.ResultEvent) -> s.Records }
+                _setter = { _over = fun a2b s -> { s with Records = a2b s.Records } }
+            }
+        module Record =
+            let _id : ILens'<Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.ResultEvent.Record) -> s }
+                    _setter = { _over = fun a2b (s: Ex.Ample.ResultEvent.Record) -> a2b s }
+                }
+            let key : ILens'<Ex.Ample.ResultEvent.Record,string> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.ResultEvent.Record) -> s.Key }
+                    _setter = { _over = fun a2b s -> { s with Key = a2b s.Key } }
+                }
+            let value : ILens'<Ex.Ample.ResultEvent.Record,string> =
+                {
+                    _getter = { _get = fun (s: Ex.Ample.ResultEvent.Record) -> s.Value }
+                    _setter = { _over = fun a2b s -> { s with Value = a2b s.Value } }
+                }
+[<Extension>]
+type OpticsExtensionMethods =
+    [<Extension>]
+    static member inline IntFixed(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.Inner.intFixed)
+    [<Extension>]
+    static member inline IntFixed(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.Inner.intFixed)
+    [<Extension>]
+    static member inline LongFixed(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.Inner.longFixed)
+    [<Extension>]
+    static member inline LongFixed(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.Inner.longFixed)
+    [<Extension>]
+    static member inline ZigzagInt(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.Inner.zigzagInt)
+    [<Extension>]
+    static member inline ZigzagInt(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.Inner.zigzagInt)
+    [<Extension>]
+    static member inline ZigzagLong(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.Inner.zigzagLong)
+    [<Extension>]
+    static member inline ZigzagLong(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.Inner.zigzagLong)
+    [<Extension>]
+    static member inline Nested(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,Ex.Ample.Outer.Nested option,Ex.Ample.Outer.Nested option> =
+        lens.ComposeWith(Optics.Inner.nested)
+    [<Extension>]
+    static member inline Nested(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,Ex.Ample.Outer.Nested option,Ex.Ample.Outer.Nested option> =
+        traversal.ComposeWith(Optics.Inner.nested)
+    [<Extension>]
+    static member inline NestedEnum(lens : ILens<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ILens<'a,'b,Ex.Ample.Outer.NestEnumeration,Ex.Ample.Outer.NestEnumeration> =
+        lens.ComposeWith(Optics.Inner.nestedEnum)
+    [<Extension>]
+    static member inline NestedEnum(traversal : ITraversal<'a,'b,Ex.Ample.Inner,Ex.Ample.Inner>) : ITraversal<'a,'b,Ex.Ample.Outer.NestEnumeration,Ex.Ample.Outer.NestEnumeration> =
+        traversal.ComposeWith(Optics.Inner.nestedEnum)
+    [<Extension>]
+    static member inline DoubleVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,double,double> =
+        lens.ComposeWith(Optics.Outer.doubleVal)
+    [<Extension>]
+    static member inline DoubleVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,double,double> =
+        traversal.ComposeWith(Optics.Outer.doubleVal)
+    [<Extension>]
+    static member inline FloatVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,float32,float32> =
+        lens.ComposeWith(Optics.Outer.floatVal)
+    [<Extension>]
+    static member inline FloatVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,float32,float32> =
+        traversal.ComposeWith(Optics.Outer.floatVal)
+    [<Extension>]
+    static member inline LongVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int64,int64> =
+        lens.ComposeWith(Optics.Outer.longVal)
+    [<Extension>]
+    static member inline LongVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int64,int64> =
+        traversal.ComposeWith(Optics.Outer.longVal)
+    [<Extension>]
+    static member inline UlongVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint64,uint64> =
+        lens.ComposeWith(Optics.Outer.ulongVal)
+    [<Extension>]
+    static member inline UlongVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint64,uint64> =
+        traversal.ComposeWith(Optics.Outer.ulongVal)
+    [<Extension>]
+    static member inline IntVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Optics.Outer.intVal)
+    [<Extension>]
+    static member inline IntVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Optics.Outer.intVal)
+    [<Extension>]
+    static member inline UlongFixed(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint64,uint64> =
+        lens.ComposeWith(Optics.Outer.ulongFixed)
+    [<Extension>]
+    static member inline UlongFixed(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint64,uint64> =
+        traversal.ComposeWith(Optics.Outer.ulongFixed)
+    [<Extension>]
+    static member inline UintFixed(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint,uint> =
+        lens.ComposeWith(Optics.Outer.uintFixed)
+    [<Extension>]
+    static member inline UintFixed(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint,uint> =
+        traversal.ComposeWith(Optics.Outer.uintFixed)
+    [<Extension>]
+    static member inline BoolVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,bool,bool> =
+        lens.ComposeWith(Optics.Outer.boolVal)
+    [<Extension>]
+    static member inline BoolVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,bool,bool> =
+        traversal.ComposeWith(Optics.Outer.boolVal)
+    [<Extension>]
+    static member inline StringVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.Outer.stringVal)
+    [<Extension>]
+    static member inline StringVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.Outer.stringVal)
+    [<Extension>]
+    static member inline BytesVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
+        lens.ComposeWith(Optics.Outer.bytesVal)
+    [<Extension>]
+    static member inline BytesVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
+        traversal.ComposeWith(Optics.Outer.bytesVal)
+    [<Extension>]
+    static member inline UintVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint32,uint32> =
+        lens.ComposeWith(Optics.Outer.uintVal)
+    [<Extension>]
+    static member inline UintVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint32,uint32> =
+        traversal.ComposeWith(Optics.Outer.uintVal)
+    [<Extension>]
+    static member inline EnumVal(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.EnumType,Ex.Ample.EnumType> =
+        lens.ComposeWith(Optics.Outer.enumVal)
+    [<Extension>]
+    static member inline EnumVal(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.EnumType,Ex.Ample.EnumType> =
+        traversal.ComposeWith(Optics.Outer.enumVal)
+    [<Extension>]
+    static member inline Inner(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Inner option,Ex.Ample.Inner option> =
+        lens.ComposeWith(Optics.Outer.inner)
+    [<Extension>]
+    static member inline Inner(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Inner option,Ex.Ample.Inner option> =
+        traversal.ComposeWith(Optics.Outer.inner)
+    [<Extension>]
+    static member inline Doubles(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,double list,double list> =
+        lens.ComposeWith(Optics.Outer.doubles)
+    [<Extension>]
+    static member inline Doubles(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,double list,double list> =
+        traversal.ComposeWith(Optics.Outer.doubles)
+    [<Extension>]
+    static member inline Inners(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Inner list,Ex.Ample.Inner list> =
+        lens.ComposeWith(Optics.Outer.inners)
+    [<Extension>]
+    static member inline Inners(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Inner list,Ex.Ample.Inner list> =
+        traversal.ComposeWith(Optics.Outer.inners)
+    [<Extension>]
+    static member inline Map(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Map<string, string>,Map<string, string>> =
+        lens.ComposeWith(Optics.Outer.map)
+    [<Extension>]
+    static member inline Map(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Map<string, string>,Map<string, string>> =
+        traversal.ComposeWith(Optics.Outer.map)
+    [<Extension>]
+    static member inline MapInner(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Map<string, Ex.Ample.Inner>,Map<string, Ex.Ample.Inner>> =
+        lens.ComposeWith(Optics.Outer.mapInner)
+    [<Extension>]
+    static member inline MapInner(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Map<string, Ex.Ample.Inner>,Map<string, Ex.Ample.Inner>> =
+        traversal.ComposeWith(Optics.Outer.mapInner)
+    [<Extension>]
+    static member inline MapInts(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Map<int64, int>,Map<int64, int>> =
+        lens.ComposeWith(Optics.Outer.mapInts)
+    [<Extension>]
+    static member inline MapInts(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Map<int64, int>,Map<int64, int>> =
+        traversal.ComposeWith(Optics.Outer.mapInts)
+    [<Extension>]
+    static member inline MapBool(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Map<bool, string>,Map<bool, string>> =
+        lens.ComposeWith(Optics.Outer.mapBool)
+    [<Extension>]
+    static member inline MapBool(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Map<bool, string>,Map<bool, string>> =
+        traversal.ComposeWith(Optics.Outer.mapBool)
+    [<Extension>]
+    static member inline Recursive(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Outer option,Ex.Ample.Outer option> =
+        lens.ComposeWith(Optics.Outer.recursive)
+    [<Extension>]
+    static member inline Recursive(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Outer option,Ex.Ample.Outer option> =
+        traversal.ComposeWith(Optics.Outer.recursive)
+    [<Extension>]
+    static member inline Union(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase> =
+        lens.ComposeWith(Optics.Outer.union)
+    [<Extension>]
+    static member inline Union(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase> =
+        traversal.ComposeWith(Optics.Outer.union)
+    [<Extension>]
+    static member inline Nested(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Outer.Nested option,Ex.Ample.Outer.Nested option> =
+        lens.ComposeWith(Optics.Outer.nested)
+    [<Extension>]
+    static member inline Nested(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Outer.Nested option,Ex.Ample.Outer.Nested option> =
+        traversal.ComposeWith(Optics.Outer.nested)
+    [<Extension>]
+    static member inline Imported(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Importable.Imported option,Ex.Ample.Importable.Imported option> =
+        lens.ComposeWith(Optics.Outer.imported)
+    [<Extension>]
+    static member inline Imported(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Importable.Imported option,Ex.Ample.Importable.Imported option> =
+        traversal.ComposeWith(Optics.Outer.imported)
+    [<Extension>]
+    static member inline EnumImported(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,Ex.Ample.Importable.Imported.EnumForImport,Ex.Ample.Importable.Imported.EnumForImport> =
+        lens.ComposeWith(Optics.Outer.enumImported)
+    [<Extension>]
+    static member inline EnumImported(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,Ex.Ample.Importable.Imported.EnumForImport,Ex.Ample.Importable.Imported.EnumForImport> =
+        traversal.ComposeWith(Optics.Outer.enumImported)
+    [<Extension>]
+    static member inline MaybeDouble(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,double option,double option> =
+        lens.ComposeWith(Optics.Outer.maybeDouble)
+    [<Extension>]
+    static member inline MaybeDouble(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,double option,double option> =
+        traversal.ComposeWith(Optics.Outer.maybeDouble)
+    [<Extension>]
+    static member inline MaybeFloat(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,float32 option,float32 option> =
+        lens.ComposeWith(Optics.Outer.maybeFloat)
+    [<Extension>]
+    static member inline MaybeFloat(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,float32 option,float32 option> =
+        traversal.ComposeWith(Optics.Outer.maybeFloat)
+    [<Extension>]
+    static member inline MaybeInt64(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int64 option,int64 option> =
+        lens.ComposeWith(Optics.Outer.maybeInt64)
+    [<Extension>]
+    static member inline MaybeInt64(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int64 option,int64 option> =
+        traversal.ComposeWith(Optics.Outer.maybeInt64)
+    [<Extension>]
+    static member inline MaybeUint64(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint64 option,uint64 option> =
+        lens.ComposeWith(Optics.Outer.maybeUint64)
+    [<Extension>]
+    static member inline MaybeUint64(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint64 option,uint64 option> =
+        traversal.ComposeWith(Optics.Outer.maybeUint64)
+    [<Extension>]
+    static member inline MaybeInt32(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int option,int option> =
+        lens.ComposeWith(Optics.Outer.maybeInt32)
+    [<Extension>]
+    static member inline MaybeInt32(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int option,int option> =
+        traversal.ComposeWith(Optics.Outer.maybeInt32)
+    [<Extension>]
+    static member inline MaybeUint32(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,uint32 option,uint32 option> =
+        lens.ComposeWith(Optics.Outer.maybeUint32)
+    [<Extension>]
+    static member inline MaybeUint32(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,uint32 option,uint32 option> =
+        traversal.ComposeWith(Optics.Outer.maybeUint32)
+    [<Extension>]
+    static member inline MaybeBool(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,bool option,bool option> =
+        lens.ComposeWith(Optics.Outer.maybeBool)
+    [<Extension>]
+    static member inline MaybeBool(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,bool option,bool option> =
+        traversal.ComposeWith(Optics.Outer.maybeBool)
+    [<Extension>]
+    static member inline MaybeString(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,string option,string option> =
+        lens.ComposeWith(Optics.Outer.maybeString)
+    [<Extension>]
+    static member inline MaybeString(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,string option,string option> =
+        traversal.ComposeWith(Optics.Outer.maybeString)
+    [<Extension>]
+    static member inline MaybeBytes(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,FsGrpc.Bytes option,FsGrpc.Bytes option> =
+        lens.ComposeWith(Optics.Outer.maybeBytes)
+    [<Extension>]
+    static member inline MaybeBytes(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,FsGrpc.Bytes option,FsGrpc.Bytes option> =
+        traversal.ComposeWith(Optics.Outer.maybeBytes)
+    [<Extension>]
+    static member inline Timestamp(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
+        lens.ComposeWith(Optics.Outer.timestamp)
+    [<Extension>]
+    static member inline Timestamp(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
+        traversal.ComposeWith(Optics.Outer.timestamp)
+    [<Extension>]
+    static member inline Duration(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
+        lens.ComposeWith(Optics.Outer.duration)
+    [<Extension>]
+    static member inline Duration(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
+        traversal.ComposeWith(Optics.Outer.duration)
+    [<Extension>]
+    static member inline OptionalInt32(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int option,int option> =
+        lens.ComposeWith(Optics.Outer.optionalInt32)
+    [<Extension>]
+    static member inline OptionalInt32(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int option,int option> =
+        traversal.ComposeWith(Optics.Outer.optionalInt32)
+    [<Extension>]
+    static member inline MaybesInt64(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,int64 list,int64 list> =
+        lens.ComposeWith(Optics.Outer.maybesInt64)
+    [<Extension>]
+    static member inline MaybesInt64(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,int64 list,int64 list> =
+        traversal.ComposeWith(Optics.Outer.maybesInt64)
+    [<Extension>]
+    static member inline Timestamps(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,NodaTime.Instant list,NodaTime.Instant list> =
+        lens.ComposeWith(Optics.Outer.timestamps)
+    [<Extension>]
+    static member inline Timestamps(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,NodaTime.Instant list,NodaTime.Instant list> =
+        traversal.ComposeWith(Optics.Outer.timestamps)
+    [<Extension>]
+    static member inline Anything(lens : ILens<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ILens<'a,'b,FsGrpc.Protobuf.Any option,FsGrpc.Protobuf.Any option> =
+        lens.ComposeWith(Optics.Outer.anything)
+    [<Extension>]
+    static member inline Anything(traversal : ITraversal<'a,'b,Ex.Ample.Outer,Ex.Ample.Outer>) : ITraversal<'a,'b,FsGrpc.Protobuf.Any option,FsGrpc.Protobuf.Any option> =
+        traversal.ComposeWith(Optics.Outer.anything)
+    [<Extension>]
+    static member inline IfInnerOption(prism : IPrism<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : IPrism<'s,'t,Ex.Ample.Inner,Ex.Ample.Inner> = 
+        prism.ComposeWith(Optics.Outer.UnionPrisms.asInnerOption)
+    [<Extension>]
+    static member inline IfInnerOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,Ex.Ample.Inner,Ex.Ample.Inner> = 
+        traversal.ComposeWith(Optics.Outer.UnionPrisms.asInnerOption)
+    [<Extension>]
+    static member inline IfStringOption(prism : IPrism<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : IPrism<'s,'t,string,string> = 
+        prism.ComposeWith(Optics.Outer.UnionPrisms.asStringOption)
+    [<Extension>]
+    static member inline IfStringOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,string,string> = 
+        traversal.ComposeWith(Optics.Outer.UnionPrisms.asStringOption)
+    [<Extension>]
+    static member inline IfImportedOption(prism : IPrism<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : IPrism<'s,'t,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> = 
+        prism.ComposeWith(Optics.Outer.UnionPrisms.asImportedOption)
+    [<Extension>]
+    static member inline IfImportedOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> = 
+        traversal.ComposeWith(Optics.Outer.UnionPrisms.asImportedOption)
+    [<Extension>]
+    static member inline Enums(lens : ILens<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ILens<'a,'b,Ex.Ample.Outer.NestEnumeration list,Ex.Ample.Outer.NestEnumeration list> =
+        lens.ComposeWith(Optics.Outer.Nested.enums)
+    [<Extension>]
+    static member inline Enums(traversal : ITraversal<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ITraversal<'a,'b,Ex.Ample.Outer.NestEnumeration list,Ex.Ample.Outer.NestEnumeration list> =
+        traversal.ComposeWith(Optics.Outer.Nested.enums)
+    [<Extension>]
+    static member inline Inner(lens : ILens<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ILens<'a,'b,Ex.Ample.Inner option,Ex.Ample.Inner option> =
+        lens.ComposeWith(Optics.Outer.Nested.inner)
+    [<Extension>]
+    static member inline Inner(traversal : ITraversal<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ITraversal<'a,'b,Ex.Ample.Inner option,Ex.Ample.Inner option> =
+        traversal.ComposeWith(Optics.Outer.Nested.inner)
+    [<Extension>]
+    static member inline SubscriptionState(lens : ILens<'a,'b,Ex.Ample.ResultEvent,Ex.Ample.ResultEvent>) : ILens<'a,'b,Ex.Ample.EnumType,Ex.Ample.EnumType> =
+        lens.ComposeWith(Optics.ResultEvent.subscriptionState)
+    [<Extension>]
+    static member inline SubscriptionState(traversal : ITraversal<'a,'b,Ex.Ample.ResultEvent,Ex.Ample.ResultEvent>) : ITraversal<'a,'b,Ex.Ample.EnumType,Ex.Ample.EnumType> =
+        traversal.ComposeWith(Optics.ResultEvent.subscriptionState)
+    [<Extension>]
+    static member inline Records(lens : ILens<'a,'b,Ex.Ample.ResultEvent,Ex.Ample.ResultEvent>) : ILens<'a,'b,Ex.Ample.ResultEvent.Record list,Ex.Ample.ResultEvent.Record list> =
+        lens.ComposeWith(Optics.ResultEvent.records)
+    [<Extension>]
+    static member inline Records(traversal : ITraversal<'a,'b,Ex.Ample.ResultEvent,Ex.Ample.ResultEvent>) : ITraversal<'a,'b,Ex.Ample.ResultEvent.Record list,Ex.Ample.ResultEvent.Record list> =
+        traversal.ComposeWith(Optics.ResultEvent.records)
+    [<Extension>]
+    static member inline Key(lens : ILens<'a,'b,Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.ResultEvent.Record.key)
+    [<Extension>]
+    static member inline Key(traversal : ITraversal<'a,'b,Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.ResultEvent.Record.key)
+    [<Extension>]
+    static member inline Value(lens : ILens<'a,'b,Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.ResultEvent.Record.value)
+    [<Extension>]
+    static member inline Value(traversal : ITraversal<'a,'b,Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.ResultEvent.Record.value)

@@ -1,5 +1,7 @@
 namespace rec Ex.Ample.Importable
 open FsGrpc.Protobuf
+open FsGrpc.Optics
+open System.Runtime.CompilerServices
 #nowarn "40"
 
 
@@ -121,3 +123,40 @@ type Args = {
         }
     static member empty
         with get() = Ex.Ample.Importable._Args.Proto.Value.Empty
+module Optics =
+    module Imported =
+        let _id : ILens'<Ex.Ample.Importable.Imported,Ex.Ample.Importable.Imported> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Importable.Imported) -> s }
+                _setter = { _over = fun a2b (s: Ex.Ample.Importable.Imported) -> a2b s }
+            }
+        let value : ILens'<Ex.Ample.Importable.Imported,string> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Importable.Imported) -> s.Value }
+                _setter = { _over = fun a2b s -> { s with Value = a2b s.Value } }
+            }
+    module Args =
+        let _id : ILens'<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Importable.Args) -> s }
+                _setter = { _over = fun a2b (s: Ex.Ample.Importable.Args) -> a2b s }
+            }
+        let value : ILens'<Ex.Ample.Importable.Args,string> =
+            {
+                _getter = { _get = fun (s: Ex.Ample.Importable.Args) -> s.Value }
+                _setter = { _over = fun a2b s -> { s with Value = a2b s.Value } }
+            }
+[<Extension>]
+type OpticsExtensionMethods =
+    [<Extension>]
+    static member inline Value(lens : ILens<'a,'b,Ex.Ample.Importable.Imported,Ex.Ample.Importable.Imported>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.Imported.value)
+    [<Extension>]
+    static member inline Value(traversal : ITraversal<'a,'b,Ex.Ample.Importable.Imported,Ex.Ample.Importable.Imported>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.Imported.value)
+    [<Extension>]
+    static member inline Value(lens : ILens<'a,'b,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Optics.Args.value)
+    [<Extension>]
+    static member inline Value(traversal : ITraversal<'a,'b,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Optics.Args.value)

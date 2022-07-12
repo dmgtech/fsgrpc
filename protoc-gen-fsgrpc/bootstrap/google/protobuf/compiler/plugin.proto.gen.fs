@@ -172,7 +172,7 @@ type CodeGeneratorRequest = {
     /// code generator should generate code only for these files.  Each file's
     /// descriptor will be included in proto_file, below.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("filesToGenerate")>] FilesToGenerate: string seq // (1)
+    [<System.Text.Json.Serialization.JsonPropertyName("filesToGenerate")>] FilesToGenerate: string list // (1)
     /// <summary>The generator parameter passed on the command-line.</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("parameter")>] Parameter: string // (2)
     /// <summary>
@@ -191,7 +191,7 @@ type CodeGeneratorRequest = {
     /// Type names of fields and extensions in the FileDescriptorProto are always
     /// fully qualified.
     /// </summary>
-    [<System.Text.Json.Serialization.JsonPropertyName("protoFiles")>] ProtoFiles: Google.Protobuf.FileDescriptorProto seq // (15)
+    [<System.Text.Json.Serialization.JsonPropertyName("protoFiles")>] ProtoFiles: Google.Protobuf.FileDescriptorProto list // (15)
     /// <summary>The version number of protocol compiler.</summary>
     [<System.Text.Json.Serialization.JsonPropertyName("compilerVersion")>] CompilerVersion: Google.Protobuf.Compiler.Version option // (3)
     }
@@ -414,7 +414,7 @@ type CodeGeneratorResponse = {
     /// This is a bitwise "or" of values from the Feature enum.
     /// </summary>
     [<System.Text.Json.Serialization.JsonPropertyName("supportedFeatures")>] SupportedFeatures: uint64 // (2)
-    [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.Compiler.CodeGeneratorResponse.File seq // (15)
+    [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.Compiler.CodeGeneratorResponse.File list // (15)
     }
     with
     static member empty = _CodeGeneratorResponseProto.Empty
