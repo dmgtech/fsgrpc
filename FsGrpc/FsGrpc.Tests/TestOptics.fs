@@ -31,12 +31,12 @@ let ``Over works`` () =
     
 [<Fact>]
 let ``Prism.Which works when value present`` () =
-    let result = TestCases.Value5.Union |> Optics.Enums.UnionPrisms.asName.Which
+    let result = TestCases.Value5.Union |> Optics.Enums.UnionPrisms.ifName.Which
     Assert.Equal(Ok "green", result)
 
 [<Fact>]
 let ``Prism.Which fails in alternate case`` () =
-    let result = TestCases.Value5.Union |> Optics.Enums.UnionPrisms.asColor.Which
+    let result = TestCases.Value5.Union |> Optics.Enums.UnionPrisms.ifColor.Which
     Assert.Equal(Error TestCases.Value5.Union, result)
     
 [<Fact>]
