@@ -1,7 +1,5 @@
 namespace rec Test.Name.Space
 open FsGrpc.Protobuf
-open FsGrpc.Optics
-open System.Runtime.CompilerServices
 #nowarn "40"
 
 
@@ -701,462 +699,468 @@ type IntMap = {
         }
     static member empty
         with get() = Test.Name.Space._IntMap.Proto.Value.Empty
-module Optics =
-    module TestMessage =
-        let _id : ILens'<Test.Name.Space.TestMessage,Test.Name.Space.TestMessage> =
+
+namespace Test.Name.Space.Optics
+open FsGrpc.Optics
+module TestMessage =
+    let _id : ILens'<Test.Name.Space.TestMessage,Test.Name.Space.TestMessage> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.TestMessage) -> a2b s }
+        }
+    let ``testInt`` : ILens'<Test.Name.Space.TestMessage,int> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt }
+            _setter = { _over = fun a2b s -> { s with TestInt = a2b s.TestInt } }
+        }
+    let ``testDouble`` : ILens'<Test.Name.Space.TestMessage,double> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestDouble }
+            _setter = { _over = fun a2b s -> { s with TestDouble = a2b s.TestDouble } }
+        }
+    let ``testFixed32`` : ILens'<Test.Name.Space.TestMessage,uint> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed32 }
+            _setter = { _over = fun a2b s -> { s with TestFixed32 = a2b s.TestFixed32 } }
+        }
+    let ``testString`` : ILens'<Test.Name.Space.TestMessage,string> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestString }
+            _setter = { _over = fun a2b s -> { s with TestString = a2b s.TestString } }
+        }
+    let ``testBytes`` : ILens'<Test.Name.Space.TestMessage,FsGrpc.Bytes> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBytes }
+            _setter = { _over = fun a2b s -> { s with TestBytes = a2b s.TestBytes } }
+        }
+    let ``testFloat`` : ILens'<Test.Name.Space.TestMessage,float32> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFloat }
+            _setter = { _over = fun a2b s -> { s with TestFloat = a2b s.TestFloat } }
+        }
+    let ``testInt64`` : ILens'<Test.Name.Space.TestMessage,int64> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt64 }
+            _setter = { _over = fun a2b s -> { s with TestInt64 = a2b s.TestInt64 } }
+        }
+    let ``testUint64`` : ILens'<Test.Name.Space.TestMessage,uint64> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint64 }
+            _setter = { _over = fun a2b s -> { s with TestUint64 = a2b s.TestUint64 } }
+        }
+    let ``testFixed64`` : ILens'<Test.Name.Space.TestMessage,uint64> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed64 }
+            _setter = { _over = fun a2b s -> { s with TestFixed64 = a2b s.TestFixed64 } }
+        }
+    let ``testBool`` : ILens'<Test.Name.Space.TestMessage,bool> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBool }
+            _setter = { _over = fun a2b s -> { s with TestBool = a2b s.TestBool } }
+        }
+    let ``testUint32`` : ILens'<Test.Name.Space.TestMessage,uint32> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint32 }
+            _setter = { _over = fun a2b s -> { s with TestUint32 = a2b s.TestUint32 } }
+        }
+    let ``testSfixed32`` : ILens'<Test.Name.Space.TestMessage,int> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed32 }
+            _setter = { _over = fun a2b s -> { s with TestSfixed32 = a2b s.TestSfixed32 } }
+        }
+    let ``testSfixed64`` : ILens'<Test.Name.Space.TestMessage,int64> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed64 }
+            _setter = { _over = fun a2b s -> { s with TestSfixed64 = a2b s.TestSfixed64 } }
+        }
+    let ``testSint32`` : ILens'<Test.Name.Space.TestMessage,int> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint32 }
+            _setter = { _over = fun a2b s -> { s with TestSint32 = a2b s.TestSint32 } }
+        }
+    let ``testSint64`` : ILens'<Test.Name.Space.TestMessage,int64> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint64 }
+            _setter = { _over = fun a2b s -> { s with TestSint64 = a2b s.TestSint64 } }
+        }
+module Nest =
+    let _id : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.Nest) -> a2b s }
+        }
+    let ``name`` : ILens'<Test.Name.Space.Nest,string> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Name }
+            _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
+        }
+    let ``children`` : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Children }
+            _setter = { _over = fun a2b s -> { s with Children = a2b s.Children } }
+        }
+    let ``inner`` : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest.Inner option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Inner }
+            _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
+        }
+    let ``special`` : ILens'<Test.Name.Space.Nest,Test.Name.Space.Special option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Special }
+            _setter = { _over = fun a2b s -> { s with Special = a2b s.Special } }
+        }
+    module Inner =
+        let _id : ILens'<Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner> =
             {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.TestMessage) -> a2b s }
+                _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s }
+                _setter = { _over = fun a2b (s: Test.Name.Space.Nest.Inner) -> a2b s }
             }
-        let testInt : ILens'<Test.Name.Space.TestMessage,int> =
+        let ``innerName`` : ILens'<Test.Name.Space.Nest.Inner,string> =
             {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt }
-                _setter = { _over = fun a2b s -> { s with TestInt = a2b s.TestInt } }
+                _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s.InnerName }
+                _setter = { _over = fun a2b s -> { s with InnerName = a2b s.InnerName } }
             }
-        let testDouble : ILens'<Test.Name.Space.TestMessage,double> =
+module Special =
+    let _id : ILens'<Test.Name.Space.Special,Test.Name.Space.Special> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.Special) -> a2b s }
+        }
+    let ``intList`` : ILens'<Test.Name.Space.Special,int list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s.IntList }
+            _setter = { _over = fun a2b s -> { s with IntList = a2b s.IntList } }
+        }
+    let ``doubleList`` : ILens'<Test.Name.Space.Special,double list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s.DoubleList }
+            _setter = { _over = fun a2b s -> { s with DoubleList = a2b s.DoubleList } }
+        }
+    let ``fixed32List`` : ILens'<Test.Name.Space.Special,uint list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Fixed32List }
+            _setter = { _over = fun a2b s -> { s with Fixed32List = a2b s.Fixed32List } }
+        }
+    let ``stringList`` : ILens'<Test.Name.Space.Special,string list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s.StringList }
+            _setter = { _over = fun a2b s -> { s with StringList = a2b s.StringList } }
+        }
+    let ``dictionary`` : ILens'<Test.Name.Space.Special,Map<string, string>> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Dictionary }
+            _setter = { _over = fun a2b s -> { s with Dictionary = a2b s.Dictionary } }
+        }
+module Enums =
+    let _id : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.Enums) -> a2b s }
+        }
+    module UnionPrisms =
+        let ifColor : IPrism'<Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.Color> =
             {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestDouble }
-                _setter = { _over = fun a2b s -> { s with TestDouble = a2b s.TestDouble } }
+                _unto = fun a -> Test.Name.Space.Enums.UnionCase.Color a
+                _which = fun s ->
+                    match s with
+                    | Test.Name.Space.Enums.UnionCase.Color a -> Ok a
+                    | _ -> Error s
             }
-        let testFixed32 : ILens'<Test.Name.Space.TestMessage,uint> =
+        let ifName : IPrism'<Test.Name.Space.Enums.UnionCase,string> =
             {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed32 }
-                _setter = { _over = fun a2b s -> { s with TestFixed32 = a2b s.TestFixed32 } }
+                _unto = fun a -> Test.Name.Space.Enums.UnionCase.Name a
+                _which = fun s ->
+                    match s with
+                    | Test.Name.Space.Enums.UnionCase.Name a -> Ok a
+                    | _ -> Error s
             }
-        let testString : ILens'<Test.Name.Space.TestMessage,string> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestString }
-                _setter = { _over = fun a2b s -> { s with TestString = a2b s.TestString } }
-            }
-        let testBytes : ILens'<Test.Name.Space.TestMessage,FsGrpc.Bytes> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBytes }
-                _setter = { _over = fun a2b s -> { s with TestBytes = a2b s.TestBytes } }
-            }
-        let testFloat : ILens'<Test.Name.Space.TestMessage,float32> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFloat }
-                _setter = { _over = fun a2b s -> { s with TestFloat = a2b s.TestFloat } }
-            }
-        let testInt64 : ILens'<Test.Name.Space.TestMessage,int64> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt64 }
-                _setter = { _over = fun a2b s -> { s with TestInt64 = a2b s.TestInt64 } }
-            }
-        let testUint64 : ILens'<Test.Name.Space.TestMessage,uint64> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint64 }
-                _setter = { _over = fun a2b s -> { s with TestUint64 = a2b s.TestUint64 } }
-            }
-        let testFixed64 : ILens'<Test.Name.Space.TestMessage,uint64> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestFixed64 }
-                _setter = { _over = fun a2b s -> { s with TestFixed64 = a2b s.TestFixed64 } }
-            }
-        let testBool : ILens'<Test.Name.Space.TestMessage,bool> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestBool }
-                _setter = { _over = fun a2b s -> { s with TestBool = a2b s.TestBool } }
-            }
-        let testUint32 : ILens'<Test.Name.Space.TestMessage,uint32> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestUint32 }
-                _setter = { _over = fun a2b s -> { s with TestUint32 = a2b s.TestUint32 } }
-            }
-        let testSfixed32 : ILens'<Test.Name.Space.TestMessage,int> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed32 }
-                _setter = { _over = fun a2b s -> { s with TestSfixed32 = a2b s.TestSfixed32 } }
-            }
-        let testSfixed64 : ILens'<Test.Name.Space.TestMessage,int64> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSfixed64 }
-                _setter = { _over = fun a2b s -> { s with TestSfixed64 = a2b s.TestSfixed64 } }
-            }
-        let testSint32 : ILens'<Test.Name.Space.TestMessage,int> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint32 }
-                _setter = { _over = fun a2b s -> { s with TestSint32 = a2b s.TestSint32 } }
-            }
-        let testSint64 : ILens'<Test.Name.Space.TestMessage,int64> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestSint64 }
-                _setter = { _over = fun a2b s -> { s with TestSint64 = a2b s.TestSint64 } }
-            }
-    module Nest =
-        let _id : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.Nest) -> a2b s }
-            }
-        let name : ILens'<Test.Name.Space.Nest,string> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Name }
-                _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
-            }
-        let children : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Children }
-                _setter = { _over = fun a2b s -> { s with Children = a2b s.Children } }
-            }
-        let inner : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest.Inner option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Inner }
-                _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
-            }
-        let special : ILens'<Test.Name.Space.Nest,Test.Name.Space.Special option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Special }
-                _setter = { _over = fun a2b s -> { s with Special = a2b s.Special } }
-            }
-        module Inner =
-            let _id : ILens'<Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner> =
-                {
-                    _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s }
-                    _setter = { _over = fun a2b (s: Test.Name.Space.Nest.Inner) -> a2b s }
-                }
-            let innerName : ILens'<Test.Name.Space.Nest.Inner,string> =
-                {
-                    _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s.InnerName }
-                    _setter = { _over = fun a2b s -> { s with InnerName = a2b s.InnerName } }
-                }
-    module Special =
-        let _id : ILens'<Test.Name.Space.Special,Test.Name.Space.Special> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.Special) -> a2b s }
-            }
-        let intList : ILens'<Test.Name.Space.Special,int list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.IntList }
-                _setter = { _over = fun a2b s -> { s with IntList = a2b s.IntList } }
-            }
-        let doubleList : ILens'<Test.Name.Space.Special,double list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.DoubleList }
-                _setter = { _over = fun a2b s -> { s with DoubleList = a2b s.DoubleList } }
-            }
-        let fixed32List : ILens'<Test.Name.Space.Special,uint list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Fixed32List }
-                _setter = { _over = fun a2b s -> { s with Fixed32List = a2b s.Fixed32List } }
-            }
-        let stringList : ILens'<Test.Name.Space.Special,string list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.StringList }
-                _setter = { _over = fun a2b s -> { s with StringList = a2b s.StringList } }
-            }
-        let dictionary : ILens'<Test.Name.Space.Special,Map<string, string>> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Special) -> s.Dictionary }
-                _setter = { _over = fun a2b s -> { s with Dictionary = a2b s.Dictionary } }
-            }
-    module Enums =
-        let _id : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.Enums) -> a2b s }
-            }
-        module UnionPrisms =
-            let asColor : IPrism'<Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.Color> =
-                {
-                    _unto = fun a -> Test.Name.Space.Enums.UnionCase.Color a
-                    _which = fun s ->
-                        match s with
-                        | Test.Name.Space.Enums.UnionCase.Color a -> Ok a
-                        | _ -> Error s
-                }
-            let asName : IPrism'<Test.Name.Space.Enums.UnionCase,string> =
-                {
-                    _unto = fun a -> Test.Name.Space.Enums.UnionCase.Name a
-                    _which = fun s ->
-                        match s with
-                        | Test.Name.Space.Enums.UnionCase.Name a -> Ok a
-                        | _ -> Error s
-                }
-        let mainColor : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MainColor }
-                _setter = { _over = fun a2b s -> { s with MainColor = a2b s.MainColor } }
-            }
-        let otherColors : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color list> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.OtherColors }
-                _setter = { _over = fun a2b s -> { s with OtherColors = a2b s.OtherColors } }
-            }
-        let byName : ILens'<Test.Name.Space.Enums,Map<string, Test.Name.Space.Enums.Color>> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.ByName }
-                _setter = { _over = fun a2b s -> { s with ByName = a2b s.ByName } }
-            }
-        let union : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.UnionCase> =
-            {
-                _getter = { _get = fun s -> s.Union }
-                _setter = { _over = fun a2b s -> { s with Union = a2b s.Union } }
-            }
-        let maybeColor : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MaybeColor }
-                _setter = { _over = fun a2b s -> { s with MaybeColor = a2b s.MaybeColor } }
-            }
-    module Google =
-        let _id : ILens'<Test.Name.Space.Google,Test.Name.Space.Google> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Google) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.Google) -> a2b s }
-            }
-        let int32Val : ILens'<Test.Name.Space.Google,int option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Int32Val }
-                _setter = { _over = fun a2b s -> { s with Int32Val = a2b s.Int32Val } }
-            }
-        let stringVal : ILens'<Test.Name.Space.Google,string option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.StringVal }
-                _setter = { _over = fun a2b s -> { s with StringVal = a2b s.StringVal } }
-            }
-        let timestamp : ILens'<Test.Name.Space.Google,NodaTime.Instant option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Timestamp }
-                _setter = { _over = fun a2b s -> { s with Timestamp = a2b s.Timestamp } }
-            }
-        let duration : ILens'<Test.Name.Space.Google,NodaTime.Duration option> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Duration }
-                _setter = { _over = fun a2b s -> { s with Duration = a2b s.Duration } }
-            }
-    module IntMap =
-        let _id : ILens'<Test.Name.Space.IntMap,Test.Name.Space.IntMap> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.IntMap) -> a2b s }
-            }
-        let intMap : ILens'<Test.Name.Space.IntMap,Map<int, string>> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s.IntMap }
-                _setter = { _over = fun a2b s -> { s with IntMap = a2b s.IntMap } }
-            }
+    let ``mainColor`` : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MainColor }
+            _setter = { _over = fun a2b s -> { s with MainColor = a2b s.MainColor } }
+        }
+    let ``otherColors`` : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color list> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.OtherColors }
+            _setter = { _over = fun a2b s -> { s with OtherColors = a2b s.OtherColors } }
+        }
+    let ``byName`` : ILens'<Test.Name.Space.Enums,Map<string, Test.Name.Space.Enums.Color>> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.ByName }
+            _setter = { _over = fun a2b s -> { s with ByName = a2b s.ByName } }
+        }
+    let ``union`` : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.UnionCase> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.Union }
+            _setter = { _over = fun a2b s -> { s with Union = a2b s.Union } }
+        }
+    let ``maybeColor`` : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums.Color option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s.MaybeColor }
+            _setter = { _over = fun a2b s -> { s with MaybeColor = a2b s.MaybeColor } }
+        }
+module Google =
+    let _id : ILens'<Test.Name.Space.Google,Test.Name.Space.Google> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Google) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.Google) -> a2b s }
+        }
+    let ``int32Val`` : ILens'<Test.Name.Space.Google,int option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Int32Val }
+            _setter = { _over = fun a2b s -> { s with Int32Val = a2b s.Int32Val } }
+        }
+    let ``stringVal`` : ILens'<Test.Name.Space.Google,string option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Google) -> s.StringVal }
+            _setter = { _over = fun a2b s -> { s with StringVal = a2b s.StringVal } }
+        }
+    let ``timestamp`` : ILens'<Test.Name.Space.Google,NodaTime.Instant option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Timestamp }
+            _setter = { _over = fun a2b s -> { s with Timestamp = a2b s.Timestamp } }
+        }
+    let ``duration`` : ILens'<Test.Name.Space.Google,NodaTime.Duration option> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Duration }
+            _setter = { _over = fun a2b s -> { s with Duration = a2b s.Duration } }
+        }
+module IntMap =
+    let _id : ILens'<Test.Name.Space.IntMap,Test.Name.Space.IntMap> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.IntMap) -> a2b s }
+        }
+    let ``intMap`` : ILens'<Test.Name.Space.IntMap,Map<int, string>> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s.IntMap }
+            _setter = { _over = fun a2b s -> { s with IntMap = a2b s.IntMap } }
+        }
+
+namespace Test.Name.Space
+open FsGrpc.Optics
+open System.Runtime.CompilerServices
 [<Extension>]
-type OpticsExtensionMethods =
+type OpticsExtensionMethods_testproto_proto =
     [<Extension>]
     static member inline TestInt(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
-        lens.ComposeWith(Optics.TestMessage.testInt)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testInt``)
     [<Extension>]
     static member inline TestInt(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
-        traversal.ComposeWith(Optics.TestMessage.testInt)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testInt``)
     [<Extension>]
     static member inline TestDouble(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,double,double> =
-        lens.ComposeWith(Optics.TestMessage.testDouble)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testDouble``)
     [<Extension>]
     static member inline TestDouble(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,double,double> =
-        traversal.ComposeWith(Optics.TestMessage.testDouble)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testDouble``)
     [<Extension>]
     static member inline TestFixed32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint,uint> =
-        lens.ComposeWith(Optics.TestMessage.testFixed32)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFixed32``)
     [<Extension>]
     static member inline TestFixed32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint,uint> =
-        traversal.ComposeWith(Optics.TestMessage.testFixed32)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFixed32``)
     [<Extension>]
     static member inline TestString(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,string,string> =
-        lens.ComposeWith(Optics.TestMessage.testString)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testString``)
     [<Extension>]
     static member inline TestString(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,string,string> =
-        traversal.ComposeWith(Optics.TestMessage.testString)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testString``)
     [<Extension>]
     static member inline TestBytes(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
-        lens.ComposeWith(Optics.TestMessage.testBytes)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testBytes``)
     [<Extension>]
     static member inline TestBytes(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,FsGrpc.Bytes,FsGrpc.Bytes> =
-        traversal.ComposeWith(Optics.TestMessage.testBytes)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testBytes``)
     [<Extension>]
     static member inline TestFloat(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,float32,float32> =
-        lens.ComposeWith(Optics.TestMessage.testFloat)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFloat``)
     [<Extension>]
     static member inline TestFloat(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,float32,float32> =
-        traversal.ComposeWith(Optics.TestMessage.testFloat)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFloat``)
     [<Extension>]
     static member inline TestInt64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
-        lens.ComposeWith(Optics.TestMessage.testInt64)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testInt64``)
     [<Extension>]
     static member inline TestInt64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
-        traversal.ComposeWith(Optics.TestMessage.testInt64)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testInt64``)
     [<Extension>]
     static member inline TestUint64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint64,uint64> =
-        lens.ComposeWith(Optics.TestMessage.testUint64)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testUint64``)
     [<Extension>]
     static member inline TestUint64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint64,uint64> =
-        traversal.ComposeWith(Optics.TestMessage.testUint64)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testUint64``)
     [<Extension>]
     static member inline TestFixed64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint64,uint64> =
-        lens.ComposeWith(Optics.TestMessage.testFixed64)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFixed64``)
     [<Extension>]
     static member inline TestFixed64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint64,uint64> =
-        traversal.ComposeWith(Optics.TestMessage.testFixed64)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testFixed64``)
     [<Extension>]
     static member inline TestBool(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,bool,bool> =
-        lens.ComposeWith(Optics.TestMessage.testBool)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testBool``)
     [<Extension>]
     static member inline TestBool(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,bool,bool> =
-        traversal.ComposeWith(Optics.TestMessage.testBool)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testBool``)
     [<Extension>]
     static member inline TestUint32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,uint32,uint32> =
-        lens.ComposeWith(Optics.TestMessage.testUint32)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testUint32``)
     [<Extension>]
     static member inline TestUint32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,uint32,uint32> =
-        traversal.ComposeWith(Optics.TestMessage.testUint32)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testUint32``)
     [<Extension>]
     static member inline TestSfixed32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
-        lens.ComposeWith(Optics.TestMessage.testSfixed32)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSfixed32``)
     [<Extension>]
     static member inline TestSfixed32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
-        traversal.ComposeWith(Optics.TestMessage.testSfixed32)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSfixed32``)
     [<Extension>]
     static member inline TestSfixed64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
-        lens.ComposeWith(Optics.TestMessage.testSfixed64)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSfixed64``)
     [<Extension>]
     static member inline TestSfixed64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
-        traversal.ComposeWith(Optics.TestMessage.testSfixed64)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSfixed64``)
     [<Extension>]
     static member inline TestSint32(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int,int> =
-        lens.ComposeWith(Optics.TestMessage.testSint32)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSint32``)
     [<Extension>]
     static member inline TestSint32(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int,int> =
-        traversal.ComposeWith(Optics.TestMessage.testSint32)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSint32``)
     [<Extension>]
     static member inline TestSint64(lens : ILens<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ILens<'a,'b,int64,int64> =
-        lens.ComposeWith(Optics.TestMessage.testSint64)
+        lens.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSint64``)
     [<Extension>]
     static member inline TestSint64(traversal : ITraversal<'a,'b,Test.Name.Space.TestMessage,Test.Name.Space.TestMessage>) : ITraversal<'a,'b,int64,int64> =
-        traversal.ComposeWith(Optics.TestMessage.testSint64)
+        traversal.ComposeWith(Test.Name.Space.Optics.TestMessage.``testSint64``)
     [<Extension>]
     static member inline Name(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,string,string> =
-        lens.ComposeWith(Optics.Nest.name)
+        lens.ComposeWith(Test.Name.Space.Optics.Nest.``name``)
     [<Extension>]
     static member inline Name(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,string,string> =
-        traversal.ComposeWith(Optics.Nest.name)
+        traversal.ComposeWith(Test.Name.Space.Optics.Nest.``name``)
     [<Extension>]
     static member inline Children(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Nest list,Test.Name.Space.Nest list> =
-        lens.ComposeWith(Optics.Nest.children)
+        lens.ComposeWith(Test.Name.Space.Optics.Nest.``children``)
     [<Extension>]
     static member inline Children(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Nest list,Test.Name.Space.Nest list> =
-        traversal.ComposeWith(Optics.Nest.children)
+        traversal.ComposeWith(Test.Name.Space.Optics.Nest.``children``)
     [<Extension>]
     static member inline Inner(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Nest.Inner option,Test.Name.Space.Nest.Inner option> =
-        lens.ComposeWith(Optics.Nest.inner)
+        lens.ComposeWith(Test.Name.Space.Optics.Nest.``inner``)
     [<Extension>]
     static member inline Inner(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Nest.Inner option,Test.Name.Space.Nest.Inner option> =
-        traversal.ComposeWith(Optics.Nest.inner)
+        traversal.ComposeWith(Test.Name.Space.Optics.Nest.``inner``)
     [<Extension>]
     static member inline Special(lens : ILens<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ILens<'a,'b,Test.Name.Space.Special option,Test.Name.Space.Special option> =
-        lens.ComposeWith(Optics.Nest.special)
+        lens.ComposeWith(Test.Name.Space.Optics.Nest.``special``)
     [<Extension>]
     static member inline Special(traversal : ITraversal<'a,'b,Test.Name.Space.Nest,Test.Name.Space.Nest>) : ITraversal<'a,'b,Test.Name.Space.Special option,Test.Name.Space.Special option> =
-        traversal.ComposeWith(Optics.Nest.special)
+        traversal.ComposeWith(Test.Name.Space.Optics.Nest.``special``)
     [<Extension>]
     static member inline InnerName(lens : ILens<'a,'b,Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner>) : ILens<'a,'b,string,string> =
-        lens.ComposeWith(Optics.Nest.Inner.innerName)
+        lens.ComposeWith(Test.Name.Space.Optics.Nest.Inner.``innerName``)
     [<Extension>]
     static member inline InnerName(traversal : ITraversal<'a,'b,Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner>) : ITraversal<'a,'b,string,string> =
-        traversal.ComposeWith(Optics.Nest.Inner.innerName)
+        traversal.ComposeWith(Test.Name.Space.Optics.Nest.Inner.``innerName``)
     [<Extension>]
     static member inline IntList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,int list,int list> =
-        lens.ComposeWith(Optics.Special.intList)
+        lens.ComposeWith(Test.Name.Space.Optics.Special.``intList``)
     [<Extension>]
     static member inline IntList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,int list,int list> =
-        traversal.ComposeWith(Optics.Special.intList)
+        traversal.ComposeWith(Test.Name.Space.Optics.Special.``intList``)
     [<Extension>]
     static member inline DoubleList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,double list,double list> =
-        lens.ComposeWith(Optics.Special.doubleList)
+        lens.ComposeWith(Test.Name.Space.Optics.Special.``doubleList``)
     [<Extension>]
     static member inline DoubleList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,double list,double list> =
-        traversal.ComposeWith(Optics.Special.doubleList)
+        traversal.ComposeWith(Test.Name.Space.Optics.Special.``doubleList``)
     [<Extension>]
     static member inline Fixed32List(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,uint list,uint list> =
-        lens.ComposeWith(Optics.Special.fixed32List)
+        lens.ComposeWith(Test.Name.Space.Optics.Special.``fixed32List``)
     [<Extension>]
     static member inline Fixed32List(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,uint list,uint list> =
-        traversal.ComposeWith(Optics.Special.fixed32List)
+        traversal.ComposeWith(Test.Name.Space.Optics.Special.``fixed32List``)
     [<Extension>]
     static member inline StringList(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,string list,string list> =
-        lens.ComposeWith(Optics.Special.stringList)
+        lens.ComposeWith(Test.Name.Space.Optics.Special.``stringList``)
     [<Extension>]
     static member inline StringList(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,string list,string list> =
-        traversal.ComposeWith(Optics.Special.stringList)
+        traversal.ComposeWith(Test.Name.Space.Optics.Special.``stringList``)
     [<Extension>]
     static member inline Dictionary(lens : ILens<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ILens<'a,'b,Map<string, string>,Map<string, string>> =
-        lens.ComposeWith(Optics.Special.dictionary)
+        lens.ComposeWith(Test.Name.Space.Optics.Special.``dictionary``)
     [<Extension>]
     static member inline Dictionary(traversal : ITraversal<'a,'b,Test.Name.Space.Special,Test.Name.Space.Special>) : ITraversal<'a,'b,Map<string, string>,Map<string, string>> =
-        traversal.ComposeWith(Optics.Special.dictionary)
+        traversal.ComposeWith(Test.Name.Space.Optics.Special.``dictionary``)
     [<Extension>]
     static member inline MainColor(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> =
-        lens.ComposeWith(Optics.Enums.mainColor)
+        lens.ComposeWith(Test.Name.Space.Optics.Enums.``mainColor``)
     [<Extension>]
     static member inline MainColor(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> =
-        traversal.ComposeWith(Optics.Enums.mainColor)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.``mainColor``)
     [<Extension>]
     static member inline OtherColors(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color list,Test.Name.Space.Enums.Color list> =
-        lens.ComposeWith(Optics.Enums.otherColors)
+        lens.ComposeWith(Test.Name.Space.Optics.Enums.``otherColors``)
     [<Extension>]
     static member inline OtherColors(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color list,Test.Name.Space.Enums.Color list> =
-        traversal.ComposeWith(Optics.Enums.otherColors)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.``otherColors``)
     [<Extension>]
     static member inline ByName(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Map<string, Test.Name.Space.Enums.Color>,Map<string, Test.Name.Space.Enums.Color>> =
-        lens.ComposeWith(Optics.Enums.byName)
+        lens.ComposeWith(Test.Name.Space.Optics.Enums.``byName``)
     [<Extension>]
     static member inline ByName(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Map<string, Test.Name.Space.Enums.Color>,Map<string, Test.Name.Space.Enums.Color>> =
-        traversal.ComposeWith(Optics.Enums.byName)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.``byName``)
     [<Extension>]
     static member inline Union(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase> =
-        lens.ComposeWith(Optics.Enums.union)
+        lens.ComposeWith(Test.Name.Space.Optics.Enums.``union``)
     [<Extension>]
     static member inline Union(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase> =
-        traversal.ComposeWith(Optics.Enums.union)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.``union``)
     [<Extension>]
     static member inline MaybeColor(lens : ILens<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ILens<'a,'b,Test.Name.Space.Enums.Color option,Test.Name.Space.Enums.Color option> =
-        lens.ComposeWith(Optics.Enums.maybeColor)
+        lens.ComposeWith(Test.Name.Space.Optics.Enums.``maybeColor``)
     [<Extension>]
     static member inline MaybeColor(traversal : ITraversal<'a,'b,Test.Name.Space.Enums,Test.Name.Space.Enums>) : ITraversal<'a,'b,Test.Name.Space.Enums.Color option,Test.Name.Space.Enums.Color option> =
-        traversal.ComposeWith(Optics.Enums.maybeColor)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.``maybeColor``)
     [<Extension>]
     static member inline IfColor(prism : IPrism<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : IPrism<'s,'t,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> = 
-        prism.ComposeWith(Optics.Enums.UnionPrisms.asColor)
+        prism.ComposeWith(Test.Name.Space.Optics.Enums.UnionPrisms.ifColor)
     [<Extension>]
     static member inline IfColor(traversal : ITraversal<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : ITraversal<'s,'t,Test.Name.Space.Enums.Color,Test.Name.Space.Enums.Color> = 
-        traversal.ComposeWith(Optics.Enums.UnionPrisms.asColor)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.UnionPrisms.ifColor)
     [<Extension>]
     static member inline IfName(prism : IPrism<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : IPrism<'s,'t,string,string> = 
-        prism.ComposeWith(Optics.Enums.UnionPrisms.asName)
+        prism.ComposeWith(Test.Name.Space.Optics.Enums.UnionPrisms.ifName)
     [<Extension>]
     static member inline IfName(traversal : ITraversal<'s,'t,Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.UnionCase>) : ITraversal<'s,'t,string,string> = 
-        traversal.ComposeWith(Optics.Enums.UnionPrisms.asName)
+        traversal.ComposeWith(Test.Name.Space.Optics.Enums.UnionPrisms.ifName)
     [<Extension>]
     static member inline Int32Val(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,int option,int option> =
-        lens.ComposeWith(Optics.Google.int32Val)
+        lens.ComposeWith(Test.Name.Space.Optics.Google.``int32Val``)
     [<Extension>]
     static member inline Int32Val(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,int option,int option> =
-        traversal.ComposeWith(Optics.Google.int32Val)
+        traversal.ComposeWith(Test.Name.Space.Optics.Google.``int32Val``)
     [<Extension>]
     static member inline StringVal(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,string option,string option> =
-        lens.ComposeWith(Optics.Google.stringVal)
+        lens.ComposeWith(Test.Name.Space.Optics.Google.``stringVal``)
     [<Extension>]
     static member inline StringVal(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,string option,string option> =
-        traversal.ComposeWith(Optics.Google.stringVal)
+        traversal.ComposeWith(Test.Name.Space.Optics.Google.``stringVal``)
     [<Extension>]
     static member inline Timestamp(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
-        lens.ComposeWith(Optics.Google.timestamp)
+        lens.ComposeWith(Test.Name.Space.Optics.Google.``timestamp``)
     [<Extension>]
     static member inline Timestamp(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,NodaTime.Instant option,NodaTime.Instant option> =
-        traversal.ComposeWith(Optics.Google.timestamp)
+        traversal.ComposeWith(Test.Name.Space.Optics.Google.``timestamp``)
     [<Extension>]
     static member inline Duration(lens : ILens<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ILens<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
-        lens.ComposeWith(Optics.Google.duration)
+        lens.ComposeWith(Test.Name.Space.Optics.Google.``duration``)
     [<Extension>]
     static member inline Duration(traversal : ITraversal<'a,'b,Test.Name.Space.Google,Test.Name.Space.Google>) : ITraversal<'a,'b,NodaTime.Duration option,NodaTime.Duration option> =
-        traversal.ComposeWith(Optics.Google.duration)
+        traversal.ComposeWith(Test.Name.Space.Optics.Google.``duration``)
     [<Extension>]
     static member inline IntMap(lens : ILens<'a,'b,Test.Name.Space.IntMap,Test.Name.Space.IntMap>) : ILens<'a,'b,Map<int, string>,Map<int, string>> =
-        lens.ComposeWith(Optics.IntMap.intMap)
+        lens.ComposeWith(Test.Name.Space.Optics.IntMap.``intMap``)
     [<Extension>]
     static member inline IntMap(traversal : ITraversal<'a,'b,Test.Name.Space.IntMap,Test.Name.Space.IntMap>) : ITraversal<'a,'b,Map<int, string>,Map<int, string>> =
-        traversal.ComposeWith(Optics.IntMap.intMap)
+        traversal.ComposeWith(Test.Name.Space.Optics.IntMap.``intMap``)
