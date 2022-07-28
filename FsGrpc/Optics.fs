@@ -237,3 +237,11 @@ type OpticsExtensions =
     [<Extension>]
     static member inline IfSome(traversal: ITraversal<'s,'t,Option<'a>,Option<'a>>) : ITraversal<'s,'t,'a,'a> =
         traversal.ComposeWith(OptionPrism.ifSome)
+        
+    [<Extension>]
+    static member inline Exists(fold: IFold<'s,'a>, predicate: 'a -> bool) =
+        fun s -> fold.ToSeq s |> Seq.exists predicate
+
+    [<Extension>]
+    static member inline Exists(fold: IFold<'s,'a>) =
+        fold.Exists(fun _ -> true)
