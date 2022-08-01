@@ -1132,7 +1132,7 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These are project references required for service and client classes -->"""
-        Line $"""<ProjectReference Include="C:\src\grpc-dotnet\src\Grpc.AspNetCore\Grpc.AspNetCore.csproj" />"""
+        Line $"""<PackageReference  Include="Grpc.AspNetCore" Version="2.32.0" />"""
     ]
     Line $"""</ItemGroup>"""
     Line $"""</Project>"""
@@ -1229,7 +1229,7 @@ let fsClientFunctions (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) 
         ]
     | (true, false) -> // Client Streaming
         Frag [
-        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) (request: {inputType}) =" 
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) =" 
         Block [
             Line $"this.CallInvoker.AsyncClientStreamingCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions)"
         ]
@@ -1243,7 +1243,7 @@ let fsClientFunctions (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) 
         ]
     | (true, true) -> // Server Streaming
         Frag [
-        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) (request: {inputType}) =" 
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) =" 
         Block [
             Line $"this.CallInvoker.AsyncDuplexStreamingCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions)"
         ]

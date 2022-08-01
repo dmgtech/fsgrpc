@@ -78,6 +78,6 @@ The major features intended are:
 - [x] Buf.build integration
 - [x] Comment pass-through
 - [ ] Protocol Buffer reflection
-- [ ] Idiomatic functional implementation for gRPC endpoints
+- [x] Idiomatic functional implementation for gRPC endpoints
 
 

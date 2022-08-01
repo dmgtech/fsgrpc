@@ -1405,7 +1405,7 @@ module Greeter =
             this.CallInvoker.AsyncUnaryCall(__Method_SayHello, Unchecked.defaultof<string>, callOptions, request)
         member this.SayHelloServerStreamingAsync (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
             this.CallInvoker.AsyncServerStreamingCall(__Method_SayHelloServerStreaming, Unchecked.defaultof<string>, callOptions, request)
-        member this.SayHelloClientStreamingAsync (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
+        member this.SayHelloClientStreamingAsync (callOptions: Grpc.Core.CallOptions) =
             this.CallInvoker.AsyncClientStreamingCall(__Method_SayHelloClientStreaming, Unchecked.defaultof<string>, callOptions)
-        member this.SayHelloDuplexStreamingAsync (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
+        member this.SayHelloDuplexStreamingAsync (callOptions: Grpc.Core.CallOptions) =
             this.CallInvoker.AsyncDuplexStreamingCall(__Method_SayHelloDuplexStreaming, Unchecked.defaultof<string>, callOptions)

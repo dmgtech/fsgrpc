@@ -165,73 +165,59 @@ type OpticsExtensionMethods_importable_importMe_proto =
     static member inline Value(traversal : ITraversal<'a,'b,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>) : ITraversal<'a,'b,string,string> =
         traversal.ComposeWith(Ex.Ample.Importable.Optics.Args.``value``)
 
-module Service =
-    [<AbstractClass>]
-    [<Grpc.Core.BindServiceMethod(typeof<ServiceTwoBase>, "BindService")>]
-    type ServiceTwoBase() = 
-        static member __Marshaller__ex_ample_importable_Args = Grpc.Core.Marshallers.Create(
-            (fun (x: Ex.Ample.Importable.Args) -> FsGrpc.Protobuf.encode x),
-            (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+module ServiceTwo =
+    let private __Marshaller__ex_ample_importable_Args = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.Importable.Args) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Method_ExampleClientStreamingRpc =
+        Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
+            Grpc.Core.MethodType.ClientStreaming,
+            "ex.ample.importable.ServiceTwo",
+            "ExampleClientStreamingRpc",
+            __Marshaller__ex_ample_importable_Args,
+            __Marshaller__ex_ample_importable_Args
         )
-        static member __Method_ExampleClientStreamingRpc =
-            Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
-                Grpc.Core.MethodType.ClientStreaming,
-                "ex.ample.importable.ServiceTwo",
-                "ExampleClientStreamingRpc",
-                ServiceTwoBase.__Marshaller__ex_ample_importable_Args,
-                ServiceTwoBase.__Marshaller__ex_ample_importable_Args
-            )
-        abstract member ExampleClientStreamingRpc : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Args> 
-        static member __Method_ExampleBidirectionalRpc =
-            Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
-                Grpc.Core.MethodType.DuplexStreaming,
-                "ex.ample.importable.ServiceTwo",
-                "ExampleBidirectionalRpc",
-                ServiceTwoBase.__Marshaller__ex_ample_importable_Args,
-                ServiceTwoBase.__Marshaller__ex_ample_importable_Args
-            )
-        abstract member ExampleBidirectionalRpc : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task 
-        static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceTwoBase) =
+    let private __Method_ExampleBidirectionalRpc =
+        Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
+            Grpc.Core.MethodType.DuplexStreaming,
+            "ex.ample.importable.ServiceTwo",
+            "ExampleBidirectionalRpc",
+            __Marshaller__ex_ample_importable_Args,
+            __Marshaller__ex_ample_importable_Args
+        )
+    [<AbstractClass>]
+    [<Grpc.Core.BindServiceMethod(typeof<ServiceBase>, "BindService")>]
+    type ServiceBase() = 
+        abstract member ExampleClientStreamingRpc : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Args>
+        abstract member ExampleBidirectionalRpc : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task
+        static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) =
             let serviceMethodOrNull =
                 match box serviceImpl with
                 | null -> Unchecked.defaultof<Grpc.Core.ClientStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>>
                 | _ -> Grpc.Core.ClientStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(serviceImpl.ExampleClientStreamingRpc)
-            serviceBinder.AddMethod(ServiceTwoBase.__Method_ExampleClientStreamingRpc, serviceMethodOrNull) |> ignore
+            serviceBinder.AddMethod(__Method_ExampleClientStreamingRpc, serviceMethodOrNull) |> ignore
             let serviceMethodOrNull =
                 match box serviceImpl with
                 | null -> Unchecked.defaultof<Grpc.Core.DuplexStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>>
                 | _ -> Grpc.Core.DuplexStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(serviceImpl.ExampleBidirectionalRpc)
-            serviceBinder.AddMethod(ServiceTwoBase.__Method_ExampleBidirectionalRpc, serviceMethodOrNull) |> ignore
-
-module Client =
-    type ServiceTwoClient = 
-        inherit Grpc.Core.ClientBase<ServiceTwoClient>
-        new () = { inherit Grpc.Core.ClientBase<ServiceTwoClient>() }
-        new (channel: Grpc.Core.ChannelBase) = { inherit Grpc.Core.ClientBase<ServiceTwoClient>(channel) }
-        new (callInvoker: Grpc.Core.CallInvoker) = { inherit Grpc.Core.ClientBase<ServiceTwoClient>(callInvoker) }
-        new (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = { inherit Grpc.Core.ClientBase<ServiceTwoClient>(configuration) }
-        override this.NewInstance (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = ServiceTwoClient(configuration)
-        static member __Marshaller__ex_ample_importable_Args = Grpc.Core.Marshallers.Create(
-            (fun (x: Ex.Ample.Importable.Args) -> FsGrpc.Protobuf.encode x),
-            (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
-        )
-        static member __Method_ExampleClientStreamingRpc =
-            Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
-                Grpc.Core.MethodType.ClientStreaming,
-                "ex.ample.importable.ServiceTwo",
-                "ExampleClientStreamingRpc",
-                ServiceTwoClient.__Marshaller__ex_ample_importable_Args,
-                ServiceTwoClient.__Marshaller__ex_ample_importable_Args
-            )
-        static member __Method_ExampleBidirectionalRpc =
-            Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(
-                Grpc.Core.MethodType.DuplexStreaming,
-                "ex.ample.importable.ServiceTwo",
-                "ExampleBidirectionalRpc",
-                ServiceTwoClient.__Marshaller__ex_ample_importable_Args,
-                ServiceTwoClient.__Marshaller__ex_ample_importable_Args
-            )
-        member this.ExampleClientStreamingRpcAsync (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Importable.Args) =
-            this.CallInvoker.AsyncClientStreamingCall(ServiceTwoClient.__Method_ExampleClientStreamingRpc, Unchecked.defaultof<string>, callOptions)
-        member this.ExampleBidirectionalRpcAsync (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Importable.Args) =
-            this.CallInvoker.AsyncDuplexStreamingCall(ServiceTwoClient.__Method_ExampleBidirectionalRpc, Unchecked.defaultof<string>, callOptions)
+            serviceBinder.AddMethod(__Method_ExampleBidirectionalRpc, serviceMethodOrNull) |> ignore
+    type Service() = 
+        inherit ServiceBase()
+        static member val exampleClientStreamingRpcImpl : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Args> =
+            (fun _ _ -> failwith "\"Service.ExampleClientStreamingRpcImpl\" has not been set.") with get, set 
+        override this.ExampleClientStreamingRpc requestStream context = Service.exampleClientStreamingRpcImpl requestStream context
+        static member val exampleBidirectionalRpcImpl : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
+            (fun _ _ _ -> failwith "\"Service.ExampleBidirectionalRpcImpl\" has not been set.") with get, set 
+        override this.ExampleBidirectionalRpc requestStream writer context = Service.exampleBidirectionalRpcImpl requestStream writer context
+    type Client = 
+        inherit Grpc.Core.ClientBase<Client>
+        new () = { inherit Grpc.Core.ClientBase<Client>() }
+        new (channel: Grpc.Core.ChannelBase) = { inherit Grpc.Core.ClientBase<Client>(channel) }
+        new (callInvoker: Grpc.Core.CallInvoker) = { inherit Grpc.Core.ClientBase<Client>(callInvoker) }
+        new (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = { inherit Grpc.Core.ClientBase<Client>(configuration) }
+        override this.NewInstance (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = Client(configuration)
+        member this.ExampleClientStreamingRpcAsync (callOptions: Grpc.Core.CallOptions) =
+            this.CallInvoker.AsyncClientStreamingCall(__Method_ExampleClientStreamingRpc, Unchecked.defaultof<string>, callOptions)
+        member this.ExampleBidirectionalRpcAsync (callOptions: Grpc.Core.CallOptions) =
+            this.CallInvoker.AsyncDuplexStreamingCall(__Method_ExampleBidirectionalRpc, Unchecked.defaultof<string>, callOptions)
