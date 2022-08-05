@@ -12,6 +12,9 @@ open System.Text.Json
 open System.Text.Json.Serialization
 open NodaTime.Serialization.SystemTextJson
 open NodaTime
+open FsCheck
+open FsCheck.Xunit
+open FSharpPlus
 
 let trim (s: string) = s.Trim()
 let unindent (s: string) =
@@ -488,3 +491,91 @@ let ``Map with int keys serializes to string keys`` () =
   let actual = JsonSerializer.Serialize (subject, ignoreDefault)
   let expected = """{"intMap":{"1":"uno","2":"dos"}}"""
   Assert.Equal(expected, actual)
+
+type Generator = 
+  static member String() =
+    // null strings are not supported on the F# datatype for JSON de/serialization
+    Arb.Default.String()
+    |> Arb.filter (fun str -> str <> null)
+  static member ByteString() =
+    Arb.generate<byte array>
+    |> Gen.map Bytes.CopyFrom
+    |> Arb.fromGen
+  static member Instant() =
+    let range = Duration.FromDays(100).TotalSeconds |> int
+    let now = NodaTime.SystemClock.Instance.GetCurrentInstant()
+    Gen.sized (fun s -> Gen.choose (-1*range, range))
+    |> Gen.map int64
+    |> Gen.map (NodaTime.Duration.FromSeconds)
+    |> Gen.map (fun x -> now.Plus x)
+    |> Arb.fromGen
+  static member Duration() =
+    let range = Duration.FromDays(10).TotalSeconds |> int
+    Gen.sized (fun s -> Gen.choose (0, range))
+    |> Gen.map int64
+    |> Gen.map (NodaTime.Duration.FromSeconds)
+    |> Arb.fromGen
+  static member Float() = 
+    // NaN, +/- Infinity cannot be written as valid JSON
+    Arb.Default.Float()
+    |> Arb.filter (Double.IsNormal) 
+  static member Float32() = 
+    // NaN, +/- Infinity cannot be written as valid JSON
+    Arb.Default.Float32()
+    |> Arb.filter (Single.IsNormal) 
+  static member Nest() = 
+    // bound the recursive data structure's nesting depth to prevent stack overflow
+    let nest =
+      let rec nest' s = 
+        match s with
+        | 0 -> Gen.map (fun _ -> Nest.empty) Arb.generate<int>
+        | n when n > 0 -> gen {
+            let! name = Arb.generate<string>
+            let! children = Gen.listOf (nest' (n/2))
+            let! inner = Gen.oneof [
+              Gen.constant None
+              Gen.map Some Arb.generate<Nest.Inner> 
+            ]
+            let! special = Gen.oneof [
+              Gen.constant None
+              Gen.map Some Arb.generate<Special> 
+            ]
+            return { Name=name; Children=children; Inner=inner; Special=special; } }
+        | _ -> invalidArg "s" "Only positive arguments are allowed"
+      Gen.sized nest'
+    Arb.fromGen nest
+
+
+let roundTrip (o: JsonOptions) (x: 'a) = 
+  let jso = new JsonSerializerOptions()
+  jso.Converters.Add(new MessageConverter(Some o))
+  let y = x |> FsGrpc.Json.serializeWith jso |> FsGrpc.Json.deserializeWith jso
+  x = y
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (TestMessage)`` (o: JsonOptions, x: TestMessage) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (Nest)`` (o: JsonOptions, x: Nest) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (Special)`` (o: JsonOptions, x: Special) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (Enums)`` (o: JsonOptions, x: Enums) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (Google)`` (o: JsonOptions, x: Google) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (IntMap)`` (o: JsonOptions, x: Enums) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (int * string * Nest)`` (o: JsonOptions, x: (int * string * Nest)) =
+  roundTrip o x

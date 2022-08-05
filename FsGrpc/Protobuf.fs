@@ -1,8 +1,9 @@
 module FsGrpc.Protobuf
 open System
 open System.IO
-type private Utf8JsonWriter = System.Text.Json.Utf8JsonWriter
-type private JsonSerializerOptions = System.Text.Json.JsonSerializerOptions
+open System.Text
+open System.Text.Json
+open System.Text.Json.Nodes
 
 let private ``???``<'T> : 'T = raise (System.NotImplementedException())
 
@@ -72,6 +73,7 @@ type ProtoDef<'M> = {
     Encode: Google.Protobuf.CodedOutputStream -> 'M -> unit
     Decode: Google.Protobuf.CodedInputStream -> 'M
     EncodeJson: JsonOptions -> Utf8JsonWriter -> 'M -> unit
+    DecodeJson: JsonOptions -> JsonNode -> 'M
 }
 
 let inline ProtoOf< ^T when ^T : (static member Proto : Lazy<ProtoDef< ^T>>)> : Lazy<ProtoDef< ^T>> =
@@ -117,6 +119,7 @@ type Writer = Google.Protobuf.CodedOutputStream
 type Reader = Google.Protobuf.CodedInputStream
 type WireType = Google.Protobuf.WireFormat.WireType
 type JsonWriter = System.Text.Json.Utf8JsonWriter
+type JsonReader = System.Text.Json.Utf8JsonReader
 
 module WriteTag =
     let Varint (writer: Writer) (tag: int) =
@@ -137,6 +140,7 @@ type ValueCodec<'V> = {
     WriteValue: Writer -> 'V -> unit
     WriteJsonValue: JsonOptions -> JsonWriter -> 'V -> unit
     ReadValue: Reader -> 'V
+    ReadJsonValue: JsonOptions -> JsonNode -> 'V
     RepeatEncoding: RepeatEncoding<'V>
     CalcSize: 'V -> int
     // Q: why does this return a function?
@@ -148,8 +152,9 @@ type ValueCodec<'V> = {
     IsNonDefault: 'V -> bool
 }
 
-type OneofCodec = {
+type OneofCodec<'V> = {
     WriteJsonNoneCase: JsonOptions -> JsonWriter -> unit
+    ReadJsonField: JsonOptions -> JsonNode -> 'V
 }
 
 let private calcFieldSize (valcodec: ValueCodec<'V>) (tag: int) (value: 'V) =
@@ -199,6 +204,7 @@ let private writeJsonField (valcodec: ValueCodec<'V>) (jsonName: string) =
     write
 
 module ValueCodec =
+    open Microsoft.FSharp.Reflection
     let Double =
         let writeValue (writer: Writer): double -> unit =
             writer.WriteDouble
@@ -206,6 +212,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : double =
             reader.ReadDouble ()
+        let readJsonValue _ (node: JsonNode) : double =
+            node.GetValue ()
         let isNonDefault (value: double) =
             value <> 0.0
         {
@@ -213,6 +221,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 8)
             CalcSize = Codec.ComputeDoubleSize
             GetDefault = defer 0.0
@@ -225,6 +234,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : float32 =
             reader.ReadFloat ()
+        let readJsonValue _ (node: JsonNode) : float32 =
+            node.GetValue ()
         let isNonDefault (value: float32) =
             value <> 0f
         {
@@ -232,6 +243,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 4)
             CalcSize = Codec.ComputeFloatSize
             GetDefault = defer 0f
@@ -244,6 +256,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int64 =
             reader.ReadInt64 ()
+        let readJsonValue _ (node: JsonNode) : int64 =
+            node.GetValue ()
         let isNonDefault (value: int64) =
             value <> 0
         {
@@ -251,6 +265,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeInt64Size
             GetDefault = defer 0L
@@ -263,6 +278,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : uint64 =
             reader.ReadUInt64 ()
+        let readJsonValue _ (node: JsonNode) : uint64 =
+            node.GetValue ()
         let isNonDefault (value: uint64) =
             value <> 0UL
         {
@@ -270,6 +287,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeUInt64Size
             GetDefault = defer 0UL
@@ -282,6 +300,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int32 =
             reader.ReadInt32 ()
+        let readJsonValue _ (node: JsonNode) : int32 =
+            node.GetValue ()
         let isNonDefault (value: int32) =
             value <> 0
         {
@@ -289,6 +309,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeInt32Size
             GetDefault = defer 0
@@ -301,6 +322,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : uint64 =
             reader.ReadFixed64 ()
+        let readJsonValue _ (node: JsonNode) : uint64 =
+            node.GetValue ()
         let isNonDefault (value: uint64) =
             value <> 0UL
         {
@@ -308,6 +331,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 8)
             CalcSize = Codec.ComputeFixed64Size
             GetDefault = defer 0UL
@@ -320,6 +344,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : uint32 =
             reader.ReadFixed32 ()
+        let readJsonValue _ (node: JsonNode) : uint32 =
+            node.GetValue ()
         let isNonDefault (value: uint32) =
             value <> 0u
         {
@@ -327,6 +353,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 4)
             CalcSize = Codec.ComputeFixed32Size
             GetDefault = defer 0u
@@ -339,6 +366,8 @@ module ValueCodec =
             writer.WriteBooleanValue
         let readValue (reader: Reader) : bool =
             reader.ReadBool ()
+        let readJsonValue _ (node: JsonNode) : bool =
+            node.GetValue ()
         let isNonDefault (value: bool) =
             value <> false
         {
@@ -346,6 +375,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeBoolSize
             GetDefault = defer false
@@ -358,6 +388,8 @@ module ValueCodec =
             writer.WriteStringValue
         let readValue (reader: Reader) : string =
             reader.ReadString ()
+        let readJsonValue _ (node: JsonNode) : string =
+            node.GetValue ()
         let isNonDefault (value: string) =
             value.Length <> 0
         {
@@ -365,6 +397,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Repeat
             CalcSize = Codec.ComputeStringSize
             GetDefault = defer ""
@@ -377,6 +410,8 @@ module ValueCodec =
             Bytes (reader.ReadBytes ())
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter) (b: Bytes) =
             writer.WriteBase64StringValue b.Data.Span
+        let readJsonValue _ (node: JsonNode) : Bytes =
+            Bytes (Google.Protobuf.ByteString.CopyFrom(System.Convert.FromBase64String(node.GetValue<string>())))
         let isNonDefault (value: Bytes) =
             value.Length <> 0
         let computeSize (value: Bytes) =
@@ -386,6 +421,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Repeat
             CalcSize = computeSize
             GetDefault = defer Bytes.Empty
@@ -398,6 +434,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : uint32 =
             reader.ReadUInt32 ()
+        let readJsonValue _ (node: JsonNode) : uint32 =
+            node.GetValue ()  
         let isNonDefault (value: uint32) =
             value <> 0u
         {
@@ -405,6 +443,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeUInt32Size
             GetDefault = defer 0u
@@ -417,6 +456,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int =
             reader.ReadSFixed32 ()
+        let readJsonValue _ (node: JsonNode) : int =
+            node.GetValue ()
         let isNonDefault (value: int) =
             value <> 0
         {
@@ -424,6 +465,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 4)
             CalcSize = Codec.ComputeSFixed32Size
             GetDefault = defer 0
@@ -436,6 +478,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int64 =
             reader.ReadSFixed64 ()
+        let readJsonValue _ (node: JsonNode) : int64 =
+            node.GetValue ()
         let isNonDefault (value: int64) =
             value <> 0
         {
@@ -443,6 +487,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed (Fixed 8)
             CalcSize = Codec.ComputeSFixed64Size
             GetDefault = defer 0L
@@ -455,6 +500,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int =
             reader.ReadSInt32 ()
+        let readJsonValue _ (node: JsonNode) : int =
+            node.GetValue ()
         let isNonDefault (value: int) =
             value <> 0
         {
@@ -462,6 +509,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeSInt32Size
             GetDefault = defer 0
@@ -474,6 +522,8 @@ module ValueCodec =
             writer.WriteNumberValue
         let readValue (reader: Reader) : int64 =
             reader.ReadSInt64 ()
+        let readJsonValue _ (node: JsonNode) : int64 =
+            node.GetValue ()
         let isNonDefault (value: int64) =
             value <> 0
         {
@@ -481,6 +531,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = Codec.ComputeSInt64Size
             GetDefault = defer 0L
@@ -517,6 +568,21 @@ module ValueCodec =
         let readValue (reader: Reader) : 'E =
             let v = Int32.ReadValue reader
             (castTo v)
+        let readJsonValue (o: JsonOptions) (node: JsonNode) =
+            match o.Enums with
+            | JsonEnumStyle.Number -> castTo (node.GetValue<int>())
+            | JsonEnumStyle.Name -> Enum.Parse(typeof<'E>, node.GetValue<string>()) :?> 'E
+            | JsonEnumStyle.ProtobufName -> 
+                let str = node.GetValue<string>()
+                (typeof<'E>).GetFields(Reflection.BindingFlags.Static ||| Reflection.BindingFlags.Public)
+                |> Array.pick(fun case -> 
+                    let attrs = case.GetCustomAttributes(false)
+                    let protoNameAttr = attrs |> Seq.tryPick tryCastTo<ProtobufNameAttribute>
+                    match protoNameAttr with
+                    | None -> None
+                    | Some attr -> 
+                        if attr.Name = str then Some (case.GetValue(null) :?> 'E)
+                        else None)
         let computeSize (value: 'E) =
             Writer.ComputeInt32Size (castFrom value)
         let defVal : 'E = (castTo 0)
@@ -527,6 +593,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Packed Variable
             CalcSize = computeSize
             GetDefault = defer defVal
@@ -534,7 +601,7 @@ module ValueCodec =
         }
 
     let inline Enum<'E when 'E : (static member op_Explicit : 'E -> int) and 'E : enum<int> and 'E : equality> : ValueCodec<'E> =
-        EnumFor<'E> LanguagePrimitives.EnumOfValue int
+        EnumFor<'E> LanguagePrimitives.EnumOfValue int 
 
     let private messageCalcSize (proto: Lazy<ProtoDef<'M>>) (m: 'M) =
         let size = proto.Force().Size m
@@ -556,6 +623,10 @@ module ValueCodec =
         let bytes = reader.ReadBytes()
         use subreader = bytes.CreateCodedInput()
         proto.Force().Decode subreader
+    
+    let private messageReadJsonValue (proto: Lazy<ProtoDef<'M>>) (o: JsonOptions) (node: JsonNode) : 'M =
+        proto.Force().DecodeJson o node
+
 
     let MessageFrom<'M when 'M : equality> (proto: Lazy<ProtoDef<'M>>) : ValueCodec<'M> =
         // this calculates the length-prefixed size
@@ -569,6 +640,7 @@ module ValueCodec =
             WriteValue = messageWriteValue proto
             WriteJsonValue = messageWriteJsonValue proto
             ReadValue = messageReadValue proto
+            ReadJsonValue = messageReadJsonValue proto
             RepeatEncoding = Repeat
             CalcSize = messageCalcSize proto
             // the following are not actually used because these are used when this value is used for a non-optional field
@@ -610,7 +682,9 @@ module ValueCodec =
                 // this isn't generally used because the wrapper isn't needed for json encoding
                 // so we've implemented what the json would look like, but there is no purpose for it
                 EncodeJson =
-                    writeJsonField primitive "value"                    
+                    writeJsonField primitive "value"           
+                DecodeJson = 
+                    primitive.ReadJsonValue     
             }
         let wrappedMessageValue = MessageFrom proto
         { wrappedMessageValue with
@@ -661,6 +735,11 @@ module ValueCodec =
                     let item = primitive.ReadValue subreader
                     builder.Add item
                 builder |> Seq.toList
+        let readJsonValue (o: JsonOptions) (node: JsonNode) =
+            seq {
+                for n in node.AsArray() do
+                    yield primitive.ReadJsonValue o n
+            } |> Seq.toList
         let calcSize (value: 'P seq) =
             let dataSize = sizeOf value
             let lengthSize = Codec.ComputeLengthSize(dataSize)
@@ -674,6 +753,7 @@ module ValueCodec =
             WriteValue = writeValue
             WriteJsonValue = writeJsonValue
             ReadValue = readValue
+            ReadJsonValue = readJsonValue
             RepeatEncoding = Repeat
             CalcSize = calcSize
             // the following are not actually used because these are used when this value is used for a non-optional field
@@ -720,6 +800,8 @@ module ValueCodec =
                     | 2 -> value <- (valcodec.ReadValue r)
                     | _ -> r.SkipLastField()
                 (key, value)
+            DecodeJson = fun (o: JsonOptions) (node: JsonNode) ->
+                failwith "MapRecord not implemented"
             EncodeJson = writeJson
         }
 
@@ -730,11 +812,14 @@ module ValueCodec =
     // this exists to satisfy a requirement of proto3 json that "Generated output always contains 0, 3, 6, or 9 fractional digits"
     let pad3 (str: string) =
         let ignore = str.IndexOf('.') + 1
-        let len = str.Length - ignore
-        let pad = ((len + 2) / 3) * 3
-        str.Substring(0, ignore) + str.Substring(ignore).PadRight (pad, '0')
+        if ignore > 0 then
+            let len = str.Length - ignore
+            let pad = ((len + 2) / 3) * 3
+            str.Substring(0, ignore) + str.Substring(ignore).PadRight (pad, '0')
+        else str
 
     let private instantFormatter = NodaTime.Text.InstantPattern.CreateWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF")
+    let private instantReadFormatter = NodaTime.Text.InstantPattern.CreateWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF'Z'")
     let private instantToProto3String (instant: NodaTime.Instant) : string =
         $"{instantFormatter.Format instant |> pad3}Z"
     let private durationFormatter = NodaTime.Text.DurationPattern.CreateWithInvariantCulture("SS.FFFFFFFFF")
@@ -785,7 +870,12 @@ module ValueCodec =
                 let value = compose (seconds, nanos)
                 value
             EncodeJson = writeJson
-        }
+            DecodeJson = fun _ (node: JsonNode) ->
+                //let dt = node.GetValue<DateTime>()
+                let str = node.GetValue<string>()
+                let result = instantReadFormatter.Parse str
+                if result.Success then result.Value else raise result.Exception
+            }
     
     let private durationProto =
         lazy
@@ -830,6 +920,10 @@ module ValueCodec =
                 let value = compose (seconds, nanos)
                 value
             EncodeJson = writeJson
+            DecodeJson = fun _ (node: JsonNode) -> 
+                let str = node.GetValue<string>().Replace("s","")
+                let result = durationFormatter.Parse str
+                if result.Success then result.Value else raise result.Exception
         }
 
     let private encodeForJson (encode: 'V -> 'J) (writeValue: JsonOptions -> JsonWriter -> 'J -> unit): JsonOptions -> JsonWriter -> 'V -> unit =
@@ -888,6 +982,8 @@ module ValueCodec =
                 }
                 any
             EncodeJson = writeJson
+            DecodeJson = fun _ (node: JsonNode) -> 
+                failwith "anyProto not implemented"
         }
     
     let Any =
@@ -905,6 +1001,7 @@ type FieldCodec<'V> = {
     // why does this return a function?
     // see ValueCodec.GetDefault
     GetDefault: unit -> 'V
+    ReadJsonField: JsonOptions -> JsonNode -> 'V
 }
 
 module FieldCodec =
@@ -913,6 +1010,7 @@ module FieldCodec =
             CalcFieldSize = calcFieldSize valcodec tag
             WriteField = writeField valcodec tag
             WriteJsonField = writeJsonField valcodec jsonName
+            ReadJsonField = valcodec.ReadJsonValue
             GetDefault = valcodec.GetDefault
         }
     
@@ -947,14 +1045,19 @@ module FieldCodec =
                         writeValue value
                 write
             write
+        let readJsonField (o: JsonOptions) (node: JsonNode) =
+            match node with
+            | null -> None
+            | x -> Some <| valcodec.ReadJsonValue o node             
         {
             CalcFieldSize = calcFieldSize
             WriteField = writeField
             WriteJsonField = writeJsonField
             GetDefault = defer None
+            ReadJsonField = readJsonField
         }
     
-    let Oneof (oneofName: string) : OneofCodec =
+    let Oneof<'V> (oneofName: string) (readJsonMap: Map<string,(JsonOptions -> JsonNode -> 'V)>): OneofCodec<'V> =
         let writeNone (o: JsonOptions) =
             match shouldWriteNone o with
             | true ->
@@ -965,8 +1068,15 @@ module FieldCodec =
             | false ->
                 let nop _ = ()
                 nop
+        let readJsonField (o: JsonOptions) (node: JsonNode) =
+            match node with 
+            | null -> Unchecked.defaultof<'V>
+            | _ -> 
+                let kvPair = node.AsObject() |> Seq.head
+                (Map.find kvPair.Key readJsonMap) o kvPair.Value
         {
             WriteJsonNoneCase = writeNone
+            ReadJsonField = readJsonField
         }
     
     let OneofCase<'V> (oneofName: string) (valcodec: ValueCodec<'V>) (tag: int, jsonName: string) : FieldCodec<'V> =
@@ -998,11 +1108,14 @@ module FieldCodec =
                         writer.WriteEndObject()
                     write
             write
+        let readJsonField (o: JsonOptions) (node: JsonNode) =
+            valcodec.ReadJsonValue o node
         {
             CalcFieldSize = calcFieldSize
             WriteField = writeField
             WriteJsonField = writeJsonField
             GetDefault = valcodec.GetDefault
+            ReadJsonField = readJsonField
         }
     
     let Repeated (valcodec: ValueCodec<'T>) (tag: int, jsonName: string) : FieldCodec<'T list> =
@@ -1046,11 +1159,15 @@ module FieldCodec =
                             writeSeq value
                     writeNonEmptyList
             writeSeq
+        let readJsonField (o: JsonOptions) (node: JsonNode) =
+            Seq.map (valcodec.ReadJsonValue o) (node.AsArray())
+            |> Seq.toList
         {
             CalcFieldSize = sizeOfRepeated
             WriteField = writeRepeated
             WriteJsonField = writeRepeatedJson
             GetDefault = defer List.empty
+            ReadJsonField = readJsonField
         }
     
     type MapRecord<'K,'V> = ('K * 'V)
@@ -1094,11 +1211,16 @@ module FieldCodec =
                             writeSeq map
                     writeSeqMaybe
             writeMap
+        let readJsonValue (o: JsonOptions) (node: JsonNode) =
+            let converter = System.ComponentModel.TypeDescriptor.GetConverter(typeof<'K>)
+            Seq.map (fun (kvPair: System.Collections.Generic.KeyValuePair<string,JsonNode>) -> ((converter.ConvertFromInvariantString(kvPair.Key) :?> 'K), valcodec.ReadJsonValue o kvPair.Value)) (node.AsObject())
+            |> Map.ofSeq
         {
             CalcFieldSize = sizeOfMap
             WriteField = writeMap
             WriteJsonField = writeMapJson
             GetDefault = defer FSharp.Collections.Map.empty
+            ReadJsonField = readJsonValue
         }
     
 [<Struct>]

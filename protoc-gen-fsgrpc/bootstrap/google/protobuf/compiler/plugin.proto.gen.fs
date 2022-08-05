@@ -1,5 +1,4 @@
-[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
-module rec Google.Protobuf.Compiler
+namespace rec Google.Protobuf.Compiler
 open FsGrpc.Protobuf
 #nowarn "40"
 
@@ -30,51 +29,8 @@ module Version =
             Suffix = x.Suffix |> orEmptyString
             }
 
-let private _VersionProto : ProtoDef<Version> =
-    // Field Definitions
-    let Major = FieldCodec.Primitive ValueCodec.Int32 (1, "major")
-    let Minor = FieldCodec.Primitive ValueCodec.Int32 (2, "minor")
-    let Patch = FieldCodec.Primitive ValueCodec.Int32 (3, "patch")
-    let Suffix = FieldCodec.Primitive ValueCodec.String (4, "suffix")
-    // Proto Definition Implementation
-    { // ProtoDef<Version>
-        Name = "Version"
-        Empty = {
-            Major = Major.GetDefault()
-            Minor = Minor.GetDefault()
-            Patch = Patch.GetDefault()
-            Suffix = Suffix.GetDefault()
-            }
-        Size = fun (m: Version) ->
-            0
-            + Major.CalcFieldSize m.Major
-            + Minor.CalcFieldSize m.Minor
-            + Patch.CalcFieldSize m.Patch
-            + Suffix.CalcFieldSize m.Suffix
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Version) ->
-            Major.WriteField w m.Major
-            Minor.WriteField w m.Minor
-            Patch.WriteField w m.Patch
-            Suffix.WriteField w m.Suffix
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Google.Protobuf.Compiler.Version.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeMajor = Major.WriteJsonField o
-            let writeMinor = Minor.WriteJsonField o
-            let writePatch = Patch.WriteJsonField o
-            let writeSuffix = Suffix.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: Version) =
-                writeMajor w m.Major
-                writeMinor w m.Minor
-                writePatch w m.Patch
-                writeSuffix w m.Suffix
-            encode
-    }
 /// <summary>The version number of protocol compiler.</summary>
+type private _Version = Version
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type Version = {
@@ -89,8 +45,62 @@ type Version = {
     [<System.Text.Json.Serialization.JsonPropertyName("suffix")>] Suffix: string // (4)
     }
     with
-    static member empty = _VersionProto.Empty
-    static member Proto = lazy _VersionProto
+    static member Proto : Lazy<ProtoDef<Version>> =
+        lazy
+        // Field Definitions
+        let Major = FieldCodec.Primitive ValueCodec.Int32 (1, "major")
+        let Minor = FieldCodec.Primitive ValueCodec.Int32 (2, "minor")
+        let Patch = FieldCodec.Primitive ValueCodec.Int32 (3, "patch")
+        let Suffix = FieldCodec.Primitive ValueCodec.String (4, "suffix")
+        // Proto Definition Implementation
+        { // ProtoDef<Version>
+            Name = "Version"
+            Empty = {
+                Major = Major.GetDefault()
+                Minor = Minor.GetDefault()
+                Patch = Patch.GetDefault()
+                Suffix = Suffix.GetDefault()
+                }
+            Size = fun (m: Version) ->
+                0
+                + Major.CalcFieldSize m.Major
+                + Minor.CalcFieldSize m.Minor
+                + Patch.CalcFieldSize m.Patch
+                + Suffix.CalcFieldSize m.Suffix
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: Version) ->
+                Major.WriteField w m.Major
+                Minor.WriteField w m.Minor
+                Patch.WriteField w m.Patch
+                Suffix.WriteField w m.Suffix
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Google.Protobuf.Compiler.Version.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeMajor = Major.WriteJsonField o
+                let writeMinor = Minor.WriteJsonField o
+                let writePatch = Patch.WriteJsonField o
+                let writeSuffix = Suffix.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: Version) =
+                    writeMajor w m.Major
+                    writeMinor w m.Minor
+                    writePatch w m.Patch
+                    writeSuffix w m.Suffix
+                encode
+            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Version =
+                    match (o.Oneofs, kvPair.Key) with
+                    | _, "major" -> { value with Major = Major.ReadJsonField o kvPair.Value }
+                    | _, "minor" -> { value with Minor = Minor.ReadJsonField o kvPair.Value }
+                    | _, "patch" -> { value with Patch = Patch.ReadJsonField o kvPair.Value }
+                    | _, "suffix" -> { value with Suffix = Suffix.ReadJsonField o kvPair.Value }
+                    | _ -> value
+                Seq.fold update _Version.empty (node.AsObject ())
+        }
+    static member empty
+        with get() = Google.Protobuf.Compiler._Version.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module CodeGeneratorRequest =
@@ -118,51 +128,8 @@ module CodeGeneratorRequest =
             CompilerVersion = x.CompilerVersion.Build
             }
 
-let private _CodeGeneratorRequestProto : ProtoDef<CodeGeneratorRequest> =
-    // Field Definitions
-    let FilesToGenerate = FieldCodec.Repeated ValueCodec.String (1, "filesToGenerate")
-    let Parameter = FieldCodec.Primitive ValueCodec.String (2, "parameter")
-    let ProtoFiles = FieldCodec.Repeated ValueCodec.Message<Google.Protobuf.FileDescriptorProto> (15, "protoFiles")
-    let CompilerVersion = FieldCodec.Optional ValueCodec.Message<Google.Protobuf.Compiler.Version> (3, "compilerVersion")
-    // Proto Definition Implementation
-    { // ProtoDef<CodeGeneratorRequest>
-        Name = "CodeGeneratorRequest"
-        Empty = {
-            FilesToGenerate = FilesToGenerate.GetDefault()
-            Parameter = Parameter.GetDefault()
-            ProtoFiles = ProtoFiles.GetDefault()
-            CompilerVersion = CompilerVersion.GetDefault()
-            }
-        Size = fun (m: CodeGeneratorRequest) ->
-            0
-            + FilesToGenerate.CalcFieldSize m.FilesToGenerate
-            + Parameter.CalcFieldSize m.Parameter
-            + ProtoFiles.CalcFieldSize m.ProtoFiles
-            + CompilerVersion.CalcFieldSize m.CompilerVersion
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: CodeGeneratorRequest) ->
-            FilesToGenerate.WriteField w m.FilesToGenerate
-            Parameter.WriteField w m.Parameter
-            ProtoFiles.WriteField w m.ProtoFiles
-            CompilerVersion.WriteField w m.CompilerVersion
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorRequest.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeFilesToGenerate = FilesToGenerate.WriteJsonField o
-            let writeParameter = Parameter.WriteJsonField o
-            let writeProtoFiles = ProtoFiles.WriteJsonField o
-            let writeCompilerVersion = CompilerVersion.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: CodeGeneratorRequest) =
-                writeFilesToGenerate w m.FilesToGenerate
-                writeParameter w m.Parameter
-                writeProtoFiles w m.ProtoFiles
-                writeCompilerVersion w m.CompilerVersion
-            encode
-    }
 /// <summary>An encoded CodeGeneratorRequest is written to the plugin's stdin.</summary>
+type private _CodeGeneratorRequest = CodeGeneratorRequest
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type CodeGeneratorRequest = {
@@ -196,8 +163,62 @@ type CodeGeneratorRequest = {
     [<System.Text.Json.Serialization.JsonPropertyName("compilerVersion")>] CompilerVersion: Google.Protobuf.Compiler.Version option // (3)
     }
     with
-    static member empty = _CodeGeneratorRequestProto.Empty
-    static member Proto = lazy _CodeGeneratorRequestProto
+    static member Proto : Lazy<ProtoDef<CodeGeneratorRequest>> =
+        lazy
+        // Field Definitions
+        let FilesToGenerate = FieldCodec.Repeated ValueCodec.String (1, "filesToGenerate")
+        let Parameter = FieldCodec.Primitive ValueCodec.String (2, "parameter")
+        let ProtoFiles = FieldCodec.Repeated ValueCodec.Message<Google.Protobuf.FileDescriptorProto> (15, "protoFiles")
+        let CompilerVersion = FieldCodec.Optional ValueCodec.Message<Google.Protobuf.Compiler.Version> (3, "compilerVersion")
+        // Proto Definition Implementation
+        { // ProtoDef<CodeGeneratorRequest>
+            Name = "CodeGeneratorRequest"
+            Empty = {
+                FilesToGenerate = FilesToGenerate.GetDefault()
+                Parameter = Parameter.GetDefault()
+                ProtoFiles = ProtoFiles.GetDefault()
+                CompilerVersion = CompilerVersion.GetDefault()
+                }
+            Size = fun (m: CodeGeneratorRequest) ->
+                0
+                + FilesToGenerate.CalcFieldSize m.FilesToGenerate
+                + Parameter.CalcFieldSize m.Parameter
+                + ProtoFiles.CalcFieldSize m.ProtoFiles
+                + CompilerVersion.CalcFieldSize m.CompilerVersion
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: CodeGeneratorRequest) ->
+                FilesToGenerate.WriteField w m.FilesToGenerate
+                Parameter.WriteField w m.Parameter
+                ProtoFiles.WriteField w m.ProtoFiles
+                CompilerVersion.WriteField w m.CompilerVersion
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorRequest.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeFilesToGenerate = FilesToGenerate.WriteJsonField o
+                let writeParameter = Parameter.WriteJsonField o
+                let writeProtoFiles = ProtoFiles.WriteJsonField o
+                let writeCompilerVersion = CompilerVersion.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: CodeGeneratorRequest) =
+                    writeFilesToGenerate w m.FilesToGenerate
+                    writeParameter w m.Parameter
+                    writeProtoFiles w m.ProtoFiles
+                    writeCompilerVersion w m.CompilerVersion
+                encode
+            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : CodeGeneratorRequest =
+                    match (o.Oneofs, kvPair.Key) with
+                    | _, "filesToGenerate" -> { value with FilesToGenerate = FilesToGenerate.ReadJsonField o kvPair.Value }
+                    | _, "parameter" -> { value with Parameter = Parameter.ReadJsonField o kvPair.Value }
+                    | _, "protoFiles" -> { value with ProtoFiles = ProtoFiles.ReadJsonField o kvPair.Value }
+                    | _, "compilerVersion" -> { value with CompilerVersion = CompilerVersion.ReadJsonField o kvPair.Value }
+                    | _ -> value
+                Seq.fold update _CodeGeneratorRequest.empty (node.AsObject ())
+        }
+    static member empty
+        with get() = Google.Protobuf.Compiler._CodeGeneratorRequest.Proto.Value.Empty
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
 module CodeGeneratorResponse =
@@ -225,45 +246,8 @@ module CodeGeneratorResponse =
                 Content = x.Content |> orEmptyString
                 }
 
-    let private _FileProto : ProtoDef<File> =
-        // Field Definitions
-        let Name = FieldCodec.Primitive ValueCodec.String (1, "name")
-        let InsertionPoint = FieldCodec.Primitive ValueCodec.String (2, "insertionPoint")
-        let Content = FieldCodec.Primitive ValueCodec.String (15, "content")
-        // Proto Definition Implementation
-        { // ProtoDef<File>
-            Name = "File"
-            Empty = {
-                Name = Name.GetDefault()
-                InsertionPoint = InsertionPoint.GetDefault()
-                Content = Content.GetDefault()
-                }
-            Size = fun (m: File) ->
-                0
-                + Name.CalcFieldSize m.Name
-                + InsertionPoint.CalcFieldSize m.InsertionPoint
-                + Content.CalcFieldSize m.Content
-            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: File) ->
-                Name.WriteField w m.Name
-                InsertionPoint.WriteField w m.InsertionPoint
-                Content.WriteField w m.Content
-            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-                let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorResponse.File.Builder()
-                let mutable tag = 0
-                while read r &tag do
-                    builder.Put (tag, r)
-                builder.Build
-            EncodeJson = fun (o: JsonOptions) ->
-                let writeName = Name.WriteJsonField o
-                let writeInsertionPoint = InsertionPoint.WriteJsonField o
-                let writeContent = Content.WriteJsonField o
-                let encode (w: System.Text.Json.Utf8JsonWriter) (m: File) =
-                    writeName w m.Name
-                    writeInsertionPoint w m.InsertionPoint
-                    writeContent w m.Content
-                encode
-        }
     /// <summary>Represents a single generated file.</summary>
+    type private _File = File
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
     type File = {
@@ -326,8 +310,55 @@ module CodeGeneratorResponse =
         [<System.Text.Json.Serialization.JsonPropertyName("content")>] Content: string // (15)
         }
         with
-        static member empty = _FileProto.Empty
-        static member Proto = lazy _FileProto
+        static member Proto : Lazy<ProtoDef<File>> =
+            lazy
+            // Field Definitions
+            let Name = FieldCodec.Primitive ValueCodec.String (1, "name")
+            let InsertionPoint = FieldCodec.Primitive ValueCodec.String (2, "insertionPoint")
+            let Content = FieldCodec.Primitive ValueCodec.String (15, "content")
+            // Proto Definition Implementation
+            { // ProtoDef<File>
+                Name = "File"
+                Empty = {
+                    Name = Name.GetDefault()
+                    InsertionPoint = InsertionPoint.GetDefault()
+                    Content = Content.GetDefault()
+                    }
+                Size = fun (m: File) ->
+                    0
+                    + Name.CalcFieldSize m.Name
+                    + InsertionPoint.CalcFieldSize m.InsertionPoint
+                    + Content.CalcFieldSize m.Content
+                Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: File) ->
+                    Name.WriteField w m.Name
+                    InsertionPoint.WriteField w m.InsertionPoint
+                    Content.WriteField w m.Content
+                Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                    let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorResponse.File.Builder()
+                    let mutable tag = 0
+                    while read r &tag do
+                        builder.Put (tag, r)
+                    builder.Build
+                EncodeJson = fun (o: JsonOptions) ->
+                    let writeName = Name.WriteJsonField o
+                    let writeInsertionPoint = InsertionPoint.WriteJsonField o
+                    let writeContent = Content.WriteJsonField o
+                    let encode (w: System.Text.Json.Utf8JsonWriter) (m: File) =
+                        writeName w m.Name
+                        writeInsertionPoint w m.InsertionPoint
+                        writeContent w m.Content
+                    encode
+                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                    let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : File =
+                        match (o.Oneofs, kvPair.Key) with
+                        | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
+                        | _, "insertionPoint" -> { value with InsertionPoint = InsertionPoint.ReadJsonField o kvPair.Value }
+                        | _, "content" -> { value with Content = Content.ReadJsonField o kvPair.Value }
+                        | _ -> value
+                    Seq.fold update _File.empty (node.AsObject ())
+            }
+        static member empty
+            with get() = Google.Protobuf.Compiler.CodeGeneratorResponse._File.Proto.Value.Empty
 
     /// <summary>Sync with code_generator.h.</summary>
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<Feature>>)>]
@@ -355,45 +386,8 @@ module CodeGeneratorResponse =
             Files = x.Files.Build
             }
 
-let private _CodeGeneratorResponseProto : ProtoDef<CodeGeneratorResponse> =
-    // Field Definitions
-    let Error = FieldCodec.Primitive ValueCodec.String (1, "error")
-    let SupportedFeatures = FieldCodec.Primitive ValueCodec.UInt64 (2, "supportedFeatures")
-    let Files = FieldCodec.Repeated ValueCodec.Message<Google.Protobuf.Compiler.CodeGeneratorResponse.File> (15, "files")
-    // Proto Definition Implementation
-    { // ProtoDef<CodeGeneratorResponse>
-        Name = "CodeGeneratorResponse"
-        Empty = {
-            Error = Error.GetDefault()
-            SupportedFeatures = SupportedFeatures.GetDefault()
-            Files = Files.GetDefault()
-            }
-        Size = fun (m: CodeGeneratorResponse) ->
-            0
-            + Error.CalcFieldSize m.Error
-            + SupportedFeatures.CalcFieldSize m.SupportedFeatures
-            + Files.CalcFieldSize m.Files
-        Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: CodeGeneratorResponse) ->
-            Error.WriteField w m.Error
-            SupportedFeatures.WriteField w m.SupportedFeatures
-            Files.WriteField w m.Files
-        Decode = fun (r: Google.Protobuf.CodedInputStream) ->
-            let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorResponse.Builder()
-            let mutable tag = 0
-            while read r &tag do
-                builder.Put (tag, r)
-            builder.Build
-        EncodeJson = fun (o: JsonOptions) ->
-            let writeError = Error.WriteJsonField o
-            let writeSupportedFeatures = SupportedFeatures.WriteJsonField o
-            let writeFiles = Files.WriteJsonField o
-            let encode (w: System.Text.Json.Utf8JsonWriter) (m: CodeGeneratorResponse) =
-                writeError w m.Error
-                writeSupportedFeatures w m.SupportedFeatures
-                writeFiles w m.Files
-            encode
-    }
 /// <summary>The plugin writes an encoded CodeGeneratorResponse to stdout.</summary>
+type private _CodeGeneratorResponse = CodeGeneratorResponse
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
 type CodeGeneratorResponse = {
@@ -417,5 +411,240 @@ type CodeGeneratorResponse = {
     [<System.Text.Json.Serialization.JsonPropertyName("files")>] Files: Google.Protobuf.Compiler.CodeGeneratorResponse.File list // (15)
     }
     with
-    static member empty = _CodeGeneratorResponseProto.Empty
-    static member Proto = lazy _CodeGeneratorResponseProto
+    static member Proto : Lazy<ProtoDef<CodeGeneratorResponse>> =
+        lazy
+        // Field Definitions
+        let Error = FieldCodec.Primitive ValueCodec.String (1, "error")
+        let SupportedFeatures = FieldCodec.Primitive ValueCodec.UInt64 (2, "supportedFeatures")
+        let Files = FieldCodec.Repeated ValueCodec.Message<Google.Protobuf.Compiler.CodeGeneratorResponse.File> (15, "files")
+        // Proto Definition Implementation
+        { // ProtoDef<CodeGeneratorResponse>
+            Name = "CodeGeneratorResponse"
+            Empty = {
+                Error = Error.GetDefault()
+                SupportedFeatures = SupportedFeatures.GetDefault()
+                Files = Files.GetDefault()
+                }
+            Size = fun (m: CodeGeneratorResponse) ->
+                0
+                + Error.CalcFieldSize m.Error
+                + SupportedFeatures.CalcFieldSize m.SupportedFeatures
+                + Files.CalcFieldSize m.Files
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: CodeGeneratorResponse) ->
+                Error.WriteField w m.Error
+                SupportedFeatures.WriteField w m.SupportedFeatures
+                Files.WriteField w m.Files
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Google.Protobuf.Compiler.CodeGeneratorResponse.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeError = Error.WriteJsonField o
+                let writeSupportedFeatures = SupportedFeatures.WriteJsonField o
+                let writeFiles = Files.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: CodeGeneratorResponse) =
+                    writeError w m.Error
+                    writeSupportedFeatures w m.SupportedFeatures
+                    writeFiles w m.Files
+                encode
+            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : CodeGeneratorResponse =
+                    match (o.Oneofs, kvPair.Key) with
+                    | _, "error" -> { value with Error = Error.ReadJsonField o kvPair.Value }
+                    | _, "supportedFeatures" -> { value with SupportedFeatures = SupportedFeatures.ReadJsonField o kvPair.Value }
+                    | _, "files" -> { value with Files = Files.ReadJsonField o kvPair.Value }
+                    | _ -> value
+                Seq.fold update _CodeGeneratorResponse.empty (node.AsObject ())
+        }
+    static member empty
+        with get() = Google.Protobuf.Compiler._CodeGeneratorResponse.Proto.Value.Empty
+
+namespace Google.Protobuf.Compiler.Optics
+open FsGrpc.Optics
+module Version =
+    let _id : ILens'<Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.Version) -> s }
+            _setter = { _over = fun a2b (s: Google.Protobuf.Compiler.Version) -> a2b s }
+        }
+    let ``major`` : ILens'<Google.Protobuf.Compiler.Version,int> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.Version) -> s.Major }
+            _setter = { _over = fun a2b s -> { s with Major = a2b s.Major } }
+        }
+    let ``minor`` : ILens'<Google.Protobuf.Compiler.Version,int> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.Version) -> s.Minor }
+            _setter = { _over = fun a2b s -> { s with Minor = a2b s.Minor } }
+        }
+    let ``patch`` : ILens'<Google.Protobuf.Compiler.Version,int> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.Version) -> s.Patch }
+            _setter = { _over = fun a2b s -> { s with Patch = a2b s.Patch } }
+        }
+    let ``suffix`` : ILens'<Google.Protobuf.Compiler.Version,string> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.Version) -> s.Suffix }
+            _setter = { _over = fun a2b s -> { s with Suffix = a2b s.Suffix } }
+        }
+module CodeGeneratorRequest =
+    let _id : ILens'<Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> s }
+            _setter = { _over = fun a2b (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> a2b s }
+        }
+    let ``filesToGenerate`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorRequest,string list> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> s.FilesToGenerate }
+            _setter = { _over = fun a2b s -> { s with FilesToGenerate = a2b s.FilesToGenerate } }
+        }
+    let ``parameter`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorRequest,string> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> s.Parameter }
+            _setter = { _over = fun a2b s -> { s with Parameter = a2b s.Parameter } }
+        }
+    let ``protoFiles`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.FileDescriptorProto list> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> s.ProtoFiles }
+            _setter = { _over = fun a2b s -> { s with ProtoFiles = a2b s.ProtoFiles } }
+        }
+    let ``compilerVersion`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.Version option> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorRequest) -> s.CompilerVersion }
+            _setter = { _over = fun a2b s -> { s with CompilerVersion = a2b s.CompilerVersion } }
+        }
+module CodeGeneratorResponse =
+    let _id : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse) -> s }
+            _setter = { _over = fun a2b (s: Google.Protobuf.Compiler.CodeGeneratorResponse) -> a2b s }
+        }
+    let ``error`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse,string> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse) -> s.Error }
+            _setter = { _over = fun a2b s -> { s with Error = a2b s.Error } }
+        }
+    let ``supportedFeatures`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse,uint64> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse) -> s.SupportedFeatures }
+            _setter = { _over = fun a2b s -> { s with SupportedFeatures = a2b s.SupportedFeatures } }
+        }
+    let ``files`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse.File list> =
+        {
+            _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse) -> s.Files }
+            _setter = { _over = fun a2b s -> { s with Files = a2b s.Files } }
+        }
+    module File =
+        let _id : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File> =
+            {
+                _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse.File) -> s }
+                _setter = { _over = fun a2b (s: Google.Protobuf.Compiler.CodeGeneratorResponse.File) -> a2b s }
+            }
+        let ``name`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse.File,string> =
+            {
+                _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse.File) -> s.Name }
+                _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
+            }
+        let ``insertionPoint`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse.File,string> =
+            {
+                _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse.File) -> s.InsertionPoint }
+                _setter = { _over = fun a2b s -> { s with InsertionPoint = a2b s.InsertionPoint } }
+            }
+        let ``content`` : ILens'<Google.Protobuf.Compiler.CodeGeneratorResponse.File,string> =
+            {
+                _getter = { _get = fun (s: Google.Protobuf.Compiler.CodeGeneratorResponse.File) -> s.Content }
+                _setter = { _over = fun a2b s -> { s with Content = a2b s.Content } }
+            }
+
+namespace Google.Protobuf.Compiler
+open FsGrpc.Optics
+open System.Runtime.CompilerServices
+[<Extension>]
+type OpticsExtensionMethods_google_protobuf_compiler_plugin_proto =
+    [<Extension>]
+    static member inline Major(lens : ILens<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``major``)
+    [<Extension>]
+    static member inline Major(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``major``)
+    [<Extension>]
+    static member inline Minor(lens : ILens<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``minor``)
+    [<Extension>]
+    static member inline Minor(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``minor``)
+    [<Extension>]
+    static member inline Patch(lens : ILens<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ILens<'a,'b,int,int> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``patch``)
+    [<Extension>]
+    static member inline Patch(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ITraversal<'a,'b,int,int> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``patch``)
+    [<Extension>]
+    static member inline Suffix(lens : ILens<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``suffix``)
+    [<Extension>]
+    static member inline Suffix(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.Version,Google.Protobuf.Compiler.Version>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.Version.``suffix``)
+    [<Extension>]
+    static member inline FilesToGenerate(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ILens<'a,'b,string list,string list> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``filesToGenerate``)
+    [<Extension>]
+    static member inline FilesToGenerate(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ITraversal<'a,'b,string list,string list> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``filesToGenerate``)
+    [<Extension>]
+    static member inline Parameter(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``parameter``)
+    [<Extension>]
+    static member inline Parameter(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``parameter``)
+    [<Extension>]
+    static member inline ProtoFiles(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ILens<'a,'b,Google.Protobuf.FileDescriptorProto list,Google.Protobuf.FileDescriptorProto list> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``protoFiles``)
+    [<Extension>]
+    static member inline ProtoFiles(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ITraversal<'a,'b,Google.Protobuf.FileDescriptorProto list,Google.Protobuf.FileDescriptorProto list> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``protoFiles``)
+    [<Extension>]
+    static member inline CompilerVersion(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ILens<'a,'b,Google.Protobuf.Compiler.Version option,Google.Protobuf.Compiler.Version option> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``compilerVersion``)
+    [<Extension>]
+    static member inline CompilerVersion(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorRequest,Google.Protobuf.Compiler.CodeGeneratorRequest>) : ITraversal<'a,'b,Google.Protobuf.Compiler.Version option,Google.Protobuf.Compiler.Version option> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorRequest.``compilerVersion``)
+    [<Extension>]
+    static member inline Error(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``error``)
+    [<Extension>]
+    static member inline Error(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``error``)
+    [<Extension>]
+    static member inline SupportedFeatures(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ILens<'a,'b,uint64,uint64> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``supportedFeatures``)
+    [<Extension>]
+    static member inline SupportedFeatures(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ITraversal<'a,'b,uint64,uint64> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``supportedFeatures``)
+    [<Extension>]
+    static member inline Files(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File list,Google.Protobuf.Compiler.CodeGeneratorResponse.File list> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``files``)
+    [<Extension>]
+    static member inline Files(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse,Google.Protobuf.Compiler.CodeGeneratorResponse>) : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File list,Google.Protobuf.Compiler.CodeGeneratorResponse.File list> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.``files``)
+    [<Extension>]
+    static member inline Name(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``name``)
+    [<Extension>]
+    static member inline Name(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``name``)
+    [<Extension>]
+    static member inline InsertionPoint(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``insertionPoint``)
+    [<Extension>]
+    static member inline InsertionPoint(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``insertionPoint``)
+    [<Extension>]
+    static member inline Content(lens : ILens<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``content``)
+    [<Extension>]
+    static member inline Content(traversal : ITraversal<'a,'b,Google.Protobuf.Compiler.CodeGeneratorResponse.File,Google.Protobuf.Compiler.CodeGeneratorResponse.File>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Google.Protobuf.Compiler.Optics.CodeGeneratorResponse.File.``content``)
+

@@ -5,6 +5,7 @@ open Microsoft.FSharp.Reflection
 open System.Text.Json
 open System
 open Protobuf
+open System.Text.Json.Nodes
 
 let inline tryCastTo<'T> (a: obj) : 'T option =
     match a with
@@ -99,8 +100,9 @@ type MessageConverter<'M>(options: JsonOptions) =
     inherit JsonConverter<'M>()
     let proto = Protobuf.ReflectProtoOf<'M> ()
     let encode = proto.EncodeJson options
-    override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'M =
-        failwith "Not Implemented"
+    override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, _: JsonSerializerOptions): 'M =
+        let node = JsonNode.Parse(&reader)
+        proto.DecodeJson options node
     override _.Write(writer: Utf8JsonWriter, value: 'M, _: JsonSerializerOptions): unit =
         writer.WriteStartObject()
         encode writer value
@@ -132,5 +134,11 @@ let Options = {|
 let serializeWith (options: JsonSerializerOptions) (x: obj) =
     System.Text.Json.JsonSerializer.Serialize (x, options)
 
+let deserializeWith (options: JsonSerializerOptions) (str: string) =
+    System.Text.Json.JsonSerializer.Deserialize (JsonNode.Parse(str), options)
+
 let serialize: obj -> string =
     serializeWith Options.Default
+
+let deserialize str =
+    deserializeWith Options.Default str
