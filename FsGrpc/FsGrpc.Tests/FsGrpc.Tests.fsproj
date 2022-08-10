@@ -16,6 +16,7 @@
     <Compile Include="BytesTests.fs" />
     <Compile Include="ProtobufTests.fs" />
     <Compile Include="JsonTests.fs" />
+    <Compile Include="ServiceTests.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +35,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="FSharp.Control.AsyncSeq" Version="3.2.1" />
+    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../FsGrpc.fsproj" />

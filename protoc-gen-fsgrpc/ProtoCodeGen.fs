@@ -1116,6 +1116,12 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Frag [
     Line $"""<?xml version="1.0"?>"""
     Line $"""<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">"""
+    Line $"""<PropertyGroup>"""
+    Block [
+        Line $"""<!-- Grpc.AspNetCore requires this flag in order to build.  Despite this, no C# code is generated -->"""
+        Line $"""<Protobuf_Generator>CSharp</Protobuf_Generator>"""
+    ]
+    Line $"""</PropertyGroup>"""
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These files are listed in dependency order such that none is listed above any other file on which it depends -->"""
@@ -1123,8 +1129,178 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
         Frag includes
     ]
     Line $"""</ItemGroup>"""
+    Line $"""<ItemGroup>"""
+    Block [
+        Line $"""<!-- These are project references required for service and client classes -->"""
+        Line $"""<PackageReference  Include="Grpc.AspNetCore" Version="2.32.0" />"""
+    ]
+    Line $"""</ItemGroup>"""
     Line $"""</Project>"""
     ]
+
+open FsGrpc.Optics
+open Google.Protobuf
+
+let toMarshallerName (typeName: string) = $"__Marshaller_{typeName.Replace('.','_')}"
+
+let toFsMarshallerDef (typeMap: TypeMap) (typeName: string) =
+    Frag [
+        Line $"let private {toMarshallerName typeName} = Grpc.Core.Marshallers.Create("
+        Block [
+            Line $"(fun (x: {(typeMap typeName).FsName}) -> FsGrpc.Protobuf.encode x),"
+            Line $"(fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)"
+        ]
+        Line ")"
+    ]
+
+let toFsMethodDef (typeMap: TypeMap) (protoNs: string) (service: ServiceDescriptorProto) (serviceMethod: MethodDescriptorProto) =
+    let inputType = typeMap serviceMethod.InputType
+    let outputType = typeMap serviceMethod.OutputType
+    let serviceMethodName = $"__Method_{serviceMethod.Name}"
+    let methodTypeIndicator = 
+        match (serviceMethod.ClientStreaming, serviceMethod.ServerStreaming) with
+        | (false, false) -> "Unary"
+        | (true, false) -> "ClientStreaming"
+        | (false, true) -> "ServerStreaming"
+        | (true, true) -> "DuplexStreaming"
+    Frag [
+    Line $"let private {serviceMethodName} ="
+    Block [
+        Line $"Grpc.Core.Method<{inputType.FsName},{outputType.FsName}>("
+        Block [
+            Line $"Grpc.Core.MethodType.{methodTypeIndicator},"
+            Line $"\"{protoNs}.{service.Name}\","
+            Line $"\"{serviceMethod.Name}\","
+            Line $"{toMarshallerName serviceMethod.InputType},"
+            Line $"{toMarshallerName serviceMethod.OutputType}"
+        ]
+        Line ")"
+    ]
+    ]
+
+let toFsServiceMethodSignature (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) =
+    let inputType = typeMap serviceMethod.InputType
+    let outputType = typeMap serviceMethod.OutputType
+    match (serviceMethod.ClientStreaming, serviceMethod.ServerStreaming) with
+    | (false, false) -> $"{inputType.FsName} -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<{outputType.FsName}>"
+    | (true, false) -> $"Grpc.Core.IAsyncStreamReader<{inputType.FsName}> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<{outputType.FsName}>"
+    | (false, true) -> $"{inputType.FsName} -> Grpc.Core.IServerStreamWriter<{outputType.FsName}> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task"
+    | (true, true) -> $"Grpc.Core.IAsyncStreamReader<{inputType.FsName}> -> Grpc.Core.IServerStreamWriter<{outputType.FsName}> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task"
+
+let toFsServiceMethodBindSection (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) =
+    let inputType = typeMap serviceMethod.InputType
+    let outputType = typeMap serviceMethod.OutputType
+    let methodTypeIndicator = 
+        match (serviceMethod.ClientStreaming, serviceMethod.ServerStreaming) with
+        | (false, false) -> "Unary"
+        | (true, false) -> "ClientStreaming"
+        | (false, true) -> "ServerStreaming"
+        | (true, true) -> "DuplexStreaming"
+    Frag [
+    Line "let serviceMethodOrNull ="
+    Block [
+        Line "match box serviceImpl with"
+        Line $"| null -> Unchecked.defaultof<Grpc.Core.{methodTypeIndicator}ServerMethod<{inputType.FsName},{outputType.FsName}>>"
+        Line $"| _ -> Grpc.Core.{methodTypeIndicator}ServerMethod<{inputType.FsName},{outputType.FsName}>(serviceImpl.{serviceMethod.Name})"
+    ]
+    Line $"serviceBinder.AddMethod(__Method_{serviceMethod.Name}, serviceMethodOrNull) |> ignore"
+    ]
+
+let fsDeclareMarshallers (typeMap: TypeMap) (service: ServiceDescriptorProto) = 
+    List.map (fun x -> x.InputType) service.Methods
+    |> List.append (List.map (fun x -> x.OutputType) service.Methods)
+    |> List.distinct
+    |> List.map (toFsMarshallerDef typeMap)
+
+let fsClientFunctions (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) =
+    let inputType = (typeMap serviceMethod.InputType).FsName
+    let serviceMethodName = $"__Method_{serviceMethod.Name}"
+    match (serviceMethod.ClientStreaming, serviceMethod.ServerStreaming) with
+    | (false, false) -> // Unary
+        Frag [
+        Line $"member this.{serviceMethod.Name} (callOptions: Grpc.Core.CallOptions) (request: {inputType}) =" 
+        Block [
+            Line $"this.CallInvoker.BlockingUnaryCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions, request)"
+        ]
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) (request: {inputType}) =" 
+        Block [
+            Line $"this.CallInvoker.AsyncUnaryCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions, request)"
+        ]
+        ]
+    | (true, false) -> // Client Streaming
+        Frag [
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) =" 
+        Block [
+            Line $"this.CallInvoker.AsyncClientStreamingCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions)"
+        ]
+        ]
+    | (false, true) -> // Server Streaming
+        Frag [
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) (request: {inputType}) =" 
+        Block [
+            Line $"this.CallInvoker.AsyncServerStreamingCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions, request)"
+        ]
+        ]
+    | (true, true) -> // Server Streaming
+        Frag [
+        Line $"member this.{serviceMethod.Name}Async (callOptions: Grpc.Core.CallOptions) =" 
+        Block [
+            Line $"this.CallInvoker.AsyncDuplexStreamingCall({serviceMethodName}, Unchecked.defaultof<string>, callOptions)"
+        ]
+        ]
+
+let toFsServiceMethodOverride (typeMap: TypeMap) (method: MethodDescriptorProto) =
+    let implName = $"{method.Name}Impl"
+    let methodDef = 
+        match (method.ClientStreaming, method.ServerStreaming) with
+        | (false, false) -> $"override this.{method.Name} request context = Service.{camelCase implName} request context"
+        | (true, false) ->  $"override this.{method.Name} requestStream context = Service.{camelCase implName} requestStream context"
+        | (false, true) ->  $"override this.{method.Name} request writer context = Service.{camelCase implName} request writer context"
+        | (true, true) ->   $"override this.{method.Name} requestStream writer context = Service.{camelCase implName} requestStream writer context"
+    let funDefPrefix = if method.ServerStreaming then "fun _ _ _" else "fun _ _"
+    Frag [
+    Line $"static member val {camelCase implName} : {toFsServiceMethodSignature typeMap method} ="
+    Block [
+        Line $"""({funDefPrefix} -> failwith "\"Service.{implName}\" has not been set.") with get, set """
+    ]
+    Line methodDef
+    ]
+
+let private toFsServiceDefs (typeMap: TypeMap) (file: FileDef)  : CodeNode =
+    let serviceBaseClasses = seq [
+        for service in file.Services do
+            Frag [
+            Line $"module {service.Name} ="
+            Block [                
+                Frag <| fsDeclareMarshallers typeMap service
+                Frag <| List.map (toFsMethodDef typeMap file.Package service) service.Methods
+                Line "[<AbstractClass>]"
+                Line $"[<Grpc.Core.BindServiceMethod(typeof<ServiceBase>, \"BindService\")>]"
+                Line $"type ServiceBase() = "
+                Block [
+                    Frag <| List.map (fun x -> Line $"abstract member {x.Name} : {toFsServiceMethodSignature typeMap x}") service.Methods
+                    Line $"static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) ="
+                    Block <| List.map (toFsServiceMethodBindSection typeMap) service.Methods
+                ]
+                Line $"type Service() = "
+                Block [
+                    Line "inherit ServiceBase()"
+                    Frag <| List.map (toFsServiceMethodOverride typeMap) service.Methods
+                ]
+                Line $"type Client = "
+                Block [
+                    Line $"inherit Grpc.Core.ClientBase<Client>"
+                    Line $"new () = {{ inherit Grpc.Core.ClientBase<Client>() }}"
+                    Line $"new (channel: Grpc.Core.ChannelBase) = {{ inherit Grpc.Core.ClientBase<Client>(channel) }}"
+                    Line $"new (callInvoker: Grpc.Core.CallInvoker) = {{ inherit Grpc.Core.ClientBase<Client>(callInvoker) }}" 
+                    Line $"new (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = {{ inherit Grpc.Core.ClientBase<Client>(configuration) }}"
+                    Line $"override this.NewInstance (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = Client(configuration)"
+                    Frag <| List.map (fsClientFunctions typeMap) service.Methods                    
+                ]
+            ]
+            ]
+    ]
+    Frag serviceBaseClasses
 
 let generateTargetsFile (files: FileDef seq) (_request: Google.Protobuf.Compiler.CodeGeneratorRequest) =
     render 0 (toTargetsFile files)
@@ -1136,9 +1312,10 @@ let generateFile (infile: FileDef) (typeMap: TypeMap) (_request: Google.Protobuf
     //let findComment = comments.TryFind
     let fsNamespace = toFsNamespaceDecl infile.Package
     let fsRecordDefs = toFsRecordDefs infile.Name typeMap infile.Package protoMessageDefs protoEnumDefs
-
     render 0 (Frag [
         fsNamespace
         Line ""
         fsRecordDefs
+        Line ""
+        toFsServiceDefs typeMap infile
     ])

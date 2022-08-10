@@ -700,6 +700,116 @@ type IntMap = {
     static member empty
         with get() = Test.Name.Space._IntMap.Proto.Value.Empty
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module HelloRequest =
+
+    [<System.Runtime.CompilerServices.IsByRefLike>]
+    type Builder =
+        struct
+            val mutable Name: string // (1)
+        end
+        with
+        member x.Put ((tag, reader): int * Reader) =
+            match tag with
+            | 1 -> x.Name <- ValueCodec.String.ReadValue reader
+            | _ -> reader.SkipLastField()
+        member x.Build : Test.Name.Space.HelloRequest = {
+            Name = x.Name |> orEmptyString
+            }
+
+type private _HelloRequest = HelloRequest
+[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
+type HelloRequest = {
+    // Field Declarations
+    [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
+    }
+    with
+    static member Proto : Lazy<ProtoDef<HelloRequest>> =
+        lazy
+        // Field Definitions
+        let Name = FieldCodec.Primitive ValueCodec.String (1, "name")
+        // Proto Definition Implementation
+        { // ProtoDef<HelloRequest>
+            Name = "HelloRequest"
+            Empty = {
+                Name = Name.GetDefault()
+                }
+            Size = fun (m: HelloRequest) ->
+                0
+                + Name.CalcFieldSize m.Name
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: HelloRequest) ->
+                Name.WriteField w m.Name
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.HelloRequest.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeName = Name.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: HelloRequest) =
+                    writeName w m.Name
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._HelloRequest.Proto.Value.Empty
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module HelloReply =
+
+    [<System.Runtime.CompilerServices.IsByRefLike>]
+    type Builder =
+        struct
+            val mutable Message: string // (1)
+        end
+        with
+        member x.Put ((tag, reader): int * Reader) =
+            match tag with
+            | 1 -> x.Message <- ValueCodec.String.ReadValue reader
+            | _ -> reader.SkipLastField()
+        member x.Build : Test.Name.Space.HelloReply = {
+            Message = x.Message |> orEmptyString
+            }
+
+type private _HelloReply = HelloReply
+[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
+type HelloReply = {
+    // Field Declarations
+    [<System.Text.Json.Serialization.JsonPropertyName("message")>] Message: string // (1)
+    }
+    with
+    static member Proto : Lazy<ProtoDef<HelloReply>> =
+        lazy
+        // Field Definitions
+        let Message = FieldCodec.Primitive ValueCodec.String (1, "message")
+        // Proto Definition Implementation
+        { // ProtoDef<HelloReply>
+            Name = "HelloReply"
+            Empty = {
+                Message = Message.GetDefault()
+                }
+            Size = fun (m: HelloReply) ->
+                0
+                + Message.CalcFieldSize m.Message
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: HelloReply) ->
+                Message.WriteField w m.Message
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.HelloReply.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeMessage = Message.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: HelloReply) =
+                    writeMessage w m.Message
+                encode
+        }
+    static member empty
+        with get() = Test.Name.Space._HelloReply.Proto.Value.Empty
+
 namespace Test.Name.Space.Optics
 open FsGrpc.Optics
 module TestMessage =
@@ -936,6 +1046,28 @@ module IntMap =
             _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s.IntMap }
             _setter = { _over = fun a2b s -> { s with IntMap = a2b s.IntMap } }
         }
+module HelloRequest =
+    let _id : ILens'<Test.Name.Space.HelloRequest,Test.Name.Space.HelloRequest> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.HelloRequest) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.HelloRequest) -> a2b s }
+        }
+    let ``name`` : ILens'<Test.Name.Space.HelloRequest,string> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.HelloRequest) -> s.Name }
+            _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
+        }
+module HelloReply =
+    let _id : ILens'<Test.Name.Space.HelloReply,Test.Name.Space.HelloReply> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.HelloReply) -> s }
+            _setter = { _over = fun a2b (s: Test.Name.Space.HelloReply) -> a2b s }
+        }
+    let ``message`` : ILens'<Test.Name.Space.HelloReply,string> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.HelloReply) -> s.Message }
+            _setter = { _over = fun a2b s -> { s with Message = a2b s.Message } }
+        }
 
 namespace Test.Name.Space
 open FsGrpc.Optics
@@ -1164,3 +1296,116 @@ type OpticsExtensionMethods_testproto_proto =
     [<Extension>]
     static member inline IntMap(traversal : ITraversal<'a,'b,Test.Name.Space.IntMap,Test.Name.Space.IntMap>) : ITraversal<'a,'b,Map<int, string>,Map<int, string>> =
         traversal.ComposeWith(Test.Name.Space.Optics.IntMap.``intMap``)
+    [<Extension>]
+    static member inline Name(lens : ILens<'a,'b,Test.Name.Space.HelloRequest,Test.Name.Space.HelloRequest>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Test.Name.Space.Optics.HelloRequest.``name``)
+    [<Extension>]
+    static member inline Name(traversal : ITraversal<'a,'b,Test.Name.Space.HelloRequest,Test.Name.Space.HelloRequest>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Test.Name.Space.Optics.HelloRequest.``name``)
+    [<Extension>]
+    static member inline Message(lens : ILens<'a,'b,Test.Name.Space.HelloReply,Test.Name.Space.HelloReply>) : ILens<'a,'b,string,string> =
+        lens.ComposeWith(Test.Name.Space.Optics.HelloReply.``message``)
+    [<Extension>]
+    static member inline Message(traversal : ITraversal<'a,'b,Test.Name.Space.HelloReply,Test.Name.Space.HelloReply>) : ITraversal<'a,'b,string,string> =
+        traversal.ComposeWith(Test.Name.Space.Optics.HelloReply.``message``)
+
+module Greeter =
+    let private __Marshaller__test_name_space_HelloReply = Grpc.Core.Marshallers.Create(
+        (fun (x: Test.Name.Space.HelloReply) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Marshaller__test_name_space_HelloRequest = Grpc.Core.Marshallers.Create(
+        (fun (x: Test.Name.Space.HelloRequest) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Method_SayHello =
+        Grpc.Core.Method<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(
+            Grpc.Core.MethodType.Unary,
+            "test.name.space.Greeter",
+            "SayHello",
+            __Marshaller__test_name_space_HelloRequest,
+            __Marshaller__test_name_space_HelloReply
+        )
+    let private __Method_SayHelloServerStreaming =
+        Grpc.Core.Method<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(
+            Grpc.Core.MethodType.ServerStreaming,
+            "test.name.space.Greeter",
+            "SayHelloServerStreaming",
+            __Marshaller__test_name_space_HelloRequest,
+            __Marshaller__test_name_space_HelloReply
+        )
+    let private __Method_SayHelloClientStreaming =
+        Grpc.Core.Method<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(
+            Grpc.Core.MethodType.ClientStreaming,
+            "test.name.space.Greeter",
+            "SayHelloClientStreaming",
+            __Marshaller__test_name_space_HelloRequest,
+            __Marshaller__test_name_space_HelloReply
+        )
+    let private __Method_SayHelloDuplexStreaming =
+        Grpc.Core.Method<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(
+            Grpc.Core.MethodType.DuplexStreaming,
+            "test.name.space.Greeter",
+            "SayHelloDuplexStreaming",
+            __Marshaller__test_name_space_HelloRequest,
+            __Marshaller__test_name_space_HelloReply
+        )
+    [<AbstractClass>]
+    [<Grpc.Core.BindServiceMethod(typeof<ServiceBase>, "BindService")>]
+    type ServiceBase() = 
+        abstract member SayHello : Test.Name.Space.HelloRequest -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply>
+        abstract member SayHelloServerStreaming : Test.Name.Space.HelloRequest -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task
+        abstract member SayHelloClientStreaming : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply>
+        abstract member SayHelloDuplexStreaming : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task
+        static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) =
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.UnaryServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>>
+                | _ -> Grpc.Core.UnaryServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(serviceImpl.SayHello)
+            serviceBinder.AddMethod(__Method_SayHello, serviceMethodOrNull) |> ignore
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.ServerStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>>
+                | _ -> Grpc.Core.ServerStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(serviceImpl.SayHelloServerStreaming)
+            serviceBinder.AddMethod(__Method_SayHelloServerStreaming, serviceMethodOrNull) |> ignore
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.ClientStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>>
+                | _ -> Grpc.Core.ClientStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(serviceImpl.SayHelloClientStreaming)
+            serviceBinder.AddMethod(__Method_SayHelloClientStreaming, serviceMethodOrNull) |> ignore
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.DuplexStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>>
+                | _ -> Grpc.Core.DuplexStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(serviceImpl.SayHelloDuplexStreaming)
+            serviceBinder.AddMethod(__Method_SayHelloDuplexStreaming, serviceMethodOrNull) |> ignore
+    type Service() = 
+        inherit ServiceBase()
+        static member val sayHelloImpl : Test.Name.Space.HelloRequest -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply> =
+            (fun _ _ -> failwith "\"Service.SayHelloImpl\" has not been set.") with get, set 
+        override this.SayHello request context = Service.sayHelloImpl request context
+        static member val sayHelloServerStreamingImpl : Test.Name.Space.HelloRequest -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
+            (fun _ _ _ -> failwith "\"Service.SayHelloServerStreamingImpl\" has not been set.") with get, set 
+        override this.SayHelloServerStreaming request writer context = Service.sayHelloServerStreamingImpl request writer context
+        static member val sayHelloClientStreamingImpl : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply> =
+            (fun _ _ -> failwith "\"Service.SayHelloClientStreamingImpl\" has not been set.") with get, set 
+        override this.SayHelloClientStreaming requestStream context = Service.sayHelloClientStreamingImpl requestStream context
+        static member val sayHelloDuplexStreamingImpl : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
+            (fun _ _ _ -> failwith "\"Service.SayHelloDuplexStreamingImpl\" has not been set.") with get, set 
+        override this.SayHelloDuplexStreaming requestStream writer context = Service.sayHelloDuplexStreamingImpl requestStream writer context
+    type Client = 
+        inherit Grpc.Core.ClientBase<Client>
+        new () = { inherit Grpc.Core.ClientBase<Client>() }
+        new (channel: Grpc.Core.ChannelBase) = { inherit Grpc.Core.ClientBase<Client>(channel) }
+        new (callInvoker: Grpc.Core.CallInvoker) = { inherit Grpc.Core.ClientBase<Client>(callInvoker) }
+        new (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = { inherit Grpc.Core.ClientBase<Client>(configuration) }
+        override this.NewInstance (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = Client(configuration)
+        member this.SayHello (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
+            this.CallInvoker.BlockingUnaryCall(__Method_SayHello, Unchecked.defaultof<string>, callOptions, request)
+        member this.SayHelloAsync (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
+            this.CallInvoker.AsyncUnaryCall(__Method_SayHello, Unchecked.defaultof<string>, callOptions, request)
+        member this.SayHelloServerStreamingAsync (callOptions: Grpc.Core.CallOptions) (request: Test.Name.Space.HelloRequest) =
+            this.CallInvoker.AsyncServerStreamingCall(__Method_SayHelloServerStreaming, Unchecked.defaultof<string>, callOptions, request)
+        member this.SayHelloClientStreamingAsync (callOptions: Grpc.Core.CallOptions) =
+            this.CallInvoker.AsyncClientStreamingCall(__Method_SayHelloClientStreaming, Unchecked.defaultof<string>, callOptions)
+        member this.SayHelloDuplexStreamingAsync (callOptions: Grpc.Core.CallOptions) =
+            this.CallInvoker.AsyncDuplexStreamingCall(__Method_SayHelloDuplexStreaming, Unchecked.defaultof<string>, callOptions)

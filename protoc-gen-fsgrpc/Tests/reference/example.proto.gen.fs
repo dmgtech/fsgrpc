@@ -1525,3 +1525,97 @@ type OpticsExtensionMethods_example_proto =
     [<Extension>]
     static member inline Value(traversal : ITraversal<'a,'b,Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record>) : ITraversal<'a,'b,string,string> =
         traversal.ComposeWith(Ex.Ample.Optics.ResultEvent.Record.``value``)
+
+module ServiceOne =
+    let private __Marshaller__ex_ample_importable_Imported = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.Importable.Imported) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Marshaller__ex_ample_ResultEvent = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.ResultEvent) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Marshaller__ex_ample_Inner = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.Inner) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Marshaller__ex_ample_Outer_Nested = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.Outer.Nested) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Marshaller__ex_ample_importable_Args = Grpc.Core.Marshallers.Create(
+        (fun (x: Ex.Ample.Importable.Args) -> FsGrpc.Protobuf.encode x),
+        (fun (arr: byte array) -> FsGrpc.Protobuf.decode arr)
+    )
+    let private __Method_ExampleUnaryRpc =
+        Grpc.Core.Method<Ex.Ample.Inner,Ex.Ample.Importable.Imported>(
+            Grpc.Core.MethodType.Unary,
+            "ex.ample.ServiceOne",
+            "ExampleUnaryRpc",
+            __Marshaller__ex_ample_Inner,
+            __Marshaller__ex_ample_importable_Imported
+        )
+    let private __Method_ExampleServerStreamingRpc =
+        Grpc.Core.Method<Ex.Ample.Outer.Nested,Ex.Ample.Importable.Imported>(
+            Grpc.Core.MethodType.ServerStreaming,
+            "ex.ample.ServiceOne",
+            "ExampleServerStreamingRpc",
+            __Marshaller__ex_ample_Outer_Nested,
+            __Marshaller__ex_ample_importable_Imported
+        )
+    let private __Method_ExampleSubscription =
+        Grpc.Core.Method<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>(
+            Grpc.Core.MethodType.ServerStreaming,
+            "ex.ample.ServiceOne",
+            "ExampleSubscription",
+            __Marshaller__ex_ample_importable_Args,
+            __Marshaller__ex_ample_ResultEvent
+        )
+    [<AbstractClass>]
+    [<Grpc.Core.BindServiceMethod(typeof<ServiceBase>, "BindService")>]
+    type ServiceBase() = 
+        abstract member ExampleUnaryRpc : Ex.Ample.Inner -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Imported>
+        abstract member ExampleServerStreamingRpc : Ex.Ample.Outer.Nested -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Imported> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task
+        abstract member ExampleSubscription : Ex.Ample.Importable.Args -> Grpc.Core.IServerStreamWriter<Ex.Ample.ResultEvent> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task
+        static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) =
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.UnaryServerMethod<Ex.Ample.Inner,Ex.Ample.Importable.Imported>>
+                | _ -> Grpc.Core.UnaryServerMethod<Ex.Ample.Inner,Ex.Ample.Importable.Imported>(serviceImpl.ExampleUnaryRpc)
+            serviceBinder.AddMethod(__Method_ExampleUnaryRpc, serviceMethodOrNull) |> ignore
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Outer.Nested,Ex.Ample.Importable.Imported>>
+                | _ -> Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Outer.Nested,Ex.Ample.Importable.Imported>(serviceImpl.ExampleServerStreamingRpc)
+            serviceBinder.AddMethod(__Method_ExampleServerStreamingRpc, serviceMethodOrNull) |> ignore
+            let serviceMethodOrNull =
+                match box serviceImpl with
+                | null -> Unchecked.defaultof<Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>>
+                | _ -> Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>(serviceImpl.ExampleSubscription)
+            serviceBinder.AddMethod(__Method_ExampleSubscription, serviceMethodOrNull) |> ignore
+    type Service() = 
+        inherit ServiceBase()
+        static member val exampleUnaryRpcImpl : Ex.Ample.Inner -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Imported> =
+            (fun _ _ -> failwith "\"Service.ExampleUnaryRpcImpl\" has not been set.") with get, set 
+        override this.ExampleUnaryRpc request context = Service.exampleUnaryRpcImpl request context
+        static member val exampleServerStreamingRpcImpl : Ex.Ample.Outer.Nested -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Imported> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
+            (fun _ _ _ -> failwith "\"Service.ExampleServerStreamingRpcImpl\" has not been set.") with get, set 
+        override this.ExampleServerStreamingRpc request writer context = Service.exampleServerStreamingRpcImpl request writer context
+        static member val exampleSubscriptionImpl : Ex.Ample.Importable.Args -> Grpc.Core.IServerStreamWriter<Ex.Ample.ResultEvent> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
+            (fun _ _ _ -> failwith "\"Service.ExampleSubscriptionImpl\" has not been set.") with get, set 
+        override this.ExampleSubscription request writer context = Service.exampleSubscriptionImpl request writer context
+    type Client = 
+        inherit Grpc.Core.ClientBase<Client>
+        new () = { inherit Grpc.Core.ClientBase<Client>() }
+        new (channel: Grpc.Core.ChannelBase) = { inherit Grpc.Core.ClientBase<Client>(channel) }
+        new (callInvoker: Grpc.Core.CallInvoker) = { inherit Grpc.Core.ClientBase<Client>(callInvoker) }
+        new (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = { inherit Grpc.Core.ClientBase<Client>(configuration) }
+        override this.NewInstance (configuration: Grpc.Core.ClientBase.ClientBaseConfiguration) = Client(configuration)
+        member this.ExampleUnaryRpc (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Inner) =
+            this.CallInvoker.BlockingUnaryCall(__Method_ExampleUnaryRpc, Unchecked.defaultof<string>, callOptions, request)
+        member this.ExampleUnaryRpcAsync (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Inner) =
+            this.CallInvoker.AsyncUnaryCall(__Method_ExampleUnaryRpc, Unchecked.defaultof<string>, callOptions, request)
+        member this.ExampleServerStreamingRpcAsync (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Outer.Nested) =
+            this.CallInvoker.AsyncServerStreamingCall(__Method_ExampleServerStreamingRpc, Unchecked.defaultof<string>, callOptions, request)
+        member this.ExampleSubscriptionAsync (callOptions: Grpc.Core.CallOptions) (request: Ex.Ample.Importable.Args) =
+            this.CallInvoker.AsyncServerStreamingCall(__Method_ExampleSubscription, Unchecked.defaultof<string>, callOptions, request)

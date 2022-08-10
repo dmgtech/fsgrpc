@@ -141,7 +141,7 @@ type FileDef = {
     Dependencies: string seq // (3)
     MessageTypes: MessageDef seq // (4)
     EnumTypes: EnumDef seq // (5)
-    //Services: Google.Protobuf.ServiceDescriptorProto seq // (6)
+    Services: Google.Protobuf.ServiceDescriptorProto seq // (6)
     //Extensions: Google.Protobuf.FieldDescriptorProto seq // (7)
     //Options: Google.Protobuf.FileOptions option // (8)
     //SourceCodeInfo: Google.Protobuf.SourceCodeInfo option // (9)
@@ -157,4 +157,5 @@ with
         Dependencies = d.Dependencies
         MessageTypes = d.MessageTypes |> Seq.mapi (MessageDef.From (ctx + 4))
         EnumTypes = d.EnumTypes |> Seq.mapi (EnumDef.From (ctx + 5))
+        Services = d.Services
         }
