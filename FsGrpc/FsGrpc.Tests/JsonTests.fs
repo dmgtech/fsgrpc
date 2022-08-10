@@ -45,6 +45,15 @@ let ``Union serializes to json using generic serializer`` () =
     Assert.Equal(expected, serialized)
 
 [<Fact>]
+let ``Union deserializes to json using generic serializer`` () =
+    let expected = {| Test = UnionCase.Name "blue" |}
+    let case = trim """
+        {"Test":{"name":"blue"}}
+        """
+    let deserialized = case |> JsonSerializer.Deserialize
+    Assert.Equal(expected, deserialized)
+
+[<Fact>]
 let ``Union none does not serialize on JsonIgnoreCondition.WhenWritingNull`` () =
     let case = {| Test = UnionCase.None |}
     let serialized = JsonSerializer.Serialize (case, ignoreNull)
@@ -492,6 +501,34 @@ let ``Map with int keys serializes to string keys`` () =
   let expected = """{"intMap":{"1":"uno","2":"dos"}}"""
   Assert.Equal(expected, actual)
 
+[<Fact>]
+let ``Empty JSON object deserializes to default value`` () =
+  let subject = "{ }"
+  let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
+  let expected = Enums.empty
+  Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Unknown fields are ignored during deserialization`` () =
+  let subject = """{"mainColor":"COLOR_BLACK","asdf":"fdsa"}"""
+  let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
+  let expected = { Enums.empty with MainColor = Enums.Color.Black }
+  Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Last in wins rules for deserializing oneof fields`` () =
+  let subject = """{"color":"COLOR_BLACK","name":"teal"}"""
+  let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
+  let expected = { Enums.empty with Union = UnionCase.Name "teal" }
+  Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Last in wins rules for deserializing oneof fields -- alternative case`` () =
+  let subject = """{"name":"teal","color":"COLOR_BLACK"}"""
+  let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
+  let expected = { Enums.empty with Union = UnionCase.Color Enums.Color.Black }
+  Assert.Equal(expected, actual)
+
 type Generator = 
   static member String() =
     // null strings are not supported on the F# datatype for JSON de/serialization
@@ -578,4 +615,12 @@ let ``Round trip (IntMap)`` (o: JsonOptions, x: Enums) =
 
 [<Property(Arbitrary=[| typeof<Generator> |])>]
 let ``Round trip (int * string * Nest)`` (o: JsonOptions, x: (int * string * Nest)) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip ({| Test: UnionCase |})`` (o: JsonOptions, x: {| Test: UnionCase |}) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip ({| EnumTest: Enums.Color |})`` (o: JsonOptions, x: {| EnumTest: Enums.Color |}) =
   roundTrip o x

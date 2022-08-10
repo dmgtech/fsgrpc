@@ -58,10 +58,10 @@ type FileDescriptorSet = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: FileDescriptorSet) =
                     writeFiles w m.Files
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : FileDescriptorSet =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "files" -> { value with Files = Files.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "files" -> { value with Files = Files.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _FileDescriptorSet.empty (node.AsObject ())
         }
@@ -247,21 +247,21 @@ type FileDescriptorProto = {
                     writeSourceCodeInfo w m.SourceCodeInfo
                     writeSyntax w m.Syntax
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : FileDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "package" -> { value with Package = Package.ReadJsonField o kvPair.Value }
-                    | _, "dependencies" -> { value with Dependencies = Dependencies.ReadJsonField o kvPair.Value }
-                    | _, "publicDependencies" -> { value with PublicDependencies = PublicDependencies.ReadJsonField o kvPair.Value }
-                    | _, "weakDependencies" -> { value with WeakDependencies = WeakDependencies.ReadJsonField o kvPair.Value }
-                    | _, "messageTypes" -> { value with MessageTypes = MessageTypes.ReadJsonField o kvPair.Value }
-                    | _, "enumTypes" -> { value with EnumTypes = EnumTypes.ReadJsonField o kvPair.Value }
-                    | _, "services" -> { value with Services = Services.ReadJsonField o kvPair.Value }
-                    | _, "extensions" -> { value with Extensions = Extensions.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
-                    | _, "sourceCodeInfo" -> { value with SourceCodeInfo = SourceCodeInfo.ReadJsonField o kvPair.Value }
-                    | _, "syntax" -> { value with Syntax = Syntax.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "package" -> { value with Package = Package.ReadJsonField kvPair.Value }
+                    | "dependencies" -> { value with Dependencies = Dependencies.ReadJsonField kvPair.Value }
+                    | "publicDependencies" -> { value with PublicDependencies = PublicDependencies.ReadJsonField kvPair.Value }
+                    | "weakDependencies" -> { value with WeakDependencies = WeakDependencies.ReadJsonField kvPair.Value }
+                    | "messageTypes" -> { value with MessageTypes = MessageTypes.ReadJsonField kvPair.Value }
+                    | "enumTypes" -> { value with EnumTypes = EnumTypes.ReadJsonField kvPair.Value }
+                    | "services" -> { value with Services = Services.ReadJsonField kvPair.Value }
+                    | "extensions" -> { value with Extensions = Extensions.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
+                    | "sourceCodeInfo" -> { value with SourceCodeInfo = SourceCodeInfo.ReadJsonField kvPair.Value }
+                    | "syntax" -> { value with Syntax = Syntax.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _FileDescriptorProto.empty (node.AsObject ())
         }
@@ -342,12 +342,12 @@ module DescriptorProto =
                         writeEnd w m.End
                         writeOptions w m.Options
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ExtensionRange =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "start" -> { value with Start = Start.ReadJsonField o kvPair.Value }
-                        | _, "end" -> { value with End = End.ReadJsonField o kvPair.Value }
-                        | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "start" -> { value with Start = Start.ReadJsonField kvPair.Value }
+                        | "end" -> { value with End = End.ReadJsonField kvPair.Value }
+                        | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _ExtensionRange.empty (node.AsObject ())
             }
@@ -420,11 +420,11 @@ module DescriptorProto =
                         writeStart w m.Start
                         writeEnd w m.End
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ReservedRange =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "start" -> { value with Start = Start.ReadJsonField o kvPair.Value }
-                        | _, "end" -> { value with End = End.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "start" -> { value with Start = Start.ReadJsonField kvPair.Value }
+                        | "end" -> { value with End = End.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _ReservedRange.empty (node.AsObject ())
             }
@@ -574,19 +574,19 @@ type DescriptorProto = {
                     writeReservedRanges w m.ReservedRanges
                     writeReservedNames w m.ReservedNames
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : DescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "fields" -> { value with Fields = Fields.ReadJsonField o kvPair.Value }
-                    | _, "extensions" -> { value with Extensions = Extensions.ReadJsonField o kvPair.Value }
-                    | _, "nestedTypes" -> { value with NestedTypes = NestedTypes.ReadJsonField o kvPair.Value }
-                    | _, "enumTypes" -> { value with EnumTypes = EnumTypes.ReadJsonField o kvPair.Value }
-                    | _, "extensionRanges" -> { value with ExtensionRanges = ExtensionRanges.ReadJsonField o kvPair.Value }
-                    | _, "oneofDecls" -> { value with OneofDecls = OneofDecls.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
-                    | _, "reservedRanges" -> { value with ReservedRanges = ReservedRanges.ReadJsonField o kvPair.Value }
-                    | _, "reservedNames" -> { value with ReservedNames = ReservedNames.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "fields" -> { value with Fields = Fields.ReadJsonField kvPair.Value }
+                    | "extensions" -> { value with Extensions = Extensions.ReadJsonField kvPair.Value }
+                    | "nestedTypes" -> { value with NestedTypes = NestedTypes.ReadJsonField kvPair.Value }
+                    | "enumTypes" -> { value with EnumTypes = EnumTypes.ReadJsonField kvPair.Value }
+                    | "extensionRanges" -> { value with ExtensionRanges = ExtensionRanges.ReadJsonField kvPair.Value }
+                    | "oneofDecls" -> { value with OneofDecls = OneofDecls.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
+                    | "reservedRanges" -> { value with ReservedRanges = ReservedRanges.ReadJsonField kvPair.Value }
+                    | "reservedNames" -> { value with ReservedNames = ReservedNames.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _DescriptorProto.empty (node.AsObject ())
         }
@@ -645,10 +645,10 @@ type ExtensionRangeOptions = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: ExtensionRangeOptions) =
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ExtensionRangeOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _ExtensionRangeOptions.empty (node.AsObject ())
         }
@@ -912,20 +912,20 @@ type FieldDescriptorProto = {
                     writeOptions w m.Options
                     writeProto3Optional w m.Proto3Optional
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : FieldDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "number" -> { value with Number = Number.ReadJsonField o kvPair.Value }
-                    | _, "label" -> { value with Label = Label.ReadJsonField o kvPair.Value }
-                    | _, "type" -> { value with Type = Type.ReadJsonField o kvPair.Value }
-                    | _, "typeName" -> { value with TypeName = TypeName.ReadJsonField o kvPair.Value }
-                    | _, "extendee" -> { value with Extendee = Extendee.ReadJsonField o kvPair.Value }
-                    | _, "defaultValue" -> { value with DefaultValue = DefaultValue.ReadJsonField o kvPair.Value }
-                    | _, "oneofIndex" -> { value with OneofIndex = OneofIndex.ReadJsonField o kvPair.Value }
-                    | _, "jsonName" -> { value with JsonName = JsonName.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
-                    | _, "proto3Optional" -> { value with Proto3Optional = Proto3Optional.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "number" -> { value with Number = Number.ReadJsonField kvPair.Value }
+                    | "label" -> { value with Label = Label.ReadJsonField kvPair.Value }
+                    | "type" -> { value with Type = Type.ReadJsonField kvPair.Value }
+                    | "typeName" -> { value with TypeName = TypeName.ReadJsonField kvPair.Value }
+                    | "extendee" -> { value with Extendee = Extendee.ReadJsonField kvPair.Value }
+                    | "defaultValue" -> { value with DefaultValue = DefaultValue.ReadJsonField kvPair.Value }
+                    | "oneofIndex" -> { value with OneofIndex = OneofIndex.ReadJsonField kvPair.Value }
+                    | "jsonName" -> { value with JsonName = JsonName.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
+                    | "proto3Optional" -> { value with Proto3Optional = Proto3Optional.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _FieldDescriptorProto.empty (node.AsObject ())
         }
@@ -994,11 +994,11 @@ type OneofDescriptorProto = {
                     writeName w m.Name
                     writeOptions w m.Options
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : OneofDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _OneofDescriptorProto.empty (node.AsObject ())
         }
@@ -1077,11 +1077,11 @@ module EnumDescriptorProto =
                         writeStart w m.Start
                         writeEnd w m.End
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : EnumReservedRange =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "start" -> { value with Start = Start.ReadJsonField o kvPair.Value }
-                        | _, "end" -> { value with End = End.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "start" -> { value with Start = Start.ReadJsonField kvPair.Value }
+                        | "end" -> { value with End = End.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _EnumReservedRange.empty (node.AsObject ())
             }
@@ -1186,14 +1186,14 @@ type EnumDescriptorProto = {
                     writeReservedRanges w m.ReservedRanges
                     writeReservedNames w m.ReservedNames
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : EnumDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "values" -> { value with Values = Values.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
-                    | _, "reservedRanges" -> { value with ReservedRanges = ReservedRanges.ReadJsonField o kvPair.Value }
-                    | _, "reservedNames" -> { value with ReservedNames = ReservedNames.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "values" -> { value with Values = Values.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
+                    | "reservedRanges" -> { value with ReservedRanges = ReservedRanges.ReadJsonField kvPair.Value }
+                    | "reservedNames" -> { value with ReservedNames = ReservedNames.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _EnumDescriptorProto.empty (node.AsObject ())
         }
@@ -1272,12 +1272,12 @@ type EnumValueDescriptorProto = {
                     writeNumber w m.Number
                     writeOptions w m.Options
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : EnumValueDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "number" -> { value with Number = Number.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "number" -> { value with Number = Number.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _EnumValueDescriptorProto.empty (node.AsObject ())
         }
@@ -1356,12 +1356,12 @@ type ServiceDescriptorProto = {
                     writeMethods w m.Methods
                     writeOptions w m.Options
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ServiceDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "methods" -> { value with Methods = Methods.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "methods" -> { value with Methods = Methods.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _ServiceDescriptorProto.empty (node.AsObject ())
         }
@@ -1476,15 +1476,15 @@ type MethodDescriptorProto = {
                     writeClientStreaming w m.ClientStreaming
                     writeServerStreaming w m.ServerStreaming
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : MethodDescriptorProto =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                    | _, "inputType" -> { value with InputType = InputType.ReadJsonField o kvPair.Value }
-                    | _, "outputType" -> { value with OutputType = OutputType.ReadJsonField o kvPair.Value }
-                    | _, "options" -> { value with Options = Options.ReadJsonField o kvPair.Value }
-                    | _, "clientStreaming" -> { value with ClientStreaming = ClientStreaming.ReadJsonField o kvPair.Value }
-                    | _, "serverStreaming" -> { value with ServerStreaming = ServerStreaming.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "inputType" -> { value with InputType = InputType.ReadJsonField kvPair.Value }
+                    | "outputType" -> { value with OutputType = OutputType.ReadJsonField kvPair.Value }
+                    | "options" -> { value with Options = Options.ReadJsonField kvPair.Value }
+                    | "clientStreaming" -> { value with ClientStreaming = ClientStreaming.ReadJsonField kvPair.Value }
+                    | "serverStreaming" -> { value with ServerStreaming = ServerStreaming.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _MethodDescriptorProto.empty (node.AsObject ())
         }
@@ -1844,30 +1844,30 @@ type FileOptions = {
                     writeRubyPackage w m.RubyPackage
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : FileOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "javaPackage" -> { value with JavaPackage = JavaPackage.ReadJsonField o kvPair.Value }
-                    | _, "javaOuterClassname" -> { value with JavaOuterClassname = JavaOuterClassname.ReadJsonField o kvPair.Value }
-                    | _, "javaMultipleFiles" -> { value with JavaMultipleFiles = JavaMultipleFiles.ReadJsonField o kvPair.Value }
-                    | _, "javaGenerateEqualsAndHash" -> { value with JavaGenerateEqualsAndHash = JavaGenerateEqualsAndHash.ReadJsonField o kvPair.Value }
-                    | _, "javaStringCheckUtf8" -> { value with JavaStringCheckUtf8 = JavaStringCheckUtf8.ReadJsonField o kvPair.Value }
-                    | _, "optimizeFor" -> { value with OptimizeFor = OptimizeFor.ReadJsonField o kvPair.Value }
-                    | _, "goPackage" -> { value with GoPackage = GoPackage.ReadJsonField o kvPair.Value }
-                    | _, "ccGenericServices" -> { value with CcGenericServices = CcGenericServices.ReadJsonField o kvPair.Value }
-                    | _, "javaGenericServices" -> { value with JavaGenericServices = JavaGenericServices.ReadJsonField o kvPair.Value }
-                    | _, "pyGenericServices" -> { value with PyGenericServices = PyGenericServices.ReadJsonField o kvPair.Value }
-                    | _, "phpGenericServices" -> { value with PhpGenericServices = PhpGenericServices.ReadJsonField o kvPair.Value }
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "ccEnableArenas" -> { value with CcEnableArenas = CcEnableArenas.ReadJsonField o kvPair.Value }
-                    | _, "objcClassPrefix" -> { value with ObjcClassPrefix = ObjcClassPrefix.ReadJsonField o kvPair.Value }
-                    | _, "csharpNamespace" -> { value with CsharpNamespace = CsharpNamespace.ReadJsonField o kvPair.Value }
-                    | _, "swiftPrefix" -> { value with SwiftPrefix = SwiftPrefix.ReadJsonField o kvPair.Value }
-                    | _, "phpClassPrefix" -> { value with PhpClassPrefix = PhpClassPrefix.ReadJsonField o kvPair.Value }
-                    | _, "phpNamespace" -> { value with PhpNamespace = PhpNamespace.ReadJsonField o kvPair.Value }
-                    | _, "phpMetadataNamespace" -> { value with PhpMetadataNamespace = PhpMetadataNamespace.ReadJsonField o kvPair.Value }
-                    | _, "rubyPackage" -> { value with RubyPackage = RubyPackage.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "javaPackage" -> { value with JavaPackage = JavaPackage.ReadJsonField kvPair.Value }
+                    | "javaOuterClassname" -> { value with JavaOuterClassname = JavaOuterClassname.ReadJsonField kvPair.Value }
+                    | "javaMultipleFiles" -> { value with JavaMultipleFiles = JavaMultipleFiles.ReadJsonField kvPair.Value }
+                    | "javaGenerateEqualsAndHash" -> { value with JavaGenerateEqualsAndHash = JavaGenerateEqualsAndHash.ReadJsonField kvPair.Value }
+                    | "javaStringCheckUtf8" -> { value with JavaStringCheckUtf8 = JavaStringCheckUtf8.ReadJsonField kvPair.Value }
+                    | "optimizeFor" -> { value with OptimizeFor = OptimizeFor.ReadJsonField kvPair.Value }
+                    | "goPackage" -> { value with GoPackage = GoPackage.ReadJsonField kvPair.Value }
+                    | "ccGenericServices" -> { value with CcGenericServices = CcGenericServices.ReadJsonField kvPair.Value }
+                    | "javaGenericServices" -> { value with JavaGenericServices = JavaGenericServices.ReadJsonField kvPair.Value }
+                    | "pyGenericServices" -> { value with PyGenericServices = PyGenericServices.ReadJsonField kvPair.Value }
+                    | "phpGenericServices" -> { value with PhpGenericServices = PhpGenericServices.ReadJsonField kvPair.Value }
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "ccEnableArenas" -> { value with CcEnableArenas = CcEnableArenas.ReadJsonField kvPair.Value }
+                    | "objcClassPrefix" -> { value with ObjcClassPrefix = ObjcClassPrefix.ReadJsonField kvPair.Value }
+                    | "csharpNamespace" -> { value with CsharpNamespace = CsharpNamespace.ReadJsonField kvPair.Value }
+                    | "swiftPrefix" -> { value with SwiftPrefix = SwiftPrefix.ReadJsonField kvPair.Value }
+                    | "phpClassPrefix" -> { value with PhpClassPrefix = PhpClassPrefix.ReadJsonField kvPair.Value }
+                    | "phpNamespace" -> { value with PhpNamespace = PhpNamespace.ReadJsonField kvPair.Value }
+                    | "phpMetadataNamespace" -> { value with PhpMetadataNamespace = PhpMetadataNamespace.ReadJsonField kvPair.Value }
+                    | "rubyPackage" -> { value with RubyPackage = RubyPackage.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _FileOptions.empty (node.AsObject ())
         }
@@ -2020,14 +2020,14 @@ type MessageOptions = {
                     writeMapEntry w m.MapEntry
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : MessageOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "messageSetWireFormat" -> { value with MessageSetWireFormat = MessageSetWireFormat.ReadJsonField o kvPair.Value }
-                    | _, "noStandardDescriptorAccessor" -> { value with NoStandardDescriptorAccessor = NoStandardDescriptorAccessor.ReadJsonField o kvPair.Value }
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "mapEntry" -> { value with MapEntry = MapEntry.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "messageSetWireFormat" -> { value with MessageSetWireFormat = MessageSetWireFormat.ReadJsonField kvPair.Value }
+                    | "noStandardDescriptorAccessor" -> { value with NoStandardDescriptorAccessor = NoStandardDescriptorAccessor.ReadJsonField kvPair.Value }
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "mapEntry" -> { value with MapEntry = MapEntry.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _MessageOptions.empty (node.AsObject ())
         }
@@ -2225,16 +2225,16 @@ type FieldOptions = {
                     writeWeak w m.Weak
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : FieldOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "ctype" -> { value with Ctype = Ctype.ReadJsonField o kvPair.Value }
-                    | _, "packed" -> { value with Packed = Packed.ReadJsonField o kvPair.Value }
-                    | _, "jstype" -> { value with Jstype = Jstype.ReadJsonField o kvPair.Value }
-                    | _, "lazy" -> { value with Lazy = Lazy.ReadJsonField o kvPair.Value }
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "weak" -> { value with Weak = Weak.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "ctype" -> { value with Ctype = Ctype.ReadJsonField kvPair.Value }
+                    | "packed" -> { value with Packed = Packed.ReadJsonField kvPair.Value }
+                    | "jstype" -> { value with Jstype = Jstype.ReadJsonField kvPair.Value }
+                    | "lazy" -> { value with Lazy = Lazy.ReadJsonField kvPair.Value }
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "weak" -> { value with Weak = Weak.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _FieldOptions.empty (node.AsObject ())
         }
@@ -2293,10 +2293,10 @@ type OneofOptions = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: OneofOptions) =
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : OneofOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _OneofOptions.empty (node.AsObject ())
         }
@@ -2385,12 +2385,12 @@ type EnumOptions = {
                     writeDeprecated w m.Deprecated
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : EnumOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "allowAlias" -> { value with AllowAlias = AllowAlias.ReadJsonField o kvPair.Value }
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "allowAlias" -> { value with AllowAlias = AllowAlias.ReadJsonField kvPair.Value }
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _EnumOptions.empty (node.AsObject ())
         }
@@ -2465,11 +2465,11 @@ type EnumValueOptions = {
                     writeDeprecated w m.Deprecated
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : EnumValueOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _EnumValueOptions.empty (node.AsObject ())
         }
@@ -2544,11 +2544,11 @@ type ServiceOptions = {
                     writeDeprecated w m.Deprecated
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ServiceOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _ServiceOptions.empty (node.AsObject ())
         }
@@ -2644,12 +2644,12 @@ type MethodOptions = {
                     writeIdempotencyLevel w m.IdempotencyLevel
                     writeUninterpretedOptions w m.UninterpretedOptions
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : MethodOptions =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField o kvPair.Value }
-                    | _, "idempotencyLevel" -> { value with IdempotencyLevel = IdempotencyLevel.ReadJsonField o kvPair.Value }
-                    | _, "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "deprecated" -> { value with Deprecated = Deprecated.ReadJsonField kvPair.Value }
+                    | "idempotencyLevel" -> { value with IdempotencyLevel = IdempotencyLevel.ReadJsonField kvPair.Value }
+                    | "uninterpretedOptions" -> { value with UninterpretedOptions = UninterpretedOptions.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _MethodOptions.empty (node.AsObject ())
         }
@@ -2671,6 +2671,24 @@ module UninterpretedOption =
     | [<System.Text.Json.Serialization.JsonPropertyName("doubleValue")>] DoubleValue of double
     | [<System.Text.Json.Serialization.JsonPropertyName("stringValue")>] StringValue of FsGrpc.Bytes
     | [<System.Text.Json.Serialization.JsonPropertyName("aggregateValue")>] AggregateValue of string
+    with
+        static member OneofCodec : Lazy<OneofCodec<ValueCase>> = 
+            lazy
+            let IdentifierValue = FieldCodec.OneofCase "value" ValueCodec.String (3, "identifierValue")
+            let PositiveIntValue = FieldCodec.OneofCase "value" ValueCodec.UInt64 (4, "positiveIntValue")
+            let NegativeIntValue = FieldCodec.OneofCase "value" ValueCodec.Int64 (5, "negativeIntValue")
+            let DoubleValue = FieldCodec.OneofCase "value" ValueCodec.Double (6, "doubleValue")
+            let StringValue = FieldCodec.OneofCase "value" ValueCodec.Bytes (7, "stringValue")
+            let AggregateValue = FieldCodec.OneofCase "value" ValueCodec.String (8, "aggregateValue")
+            let Value = FieldCodec.Oneof "value" (FSharp.Collections.Map [
+                ("identifierValue", fun node -> ValueCase.IdentifierValue (IdentifierValue.ReadJsonField node))
+                ("positiveIntValue", fun node -> ValueCase.PositiveIntValue (PositiveIntValue.ReadJsonField node))
+                ("negativeIntValue", fun node -> ValueCase.NegativeIntValue (NegativeIntValue.ReadJsonField node))
+                ("doubleValue", fun node -> ValueCase.DoubleValue (DoubleValue.ReadJsonField node))
+                ("stringValue", fun node -> ValueCase.StringValue (StringValue.ReadJsonField node))
+                ("aggregateValue", fun node -> ValueCase.AggregateValue (AggregateValue.ReadJsonField node))
+                ])
+            Value
 
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     module NamePart =
@@ -2740,11 +2758,11 @@ module UninterpretedOption =
                         writeNamePart w m.NamePart
                         writeIsExtension w m.IsExtension
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : NamePart =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "namePart" -> { value with NamePart = NamePart.ReadJsonField o kvPair.Value }
-                        | _, "isExtension" -> { value with IsExtension = IsExtension.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "namePart" -> { value with NamePart = NamePart.ReadJsonField kvPair.Value }
+                        | "isExtension" -> { value with IsExtension = IsExtension.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _NamePart.empty (node.AsObject ())
             }
@@ -2804,13 +2822,13 @@ type UninterpretedOption = {
         let DoubleValue = FieldCodec.OneofCase "value" ValueCodec.Double (6, "doubleValue")
         let StringValue = FieldCodec.OneofCase "value" ValueCodec.Bytes (7, "stringValue")
         let AggregateValue = FieldCodec.OneofCase "value" ValueCodec.String (8, "aggregateValue")
-        let Value = FieldCodec.Oneof "value" (Map [
-            ("identifierValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.IdentifierValue (IdentifierValue.ReadJsonField options node))
-            ("positiveIntValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.PositiveIntValue (PositiveIntValue.ReadJsonField options node))
-            ("negativeIntValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.NegativeIntValue (NegativeIntValue.ReadJsonField options node))
-            ("doubleValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.DoubleValue (DoubleValue.ReadJsonField options node))
-            ("stringValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.StringValue (StringValue.ReadJsonField options node))
-            ("aggregateValue", fun options node -> Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue (AggregateValue.ReadJsonField options node))
+        let Value = FieldCodec.Oneof "value" (FSharp.Collections.Map [
+            ("identifierValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.IdentifierValue (IdentifierValue.ReadJsonField node))
+            ("positiveIntValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.PositiveIntValue (PositiveIntValue.ReadJsonField node))
+            ("negativeIntValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.NegativeIntValue (NegativeIntValue.ReadJsonField node))
+            ("doubleValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.DoubleValue (DoubleValue.ReadJsonField node))
+            ("stringValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.StringValue (StringValue.ReadJsonField node))
+            ("aggregateValue", fun node -> Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue (AggregateValue.ReadJsonField node))
             ])
         // Proto Definition Implementation
         { // ProtoDef<UninterpretedOption>
@@ -2868,17 +2886,17 @@ type UninterpretedOption = {
                     | Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue v -> writeAggregateValue w v
                     )
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : UninterpretedOption =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "names" -> { value with Names = Names.ReadJsonField o kvPair.Value }
-                    | JsonOneofStyle.Inline, "identifierValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.IdentifierValue (IdentifierValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "positiveIntValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.PositiveIntValue (PositiveIntValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "negativeIntValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.NegativeIntValue (NegativeIntValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "doubleValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.DoubleValue (DoubleValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "stringValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.StringValue (StringValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "aggregateValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue (AggregateValue.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Wrapped, "value" -> { value with Value = Value.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "names" -> { value with Names = Names.ReadJsonField kvPair.Value }
+                    | "identifierValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.IdentifierValue (IdentifierValue.ReadJsonField kvPair.Value) }
+                    | "positiveIntValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.PositiveIntValue (PositiveIntValue.ReadJsonField kvPair.Value) }
+                    | "negativeIntValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.NegativeIntValue (NegativeIntValue.ReadJsonField kvPair.Value) }
+                    | "doubleValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.DoubleValue (DoubleValue.ReadJsonField kvPair.Value) }
+                    | "stringValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.StringValue (StringValue.ReadJsonField kvPair.Value) }
+                    | "aggregateValue" -> { value with Value = Google.Protobuf.UninterpretedOption.ValueCase.AggregateValue (AggregateValue.ReadJsonField kvPair.Value) }
+                    | "value" -> { value with Value = Value.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _UninterpretedOption.empty (node.AsObject ())
         }
@@ -3060,14 +3078,14 @@ module SourceCodeInfo =
                         writeTrailingComments w m.TrailingComments
                         writeLeadingDetachedComments w m.LeadingDetachedComments
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Location =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "paths" -> { value with Paths = Paths.ReadJsonField o kvPair.Value }
-                        | _, "spans" -> { value with Spans = Spans.ReadJsonField o kvPair.Value }
-                        | _, "leadingComments" -> { value with LeadingComments = LeadingComments.ReadJsonField o kvPair.Value }
-                        | _, "trailingComments" -> { value with TrailingComments = TrailingComments.ReadJsonField o kvPair.Value }
-                        | _, "leadingDetachedComments" -> { value with LeadingDetachedComments = LeadingDetachedComments.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "paths" -> { value with Paths = Paths.ReadJsonField kvPair.Value }
+                        | "spans" -> { value with Spans = Spans.ReadJsonField kvPair.Value }
+                        | "leadingComments" -> { value with LeadingComments = LeadingComments.ReadJsonField kvPair.Value }
+                        | "trailingComments" -> { value with TrailingComments = TrailingComments.ReadJsonField kvPair.Value }
+                        | "leadingDetachedComments" -> { value with LeadingDetachedComments = LeadingDetachedComments.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _Location.empty (node.AsObject ())
             }
@@ -3171,10 +3189,10 @@ type SourceCodeInfo = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: SourceCodeInfo) =
                     writeLocation w m.Location
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : SourceCodeInfo =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "location" -> { value with Location = Location.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "location" -> { value with Location = Location.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _SourceCodeInfo.empty (node.AsObject ())
         }
@@ -3279,13 +3297,13 @@ module GeneratedCodeInfo =
                         writeBegin w m.Begin
                         writeEnd w m.End
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Annotation =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "paths" -> { value with Paths = Paths.ReadJsonField o kvPair.Value }
-                        | _, "sourceFile" -> { value with SourceFile = SourceFile.ReadJsonField o kvPair.Value }
-                        | _, "begin" -> { value with Begin = Begin.ReadJsonField o kvPair.Value }
-                        | _, "end" -> { value with End = End.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "paths" -> { value with Paths = Paths.ReadJsonField kvPair.Value }
+                        | "sourceFile" -> { value with SourceFile = SourceFile.ReadJsonField kvPair.Value }
+                        | "begin" -> { value with Begin = Begin.ReadJsonField kvPair.Value }
+                        | "end" -> { value with End = End.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _Annotation.empty (node.AsObject ())
             }
@@ -3349,10 +3367,10 @@ type GeneratedCodeInfo = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: GeneratedCodeInfo) =
                     writeAnnotations w m.Annotations
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : GeneratedCodeInfo =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "annotations" -> { value with Annotations = Annotations.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "annotations" -> { value with Annotations = Annotations.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _GeneratedCodeInfo.empty (node.AsObject ())
         }

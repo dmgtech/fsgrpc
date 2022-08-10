@@ -12,6 +12,13 @@ let inline tryCastTo<'T> (a: obj) : 'T option =
     | :? 'T -> Some (a :?> 'T)
     | _ -> None
 
+let ReflectOneofCodec()  : OneofCodec<'U> =
+    let tipo = typeof<'U>
+    let protoProperty = tipo.GetProperty("OneofCodec", System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public)
+    let protoDef = protoProperty.GetValue (Unchecked.defaultof<'U>)
+    let protoDef = protoDef :?> Lazy<OneofCodec<'U>>
+    protoDef.Force()
+
 type OneofConverter<'U>() =
     inherit JsonConverter<'U>()
     let getTag = FSharpValue.PreComputeUnionTagReader typeof<'U>
@@ -41,7 +48,9 @@ type OneofConverter<'U>() =
             doWrite
     let doWrite = cases |> Array.map makeCaseWriter
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'U =
-        failwith "Not Implemented"
+        let node = JsonNode.Parse(&reader)
+        let codec = ReflectOneofCodec()
+        codec.ReadJsonField node
     override _.Write(writer: Utf8JsonWriter, value: 'U, options: JsonSerializerOptions): unit =
         let tag = getTag value
         let doWrite = doWrite[tag]
@@ -80,7 +89,8 @@ type EnumConverter<'E>(render: JsonEnumStyle) =
     let writersByNumber = Array.zip numbers writers |> Map.ofSeq
     new() = EnumConverter<'E>(JsonEnumStyle.ProtobufName)
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'E =
-        failwith "Not Implemented"
+        let node = JsonNode.Parse(&reader)
+        ValueCodec.readEnumFromJsonNode node
     override _.Write(writer: Utf8JsonWriter, value: 'E, options: JsonSerializerOptions): unit =
         let writeTo = writersByNumber.Item (unbox<int> value)
         writeTo writer
@@ -102,7 +112,7 @@ type MessageConverter<'M>(options: JsonOptions) =
     let encode = proto.EncodeJson options
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, _: JsonSerializerOptions): 'M =
         let node = JsonNode.Parse(&reader)
-        proto.DecodeJson options node
+        proto.DecodeJson node
     override _.Write(writer: Utf8JsonWriter, value: 'M, _: JsonSerializerOptions): unit =
         writer.WriteStartObject()
         encode writer value

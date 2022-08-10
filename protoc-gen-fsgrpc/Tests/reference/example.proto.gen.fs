@@ -122,15 +122,15 @@ type Inner = {
                     writeNested w m.Nested
                     writeNestedEnum w m.NestedEnum
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Inner =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "intFixed" -> { value with IntFixed = IntFixed.ReadJsonField o kvPair.Value }
-                    | _, "longFixed" -> { value with LongFixed = LongFixed.ReadJsonField o kvPair.Value }
-                    | _, "zigzagInt" -> { value with ZigzagInt = ZigzagInt.ReadJsonField o kvPair.Value }
-                    | _, "zigzagLong" -> { value with ZigzagLong = ZigzagLong.ReadJsonField o kvPair.Value }
-                    | _, "nested" -> { value with Nested = Nested.ReadJsonField o kvPair.Value }
-                    | _, "nestedEnum" -> { value with NestedEnum = NestedEnum.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "intFixed" -> { value with IntFixed = IntFixed.ReadJsonField kvPair.Value }
+                    | "longFixed" -> { value with LongFixed = LongFixed.ReadJsonField kvPair.Value }
+                    | "zigzagInt" -> { value with ZigzagInt = ZigzagInt.ReadJsonField kvPair.Value }
+                    | "zigzagLong" -> { value with ZigzagLong = ZigzagLong.ReadJsonField kvPair.Value }
+                    | "nested" -> { value with Nested = Nested.ReadJsonField kvPair.Value }
+                    | "nestedEnum" -> { value with NestedEnum = NestedEnum.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _Inner.empty (node.AsObject ())
         }
@@ -152,6 +152,18 @@ module Outer =
     | [<System.Text.Json.Serialization.JsonPropertyName("stringOption")>] StringOption of string
     /// <summary>a message type from another file</summary>
     | [<System.Text.Json.Serialization.JsonPropertyName("importedOption")>] ImportedOption of Ex.Ample.Importable.Args
+    with
+        static member OneofCodec : Lazy<OneofCodec<UnionCase>> = 
+            lazy
+            let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
+            let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
+            let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+            let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
+                ("innerOption", fun node -> UnionCase.InnerOption (InnerOption.ReadJsonField node))
+                ("stringOption", fun node -> UnionCase.StringOption (StringOption.ReadJsonField node))
+                ("importedOption", fun node -> UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
+                ])
+            Union
 
     [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
     module Nested =
@@ -189,7 +201,7 @@ module Outer =
                             r.SkipLastField()
                         DoubleNested.empty
                     EncodeJson = fun _ _ _ -> ()
-                    DecodeJson = fun _ _ -> DoubleNested.empty
+                    DecodeJson = fun _ -> DoubleNested.empty
                 }
 
         [<System.Runtime.CompilerServices.IsByRefLike>]
@@ -250,11 +262,11 @@ module Outer =
                         writeEnums w m.Enums
                         writeInner w m.Inner
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Nested =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "enums" -> { value with Enums = Enums.ReadJsonField o kvPair.Value }
-                        | _, "inner" -> { value with Inner = Inner.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "enums" -> { value with Enums = Enums.ReadJsonField kvPair.Value }
+                        | "inner" -> { value with Inner = Inner.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _Nested.empty (node.AsObject ())
             }
@@ -528,10 +540,10 @@ type Outer = {
         let MaybesInt64 = FieldCodec.Repeated (ValueCodec.Wrap ValueCodec.Int64) (45, "maybesInt64")
         let Timestamps = FieldCodec.Repeated ValueCodec.Timestamp (46, "timestamps")
         let Anything = FieldCodec.Optional ValueCodec.Any (47, "anything")
-        let Union = FieldCodec.Oneof "union" (Map [
-            ("innerOption", fun options node -> Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField options node))
-            ("stringOption", fun options node -> Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField options node))
-            ("importedOption", fun options node -> Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField options node))
+        let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
+            ("innerOption", fun node -> Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField node))
+            ("stringOption", fun node -> Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField node))
+            ("importedOption", fun node -> Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
             ])
         // Proto Definition Implementation
         { // ProtoDef<Outer>
@@ -762,51 +774,51 @@ type Outer = {
                     writeTimestamps w m.Timestamps
                     writeAnything w m.Anything
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Outer =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "doubleVal" -> { value with DoubleVal = DoubleVal.ReadJsonField o kvPair.Value }
-                    | _, "floatVal" -> { value with FloatVal = FloatVal.ReadJsonField o kvPair.Value }
-                    | _, "longVal" -> { value with LongVal = LongVal.ReadJsonField o kvPair.Value }
-                    | _, "ulongVal" -> { value with UlongVal = UlongVal.ReadJsonField o kvPair.Value }
-                    | _, "intVal" -> { value with IntVal = IntVal.ReadJsonField o kvPair.Value }
-                    | _, "ulongFixed" -> { value with UlongFixed = UlongFixed.ReadJsonField o kvPair.Value }
-                    | _, "uintFixed" -> { value with UintFixed = UintFixed.ReadJsonField o kvPair.Value }
-                    | _, "boolVal" -> { value with BoolVal = BoolVal.ReadJsonField o kvPair.Value }
-                    | _, "stringVal" -> { value with StringVal = StringVal.ReadJsonField o kvPair.Value }
-                    | _, "bytesVal" -> { value with BytesVal = BytesVal.ReadJsonField o kvPair.Value }
-                    | _, "uintVal" -> { value with UintVal = UintVal.ReadJsonField o kvPair.Value }
-                    | _, "enumVal" -> { value with EnumVal = EnumVal.ReadJsonField o kvPair.Value }
-                    | _, "inner" -> { value with Inner = Inner.ReadJsonField o kvPair.Value }
-                    | _, "doubles" -> { value with Doubles = Doubles.ReadJsonField o kvPair.Value }
-                    | _, "inners" -> { value with Inners = Inners.ReadJsonField o kvPair.Value }
-                    | _, "map" -> { value with Map = Map.ReadJsonField o kvPair.Value }
-                    | _, "mapInner" -> { value with MapInner = MapInner.ReadJsonField o kvPair.Value }
-                    | _, "mapInts" -> { value with MapInts = MapInts.ReadJsonField o kvPair.Value }
-                    | _, "mapBool" -> { value with MapBool = MapBool.ReadJsonField o kvPair.Value }
-                    | _, "recursive" -> { value with Recursive = Recursive.ReadJsonField o kvPair.Value }
-                    | JsonOneofStyle.Inline, "innerOption" -> { value with Union = Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "stringOption" -> { value with Union = Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Inline, "importedOption" -> { value with Union = Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField o kvPair.Value) }
-                    | JsonOneofStyle.Wrapped, "union" -> { value with Union = Union.ReadJsonField o kvPair.Value }
-                    | _, "nested" -> { value with Nested = Nested.ReadJsonField o kvPair.Value }
-                    | _, "imported" -> { value with Imported = Imported.ReadJsonField o kvPair.Value }
-                    | _, "enumImported" -> { value with EnumImported = EnumImported.ReadJsonField o kvPair.Value }
-                    | _, "maybeDouble" -> { value with MaybeDouble = MaybeDouble.ReadJsonField o kvPair.Value }
-                    | _, "maybeFloat" -> { value with MaybeFloat = MaybeFloat.ReadJsonField o kvPair.Value }
-                    | _, "maybeInt64" -> { value with MaybeInt64 = MaybeInt64.ReadJsonField o kvPair.Value }
-                    | _, "maybeUint64" -> { value with MaybeUint64 = MaybeUint64.ReadJsonField o kvPair.Value }
-                    | _, "maybeInt32" -> { value with MaybeInt32 = MaybeInt32.ReadJsonField o kvPair.Value }
-                    | _, "maybeUint32" -> { value with MaybeUint32 = MaybeUint32.ReadJsonField o kvPair.Value }
-                    | _, "maybeBool" -> { value with MaybeBool = MaybeBool.ReadJsonField o kvPair.Value }
-                    | _, "maybeString" -> { value with MaybeString = MaybeString.ReadJsonField o kvPair.Value }
-                    | _, "maybeBytes" -> { value with MaybeBytes = MaybeBytes.ReadJsonField o kvPair.Value }
-                    | _, "timestamp" -> { value with Timestamp = Timestamp.ReadJsonField o kvPair.Value }
-                    | _, "duration" -> { value with Duration = Duration.ReadJsonField o kvPair.Value }
-                    | _, "optionalInt32" -> { value with OptionalInt32 = OptionalInt32.ReadJsonField o kvPair.Value }
-                    | _, "maybesInt64" -> { value with MaybesInt64 = MaybesInt64.ReadJsonField o kvPair.Value }
-                    | _, "timestamps" -> { value with Timestamps = Timestamps.ReadJsonField o kvPair.Value }
-                    | _, "anything" -> { value with Anything = Anything.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "doubleVal" -> { value with DoubleVal = DoubleVal.ReadJsonField kvPair.Value }
+                    | "floatVal" -> { value with FloatVal = FloatVal.ReadJsonField kvPair.Value }
+                    | "longVal" -> { value with LongVal = LongVal.ReadJsonField kvPair.Value }
+                    | "ulongVal" -> { value with UlongVal = UlongVal.ReadJsonField kvPair.Value }
+                    | "intVal" -> { value with IntVal = IntVal.ReadJsonField kvPair.Value }
+                    | "ulongFixed" -> { value with UlongFixed = UlongFixed.ReadJsonField kvPair.Value }
+                    | "uintFixed" -> { value with UintFixed = UintFixed.ReadJsonField kvPair.Value }
+                    | "boolVal" -> { value with BoolVal = BoolVal.ReadJsonField kvPair.Value }
+                    | "stringVal" -> { value with StringVal = StringVal.ReadJsonField kvPair.Value }
+                    | "bytesVal" -> { value with BytesVal = BytesVal.ReadJsonField kvPair.Value }
+                    | "uintVal" -> { value with UintVal = UintVal.ReadJsonField kvPair.Value }
+                    | "enumVal" -> { value with EnumVal = EnumVal.ReadJsonField kvPair.Value }
+                    | "inner" -> { value with Inner = Inner.ReadJsonField kvPair.Value }
+                    | "doubles" -> { value with Doubles = Doubles.ReadJsonField kvPair.Value }
+                    | "inners" -> { value with Inners = Inners.ReadJsonField kvPair.Value }
+                    | "map" -> { value with Map = Map.ReadJsonField kvPair.Value }
+                    | "mapInner" -> { value with MapInner = MapInner.ReadJsonField kvPair.Value }
+                    | "mapInts" -> { value with MapInts = MapInts.ReadJsonField kvPair.Value }
+                    | "mapBool" -> { value with MapBool = MapBool.ReadJsonField kvPair.Value }
+                    | "recursive" -> { value with Recursive = Recursive.ReadJsonField kvPair.Value }
+                    | "innerOption" -> { value with Union = Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField kvPair.Value) }
+                    | "stringOption" -> { value with Union = Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField kvPair.Value) }
+                    | "importedOption" -> { value with Union = Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField kvPair.Value) }
+                    | "union" -> { value with Union = Union.ReadJsonField kvPair.Value }
+                    | "nested" -> { value with Nested = Nested.ReadJsonField kvPair.Value }
+                    | "imported" -> { value with Imported = Imported.ReadJsonField kvPair.Value }
+                    | "enumImported" -> { value with EnumImported = EnumImported.ReadJsonField kvPair.Value }
+                    | "maybeDouble" -> { value with MaybeDouble = MaybeDouble.ReadJsonField kvPair.Value }
+                    | "maybeFloat" -> { value with MaybeFloat = MaybeFloat.ReadJsonField kvPair.Value }
+                    | "maybeInt64" -> { value with MaybeInt64 = MaybeInt64.ReadJsonField kvPair.Value }
+                    | "maybeUint64" -> { value with MaybeUint64 = MaybeUint64.ReadJsonField kvPair.Value }
+                    | "maybeInt32" -> { value with MaybeInt32 = MaybeInt32.ReadJsonField kvPair.Value }
+                    | "maybeUint32" -> { value with MaybeUint32 = MaybeUint32.ReadJsonField kvPair.Value }
+                    | "maybeBool" -> { value with MaybeBool = MaybeBool.ReadJsonField kvPair.Value }
+                    | "maybeString" -> { value with MaybeString = MaybeString.ReadJsonField kvPair.Value }
+                    | "maybeBytes" -> { value with MaybeBytes = MaybeBytes.ReadJsonField kvPair.Value }
+                    | "timestamp" -> { value with Timestamp = Timestamp.ReadJsonField kvPair.Value }
+                    | "duration" -> { value with Duration = Duration.ReadJsonField kvPair.Value }
+                    | "optionalInt32" -> { value with OptionalInt32 = OptionalInt32.ReadJsonField kvPair.Value }
+                    | "maybesInt64" -> { value with MaybesInt64 = MaybesInt64.ReadJsonField kvPair.Value }
+                    | "timestamps" -> { value with Timestamps = Timestamps.ReadJsonField kvPair.Value }
+                    | "anything" -> { value with Anything = Anything.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _Outer.empty (node.AsObject ())
         }
@@ -877,11 +889,11 @@ module ResultEvent =
                         writeKey w m.Key
                         writeValue w m.Value
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Record =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "key" -> { value with Key = Key.ReadJsonField o kvPair.Value }
-                        | _, "value" -> { value with Value = Value.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "key" -> { value with Key = Key.ReadJsonField kvPair.Value }
+                        | "value" -> { value with Value = Value.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _Record.empty (node.AsObject ())
             }
@@ -950,11 +962,11 @@ type ResultEvent = {
                     writeSubscriptionState w m.SubscriptionState
                     writeRecords w m.Records
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : ResultEvent =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "subscriptionState" -> { value with SubscriptionState = SubscriptionState.ReadJsonField o kvPair.Value }
-                    | _, "records" -> { value with Records = Records.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "subscriptionState" -> { value with SubscriptionState = SubscriptionState.ReadJsonField kvPair.Value }
+                    | "records" -> { value with Records = Records.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _ResultEvent.empty (node.AsObject ())
         }

@@ -63,10 +63,10 @@ type Imported = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: Imported) =
                     writeValue w m.Value
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Imported =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "value" -> { value with Value = Value.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "value" -> { value with Value = Value.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _Imported.empty (node.AsObject ())
         }
@@ -124,10 +124,10 @@ type Args = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: Args) =
                     writeValue w m.Value
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Args =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "value" -> { value with Value = Value.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "value" -> { value with Value = Value.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _Args.empty (node.AsObject ())
         }

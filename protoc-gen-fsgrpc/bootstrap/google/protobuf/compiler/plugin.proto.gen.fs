@@ -89,13 +89,13 @@ type Version = {
                     writePatch w m.Patch
                     writeSuffix w m.Suffix
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Version =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "major" -> { value with Major = Major.ReadJsonField o kvPair.Value }
-                    | _, "minor" -> { value with Minor = Minor.ReadJsonField o kvPair.Value }
-                    | _, "patch" -> { value with Patch = Patch.ReadJsonField o kvPair.Value }
-                    | _, "suffix" -> { value with Suffix = Suffix.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "major" -> { value with Major = Major.ReadJsonField kvPair.Value }
+                    | "minor" -> { value with Minor = Minor.ReadJsonField kvPair.Value }
+                    | "patch" -> { value with Patch = Patch.ReadJsonField kvPair.Value }
+                    | "suffix" -> { value with Suffix = Suffix.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _Version.empty (node.AsObject ())
         }
@@ -207,13 +207,13 @@ type CodeGeneratorRequest = {
                     writeProtoFiles w m.ProtoFiles
                     writeCompilerVersion w m.CompilerVersion
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : CodeGeneratorRequest =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "filesToGenerate" -> { value with FilesToGenerate = FilesToGenerate.ReadJsonField o kvPair.Value }
-                    | _, "parameter" -> { value with Parameter = Parameter.ReadJsonField o kvPair.Value }
-                    | _, "protoFiles" -> { value with ProtoFiles = ProtoFiles.ReadJsonField o kvPair.Value }
-                    | _, "compilerVersion" -> { value with CompilerVersion = CompilerVersion.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "filesToGenerate" -> { value with FilesToGenerate = FilesToGenerate.ReadJsonField kvPair.Value }
+                    | "parameter" -> { value with Parameter = Parameter.ReadJsonField kvPair.Value }
+                    | "protoFiles" -> { value with ProtoFiles = ProtoFiles.ReadJsonField kvPair.Value }
+                    | "compilerVersion" -> { value with CompilerVersion = CompilerVersion.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _CodeGeneratorRequest.empty (node.AsObject ())
         }
@@ -348,12 +348,12 @@ module CodeGeneratorResponse =
                         writeInsertionPoint w m.InsertionPoint
                         writeContent w m.Content
                     encode
-                DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                     let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : File =
-                        match (o.Oneofs, kvPair.Key) with
-                        | _, "name" -> { value with Name = Name.ReadJsonField o kvPair.Value }
-                        | _, "insertionPoint" -> { value with InsertionPoint = InsertionPoint.ReadJsonField o kvPair.Value }
-                        | _, "content" -> { value with Content = Content.ReadJsonField o kvPair.Value }
+                        match kvPair.Key with
+                        | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                        | "insertionPoint" -> { value with InsertionPoint = InsertionPoint.ReadJsonField kvPair.Value }
+                        | "content" -> { value with Content = Content.ReadJsonField kvPair.Value }
                         | _ -> value
                     Seq.fold update _File.empty (node.AsObject ())
             }
@@ -449,12 +449,12 @@ type CodeGeneratorResponse = {
                     writeSupportedFeatures w m.SupportedFeatures
                     writeFiles w m.Files
                 encode
-            DecodeJson = fun (o: JsonOptions) (node: System.Text.Json.Nodes.JsonNode) ->
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
                 let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : CodeGeneratorResponse =
-                    match (o.Oneofs, kvPair.Key) with
-                    | _, "error" -> { value with Error = Error.ReadJsonField o kvPair.Value }
-                    | _, "supportedFeatures" -> { value with SupportedFeatures = SupportedFeatures.ReadJsonField o kvPair.Value }
-                    | _, "files" -> { value with Files = Files.ReadJsonField o kvPair.Value }
+                    match kvPair.Key with
+                    | "error" -> { value with Error = Error.ReadJsonField kvPair.Value }
+                    | "supportedFeatures" -> { value with SupportedFeatures = SupportedFeatures.ReadJsonField kvPair.Value }
+                    | "files" -> { value with Files = Files.ReadJsonField kvPair.Value }
                     | _ -> value
                 Seq.fold update _CodeGeneratorResponse.empty (node.AsObject ())
         }
