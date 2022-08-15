@@ -30,6 +30,6 @@ type Bytes(mem: Google.Protobuf.ByteString) =
 and BytesConverter() =
     inherit JsonConverter<Bytes>()
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): Bytes =
-        failwith "Not Implemented"
+        Bytes.CopyFrom <| reader.GetBytesFromBase64()
     override _.Write(writer: Utf8JsonWriter, value: Bytes, options: JsonSerializerOptions): unit =
         writer.WriteBase64StringValue value.Data.Span

@@ -29,6 +29,12 @@ let ignoreNull =
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         )
 
+let ignoreNever =
+    new JsonSerializerOptions(
+        JsonSerializerDefaults.General,
+        DefaultIgnoreCondition = JsonIgnoreCondition.Never
+        )
+
 let ignoreDefault =
     new JsonSerializerOptions(
         JsonSerializerDefaults.General,
@@ -262,6 +268,7 @@ let ``Nondefaults serialize with generic serializer and ignore default`` () =
         {"testInt":1}
         """
     Assert.Equal(expected, serialized)
+
 
 [<Fact>]
 let ``Populated structures serialize with generic serializer plus nodatime`` () =
@@ -502,6 +509,20 @@ let ``Map with int keys serializes to string keys`` () =
   Assert.Equal(expected, actual)
 
 [<Fact>]
+let ``Timestamp serializes as expected`` () =
+  let subject = { Google.empty with Timestamp = Some (NodaTime.Instant.FromUnixTimeTicks 3) }
+  let actual = JsonSerializer.Serialize (subject, ignoreDefault)
+  let expected = """{"timestamp":"1970-01-01T00:00:00.000000300Z"}"""
+  Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Duration serializes as expected`` () =
+  let subject = { Google.empty with Duration = Some (NodaTime.Duration.FromMilliseconds 2L) }
+  let actual = JsonSerializer.Serialize (subject, ignoreDefault)
+  let expected = """{"duration":"00.002s"}"""
+  Assert.Equal(expected, actual)
+
+[<Fact>]
 let ``Empty JSON object deserializes to default value`` () =
   let subject = "{ }"
   let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
@@ -528,6 +549,27 @@ let ``Last in wins rules for deserializing oneof fields -- alternative case`` ()
   let actual : Enums = JsonSerializer.Deserialize (subject, ignoreDefault)
   let expected = { Enums.empty with Union = UnionCase.Color Enums.Color.Black }
   Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``deserialzeWith Options.Default = deserialize`` () =
+  let subject = """{"name":"teal","color":"COLOR_BLACK"}"""
+  let actual : Enums = FsGrpc.Json.deserialize subject
+  let expected = FsGrpc.Json.deserializeWith Options.Default subject
+  Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``JsonOptions.FromJsonSerializerOptions with ignore never returns Omit.Never`` () =
+    let case = Enums.empty
+    let options = JsonOptions.FromJsonSerializerOptions ignoreNever
+    let expected = JsonOmit.Never
+    Assert.Equal(expected, options.Omit)
+
+[<Fact>]
+let ``JsonOptions.FromJsonSerializerOptions with ignore null returns Omit.WhenNull`` () =
+    let case = Enums.empty
+    let options = JsonOptions.FromJsonSerializerOptions ignoreNull
+    let expected = JsonOmit.WhenNull
+    Assert.Equal(expected, options.Omit)
 
 type Generator = 
   static member String() =
@@ -623,4 +665,12 @@ let ``Round trip ({| Test: UnionCase |})`` (o: JsonOptions, x: {| Test: UnionCas
 
 [<Property(Arbitrary=[| typeof<Generator> |])>]
 let ``Round trip ({| EnumTest: Enums.Color |})`` (o: JsonOptions, x: {| EnumTest: Enums.Color |}) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip (Map<int,Enums>)`` (o: JsonOptions, x: Map<int,Enums>) =
+  roundTrip o x
+
+[<Property(Arbitrary=[| typeof<Generator> |])>]
+let ``Round trip ({| Data: Bytes |})`` (o: JsonOptions, x: {| Data: Bytes |}) =
   roundTrip o x

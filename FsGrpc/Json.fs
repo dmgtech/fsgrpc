@@ -7,7 +7,7 @@ open System
 open Protobuf
 open System.Text.Json.Nodes
 
-let inline tryCastTo<'T> (a: obj) : 'T option =
+let  tryCastTo<'T> (a: obj) : 'T option =
     match a with
     | :? 'T -> Some (a :?> 'T)
     | _ -> None
@@ -56,8 +56,8 @@ type OneofConverter<'U>() =
         let doWrite = doWrite[tag]
         doWrite writer value options
 
-let inline private writeInt (n: int) (w: Utf8JsonWriter) = w.WriteNumberValue n
-let inline private writeString (s: string) (w: Utf8JsonWriter) = w.WriteStringValue s
+let private writeInt (n: int) (w: Utf8JsonWriter) = w.WriteNumberValue n
+let private writeString (s: string) (w: Utf8JsonWriter) = w.WriteStringValue s
 
 let private enumValWriter (e: Type) (render: JsonEnumStyle) (name: string, number: int) =
     match render with
@@ -84,7 +84,7 @@ type EnumConverter<'E>(render: JsonEnumStyle) =
     // zip them into tuples of (name, int)
     let pairs = Array.zip names numbers
     // we now can partially apply this to the writer
-    let writers = pairs |> Array.map enumValWriter
+    let writers = pairs |> Array.map enumValWriter 
     // now create a map of them, indexed by their number
     let writersByNumber = Array.zip numbers writers |> Map.ofSeq
     new() = EnumConverter<'E>(JsonEnumStyle.ProtobufName)

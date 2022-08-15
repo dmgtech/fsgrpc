@@ -5,8 +5,6 @@ open System.Text
 open System.Text.Json
 open System.Text.Json.Nodes
 
-let private ``???``<'T> : 'T = raise (System.NotImplementedException())
-
 type Any = {
     TypeUrl: String
     Value: FsGrpc.Bytes
