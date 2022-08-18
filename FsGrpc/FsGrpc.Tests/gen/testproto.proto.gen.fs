@@ -194,6 +194,26 @@ type TestMessage = {
                     writeTestSint32 w m.TestSint32
                     writeTestSint64 w m.TestSint64
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : TestMessage =
+                    match kvPair.Key with
+                    | "testInt" -> { value with TestInt = TestInt.ReadJsonField kvPair.Value }
+                    | "testDouble" -> { value with TestDouble = TestDouble.ReadJsonField kvPair.Value }
+                    | "testFixed32" -> { value with TestFixed32 = TestFixed32.ReadJsonField kvPair.Value }
+                    | "testString" -> { value with TestString = TestString.ReadJsonField kvPair.Value }
+                    | "testBytes" -> { value with TestBytes = TestBytes.ReadJsonField kvPair.Value }
+                    | "testFloat" -> { value with TestFloat = TestFloat.ReadJsonField kvPair.Value }
+                    | "testInt64" -> { value with TestInt64 = TestInt64.ReadJsonField kvPair.Value }
+                    | "testUint64" -> { value with TestUint64 = TestUint64.ReadJsonField kvPair.Value }
+                    | "testFixed64" -> { value with TestFixed64 = TestFixed64.ReadJsonField kvPair.Value }
+                    | "testBool" -> { value with TestBool = TestBool.ReadJsonField kvPair.Value }
+                    | "testUint32" -> { value with TestUint32 = TestUint32.ReadJsonField kvPair.Value }
+                    | "testSfixed32" -> { value with TestSfixed32 = TestSfixed32.ReadJsonField kvPair.Value }
+                    | "testSfixed64" -> { value with TestSfixed64 = TestSfixed64.ReadJsonField kvPair.Value }
+                    | "testSint32" -> { value with TestSint32 = TestSint32.ReadJsonField kvPair.Value }
+                    | "testSint64" -> { value with TestSint64 = TestSint64.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _TestMessage.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._TestMessage.Proto.Value.Empty
@@ -252,6 +272,12 @@ module Nest =
                     let encode (w: System.Text.Json.Utf8JsonWriter) (m: Inner) =
                         writeInnerName w m.InnerName
                     encode
+                DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                    let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Inner =
+                        match kvPair.Key with
+                        | "innerName" -> { value with InnerName = InnerName.ReadJsonField kvPair.Value }
+                        | _ -> value
+                    Seq.fold update _Inner.empty (node.AsObject ())
             }
         static member empty
             with get() = Test.Name.Space.Nest._Inner.Proto.Value.Empty
@@ -334,6 +360,15 @@ type Nest = {
                     writeInner w m.Inner
                     writeSpecial w m.Special
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Nest =
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | "children" -> { value with Children = Children.ReadJsonField kvPair.Value }
+                    | "inner" -> { value with Inner = Inner.ReadJsonField kvPair.Value }
+                    | "special" -> { value with Special = Special.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _Nest.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._Nest.Proto.Value.Empty
@@ -429,6 +464,16 @@ type Special = {
                     writeStringList w m.StringList
                     writeDictionary w m.Dictionary
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Special =
+                    match kvPair.Key with
+                    | "intList" -> { value with IntList = IntList.ReadJsonField kvPair.Value }
+                    | "doubleList" -> { value with DoubleList = DoubleList.ReadJsonField kvPair.Value }
+                    | "fixed32List" -> { value with Fixed32List = Fixed32List.ReadJsonField kvPair.Value }
+                    | "stringList" -> { value with StringList = StringList.ReadJsonField kvPair.Value }
+                    | "dictionary" -> { value with Dictionary = Dictionary.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _Special.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._Special.Proto.Value.Empty
@@ -444,6 +489,16 @@ module Enums =
     | None
     | [<System.Text.Json.Serialization.JsonPropertyName("color")>] Color of Test.Name.Space.Enums.Color
     | [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name of string
+    with
+        static member OneofCodec : Lazy<OneofCodec<UnionCase>> = 
+            lazy
+            let Color = FieldCodec.OneofCase "union" ValueCodec.Enum<Test.Name.Space.Enums.Color> (4, "color")
+            let Name = FieldCodec.OneofCase "union" ValueCodec.String (5, "name")
+            let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
+                ("color", fun node -> UnionCase.Color (Color.ReadJsonField node))
+                ("name", fun node -> UnionCase.Name (Name.ReadJsonField node))
+                ])
+            Union
 
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.EnumConverter<Color>>)>]
     type Color =
@@ -497,10 +552,13 @@ type Enums = {
         let MainColor = FieldCodec.Primitive ValueCodec.Enum<Test.Name.Space.Enums.Color> (1, "mainColor")
         let OtherColors = FieldCodec.Primitive (ValueCodec.Packed ValueCodec.Enum<Test.Name.Space.Enums.Color>) (2, "otherColors")
         let ByName = FieldCodec.Map ValueCodec.String ValueCodec.Enum<Test.Name.Space.Enums.Color> (3, "byName")
-        let Union = FieldCodec.Oneof "union"
         let Color = FieldCodec.OneofCase "union" ValueCodec.Enum<Test.Name.Space.Enums.Color> (4, "color")
         let Name = FieldCodec.OneofCase "union" ValueCodec.String (5, "name")
         let MaybeColor = FieldCodec.Optional ValueCodec.Enum<Test.Name.Space.Enums.Color> (6, "maybeColor")
+        let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
+            ("color", fun node -> Test.Name.Space.Enums.UnionCase.Color (Color.ReadJsonField node))
+            ("name", fun node -> Test.Name.Space.Enums.UnionCase.Name (Name.ReadJsonField node))
+            ])
         // Proto Definition Implementation
         { // ProtoDef<Enums>
             Name = "Enums"
@@ -556,6 +614,18 @@ type Enums = {
                     )
                     writeMaybeColor w m.MaybeColor
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Enums =
+                    match kvPair.Key with
+                    | "mainColor" -> { value with MainColor = MainColor.ReadJsonField kvPair.Value }
+                    | "otherColors" -> { value with OtherColors = OtherColors.ReadJsonField kvPair.Value }
+                    | "byName" -> { value with ByName = ByName.ReadJsonField kvPair.Value }
+                    | "color" -> { value with Union = Test.Name.Space.Enums.UnionCase.Color (Color.ReadJsonField kvPair.Value) }
+                    | "name" -> { value with Union = Test.Name.Space.Enums.UnionCase.Name (Name.ReadJsonField kvPair.Value) }
+                    | "union" -> { value with Union = Union.ReadJsonField kvPair.Value }
+                    | "maybeColor" -> { value with MaybeColor = MaybeColor.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _Enums.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._Enums.Proto.Value.Empty
@@ -641,6 +711,15 @@ type Google = {
                     writeTimestamp w m.Timestamp
                     writeDuration w m.Duration
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : Google =
+                    match kvPair.Key with
+                    | "int32Val" -> { value with Int32Val = Int32Val.ReadJsonField kvPair.Value }
+                    | "stringVal" -> { value with StringVal = StringVal.ReadJsonField kvPair.Value }
+                    | "timestamp" -> { value with Timestamp = Timestamp.ReadJsonField kvPair.Value }
+                    | "duration" -> { value with Duration = Duration.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _Google.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._Google.Proto.Value.Empty
@@ -696,6 +775,12 @@ type IntMap = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: IntMap) =
                     writeIntMap w m.IntMap
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : IntMap =
+                    match kvPair.Key with
+                    | "intMap" -> { value with IntMap = IntMap.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _IntMap.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._IntMap.Proto.Value.Empty
@@ -751,6 +836,12 @@ type HelloRequest = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: HelloRequest) =
                     writeName w m.Name
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : HelloRequest =
+                    match kvPair.Key with
+                    | "name" -> { value with Name = Name.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _HelloRequest.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._HelloRequest.Proto.Value.Empty
@@ -806,6 +897,12 @@ type HelloReply = {
                 let encode (w: System.Text.Json.Utf8JsonWriter) (m: HelloReply) =
                     writeMessage w m.Message
                 encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : HelloReply =
+                    match kvPair.Key with
+                    | "message" -> { value with Message = Message.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _HelloReply.empty (node.AsObject ())
         }
     static member empty
         with get() = Test.Name.Space._HelloReply.Proto.Value.Empty

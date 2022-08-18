@@ -437,10 +437,25 @@ let private fieldInfoFrom (typeMap: TypeMap) (oneofs: int -> OneofDef) (field: F
         Tag = field.Number
     }
 
-let private toFsRecordFieldDef (field: MemberType) : CodeNode =
+let private toFsRecordOneofDef (ns: string) (field: MemberType) : CodeNode =
     match field with
     | Oneof oneof ->
-        Line $"let %s{oneof.FsName} = FieldCodec.Oneof \"%s{oneof.Name}\""
+        let name = oneof.FsName
+        let unionName = $"%s{name}Case"
+        let unionFqName = nsCombine ns unionName
+        Frag [
+        Line $"let %s{oneof.FsName} = FieldCodec.Oneof \"%s{oneof.Name}\" (FSharp.Collections.Map ["
+        Block [
+            oneof.Options
+                |> Seq.map (fun opt -> Line $"(\"{camelCase opt.FsName}\", fun node -> {unionFqName}.{opt.FsName} ({opt.FsName}.ReadJsonField node))")
+                |> Frag
+            Line "])"
+        ]
+        ]
+    | _ -> Frag []
+
+let private toFsRecordFieldDef (field: MemberType) : CodeNode =
+    match field with
     | Field field ->
         let { FieldType = fieldType; Tag = tag; JsonName = jsonName } = field
         let fieldCodecExpr =
@@ -461,6 +476,8 @@ let private toFsRecordFieldDef (field: MemberType) : CodeNode =
         Frag [
             Line $"let %s{field.FsName} = %s{fieldCodecExpr} (%d{tag}, \"%s{jsonName}\")"
         ]
+    | _ -> Frag []
+
 
 let private toRecordMemberLens (fsFqName: string) (memberField: MemberType) : CodeNode =
     match memberField with
@@ -646,6 +663,22 @@ let toFsRecordFieldJsonWrite (ns: string) (field: MemberType) : CodeNode =
         Line $")"
         ]
 
+let toFsRecordFieldJsonRead (ns: string) (field: MemberType) : CodeNode =
+    match field with
+    | Field field ->
+        let {FsName = name; FieldType = _} = field
+        Line $"| \"{camelCase name}\" -> {{ value with {name} = {name}.ReadJsonField kvPair.Value }}"
+    | Oneof oneof ->
+        let name = oneof.FsName
+        let unionName = $"%s{name}Case"
+        let unionFqName = nsCombine ns unionName
+        Frag [ 
+        oneof.Options
+            |> Seq.map (fun opt -> Line $"| \"{camelCase opt.FsName}\" -> {{ value with {name} = {unionFqName}.{opt.FsName} ({opt.FsName}.ReadJsonField kvPair.Value) }}")
+            |> Frag
+        Line $"| \"{camelCase name}\" -> {{ value with {name} = {name}.ReadJsonField kvPair.Value }}"
+        ]
+
 let private toProtoDefImpl (ns: string) (protoTypeName: string) (fsTypeName: string) (fieldModel: MemberType seq) : CodeNode =
     let count = fieldModel |> Seq.length
 
@@ -706,7 +739,10 @@ let private toProtoDefImpl (ns: string) (protoTypeName: string) (fsTypeName: str
         ]
         match count with
         | 0 ->
+            Frag [
             Line $"EncodeJson = fun _ _ _ -> ()"
+            Line $"DecodeJson = fun _ -> {fsTypeName}.empty"
+            ]
         | _ ->
             Frag [
             Line $"EncodeJson = fun (o: JsonOptions) ->"
@@ -718,6 +754,18 @@ let private toProtoDefImpl (ns: string) (protoTypeName: string) (fsTypeName: str
                     Frag (fieldModel |> Seq.map (toFsRecordFieldJsonWrite nsqualifier))
                 ]
                 Line $"encode"
+                ]
+            ]
+            Line $"DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->"
+            Block [
+                Frag [
+                Line $"let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : {fsTypeName} ="
+                Block [
+                    Line "match kvPair.Key with"
+                    Frag (fieldModel |> Seq.map (toFsRecordFieldJsonRead nsqualifier))
+                    Line "| _ -> value"                    
+                ]
+                Line $"Seq.fold update _{fsTypeName}.empty (node.AsObject ())"
                 ]
             ]
             ]
@@ -774,7 +822,15 @@ let private toOneofOptionDef (option: FieldInfo) =
         Line $"| [<System.Text.Json.Serialization.JsonPropertyName(\"{option.JsonName}\")>] {option.FsName} of {option.FsTypeName}"
     ]
 
-let private toOneofUnionDefs (oneof: OneofInfo) =
+let private toOneofUnionDefs (parentFields: MemberType seq) (oneof: OneofInfo) =
+    let oneofCasesPredicate =
+        function
+        | Field field -> 
+            match field.FieldType with
+            | OneofCase _ -> true
+            | _ -> false
+        | _ -> false
+    let oneofCases = Seq.filter oneofCasesPredicate parentFields
     let optionDefs = oneof.Options |> Seq.map toOneofOptionDef
     Frag [
         Line ""
@@ -785,6 +841,16 @@ let private toOneofUnionDefs (oneof: OneofInfo) =
         Line $"type {oneof.FsName}Case ="
         Line $"| None"
         Frag optionDefs
+        Line "with"
+        Block [    
+            Line $"static member OneofCodec : Lazy<OneofCodec<{oneof.FsName}Case>> = "
+            Block [
+                Line "lazy"
+                Frag <| Seq.map toFsRecordFieldDef oneofCases
+                toFsRecordOneofDef "" (Oneof oneof)
+                Line $"{oneof.FsName}"
+            ]
+        ]
     ]
 
 let private isMapType (messageType: MessageDef) =
@@ -903,10 +969,11 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
         )
     let fieldDeclarations = members |> Seq.map (toFsRecordFieldDecl fsFqName)
     let fieldDefinitions = fields |> Seq.map toFsRecordFieldDef
+    let oneofDefinitions = fields |> Seq.map (toFsRecordOneofDef fsFqName)
     let protoDefImpl = toProtoDefImpl fsNs protoName fsName members
 
     let oneofUnions = members |> Seq.choose (fun m -> match m with | MemberType.Oneof oneof -> Some oneof | _ -> None)
-    let oneofUnionDefs = oneofUnions |> Seq.map toOneofUnionDefs
+    let oneofUnionDefs = oneofUnions |> Seq.map (toOneofUnionDefs fields)
     let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toFsRecordDef typeMap $"{protoNs}.{protoName}")
     let nestedEnums = protoMessageDef.EnumTypes |> Seq.map toFsEnumDef
 
@@ -994,6 +1061,7 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
                 Line "lazy"
                 Line "// Field Definitions"
                 Frag fieldDefinitions
+                Frag oneofDefinitions
                 Line "// Proto Definition Implementation"
                 protoDefImpl
             ]

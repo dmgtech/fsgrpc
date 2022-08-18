@@ -5,11 +5,19 @@ open Microsoft.FSharp.Reflection
 open System.Text.Json
 open System
 open Protobuf
+open System.Text.Json.Nodes
 
-let inline tryCastTo<'T> (a: obj) : 'T option =
+let  tryCastTo<'T> (a: obj) : 'T option =
     match a with
     | :? 'T -> Some (a :?> 'T)
     | _ -> None
+
+let ReflectOneofCodec()  : OneofCodec<'U> =
+    let tipo = typeof<'U>
+    let protoProperty = tipo.GetProperty("OneofCodec", System.Reflection.BindingFlags.Static ||| System.Reflection.BindingFlags.Public)
+    let protoDef = protoProperty.GetValue (Unchecked.defaultof<'U>)
+    let protoDef = protoDef :?> Lazy<OneofCodec<'U>>
+    protoDef.Force()
 
 type OneofConverter<'U>() =
     inherit JsonConverter<'U>()
@@ -40,14 +48,16 @@ type OneofConverter<'U>() =
             doWrite
     let doWrite = cases |> Array.map makeCaseWriter
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'U =
-        failwith "Not Implemented"
+        let node = JsonNode.Parse(&reader)
+        let codec = ReflectOneofCodec()
+        codec.ReadJsonField node
     override _.Write(writer: Utf8JsonWriter, value: 'U, options: JsonSerializerOptions): unit =
         let tag = getTag value
         let doWrite = doWrite[tag]
         doWrite writer value options
 
-let inline private writeInt (n: int) (w: Utf8JsonWriter) = w.WriteNumberValue n
-let inline private writeString (s: string) (w: Utf8JsonWriter) = w.WriteStringValue s
+let private writeInt (n: int) (w: Utf8JsonWriter) = w.WriteNumberValue n
+let private writeString (s: string) (w: Utf8JsonWriter) = w.WriteStringValue s
 
 let private enumValWriter (e: Type) (render: JsonEnumStyle) (name: string, number: int) =
     match render with
@@ -74,12 +84,13 @@ type EnumConverter<'E>(render: JsonEnumStyle) =
     // zip them into tuples of (name, int)
     let pairs = Array.zip names numbers
     // we now can partially apply this to the writer
-    let writers = pairs |> Array.map enumValWriter
+    let writers = pairs |> Array.map enumValWriter 
     // now create a map of them, indexed by their number
     let writersByNumber = Array.zip numbers writers |> Map.ofSeq
     new() = EnumConverter<'E>(JsonEnumStyle.ProtobufName)
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'E =
-        failwith "Not Implemented"
+        let node = JsonNode.Parse(&reader)
+        ValueCodec.readEnumFromJsonNode node
     override _.Write(writer: Utf8JsonWriter, value: 'E, options: JsonSerializerOptions): unit =
         let writeTo = writersByNumber.Item (unbox<int> value)
         writeTo writer
@@ -99,8 +110,9 @@ type MessageConverter<'M>(options: JsonOptions) =
     inherit JsonConverter<'M>()
     let proto = Protobuf.ReflectProtoOf<'M> ()
     let encode = proto.EncodeJson options
-    override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): 'M =
-        failwith "Not Implemented"
+    override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, _: JsonSerializerOptions): 'M =
+        let node = JsonNode.Parse(&reader)
+        proto.DecodeJson node
     override _.Write(writer: Utf8JsonWriter, value: 'M, _: JsonSerializerOptions): unit =
         writer.WriteStartObject()
         encode writer value
@@ -132,5 +144,11 @@ let Options = {|
 let serializeWith (options: JsonSerializerOptions) (x: obj) =
     System.Text.Json.JsonSerializer.Serialize (x, options)
 
+let deserializeWith (options: JsonSerializerOptions) (str: string) =
+    System.Text.Json.JsonSerializer.Deserialize (JsonNode.Parse(str), options)
+
 let serialize: obj -> string =
     serializeWith Options.Default
+
+let deserialize str =
+    deserializeWith Options.Default str
