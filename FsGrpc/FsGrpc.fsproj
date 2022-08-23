@@ -7,7 +7,7 @@
     <Description>Accompanying library for idiomatic F# code generation from protocol buffers</Description>
     <PackageTags>F#;protobuf;protocol buffers;grpc;</PackageTags>
     <Authors>Warren Falk</Authors>
-    <RepositoryUrl>https://github.com/Divisions-Maintenance-Group/fsgrpc</RepositoryUrl>
+    <RepositoryUrl>https://github.com/divisionsinc/fsgrpc</RepositoryUrl>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageVersion>$(FSGRPC_VERSION)$(VersionSuffix)</PackageVersion>
