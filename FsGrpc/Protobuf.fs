@@ -251,11 +251,11 @@ module ValueCodec =
         let writeValue (writer: Writer) (value: int64) =
             writer.WriteInt64(value)
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter): int64 -> unit =
-            writer.WriteNumberValue
+            (fun x -> x |> string |> writer.WriteStringValue)
         let readValue (reader: Reader) : int64 =
             reader.ReadInt64 ()
         let readJsonValue (node: JsonNode) : int64 =
-            node.GetValue ()
+            node.GetValue<string>() |> int64
         let isNonDefault (value: int64) =
             value <> 0
         {
@@ -273,11 +273,11 @@ module ValueCodec =
         let writeValue (writer: Writer) (value: uint64) =
             writer.WriteUInt64(value)
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter): uint64 -> unit =
-            writer.WriteNumberValue
+            (fun x -> x |> string |> writer.WriteStringValue)
         let readValue (reader: Reader) : uint64 =
             reader.ReadUInt64 ()
         let readJsonValue (node: JsonNode) : uint64 =
-            node.GetValue ()
+            node.GetValue<string>() |> uint64
         let isNonDefault (value: uint64) =
             value <> 0UL
         {
@@ -317,11 +317,11 @@ module ValueCodec =
         let writeValue (writer: Writer) (value: uint64) =
             writer.WriteFixed64(value)
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter): uint64 -> unit =
-            writer.WriteNumberValue
+            (fun x -> x |> string |> writer.WriteStringValue)
         let readValue (reader: Reader) : uint64 =
             reader.ReadFixed64 ()
         let readJsonValue (node: JsonNode) : uint64 =
-            node.GetValue ()
+            node.GetValue<string>() |> uint64
         let isNonDefault (value: uint64) =
             value <> 0UL
         {
@@ -473,11 +473,11 @@ module ValueCodec =
         let writeValue (writer: Writer) (value: int64) =
             writer.WriteSFixed64(value)
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter): int64 -> unit =
-            writer.WriteNumberValue
+            (fun x -> x |> string |> writer.WriteStringValue)
         let readValue (reader: Reader) : int64 =
             reader.ReadSFixed64 ()
         let readJsonValue (node: JsonNode) : int64 =
-            node.GetValue ()
+            node.GetValue<string>() |> int64
         let isNonDefault (value: int64) =
             value <> 0
         {
@@ -517,11 +517,11 @@ module ValueCodec =
         let writeValue (writer: Writer) (value: int64) =
             writer.WriteSInt64(value)
         let writeJsonValue (_: JsonOptions) (writer: JsonWriter): int64 -> unit =
-            writer.WriteNumberValue
+            (fun x -> x |> string |> writer.WriteStringValue)
         let readValue (reader: Reader) : int64 =
             reader.ReadSInt64 ()
         let readJsonValue (node: JsonNode) : int64 =
-            node.GetValue ()
+            node.GetValue<string>() |> int64
         let isNonDefault (value: int64) =
             value <> 0
         {
