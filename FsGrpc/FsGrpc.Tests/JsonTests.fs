@@ -221,15 +221,15 @@ let ``Empty structures serialize with generic serializer`` () =
             "testString": "",
             "testBytes": "",
             "testFloat": 0,
-            "testInt64": 0,
-            "testUint64": 0,
-            "testFixed64": 0,
+            "testInt64": "0",
+            "testUint64": "0",
+            "testFixed64": "0",
             "testBool": false,
             "testUint32": 0,
             "testSfixed32": 0,
-            "testSfixed64": 0,
+            "testSfixed64": "0",
             "testSint32": 0,
-            "testSint64": 0
+            "testSint64": "0"
           }
         }
         """
@@ -367,15 +367,15 @@ let ``Populated structures serialize with generic serializer plus nodatime`` () 
             "testString": "ch\u00E9vere",
             "testBytes": "wq9cXyjjg4QpXy/Crw==",
             "testFloat": 234.5,
-            "testInt64": 2345678,
-            "testUint64": 3456789,
-            "testFixed64": 3456789,
+            "testInt64": "2345678",
+            "testUint64": "3456789",
+            "testFixed64": "3456789",
             "testBool": true,
             "testUint32": 456,
             "testSfixed32": 567,
-            "testSfixed64": 67890123,
+            "testSfixed64": "67890123",
             "testSint32": -1234,
-            "testSint64": -2345
+            "testSint64": "-2345"
           }
         }
         """
