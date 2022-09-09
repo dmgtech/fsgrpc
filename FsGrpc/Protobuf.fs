@@ -841,7 +841,10 @@ module ValueCodec =
             let nanos = int (instant.Minus rounded).TotalNanoseconds
             (seconds, nanos)
         let compose ((seconds, nanos): (int64 * int32)) =
-            NodaTime.Instant.FromUnixTimeSeconds(seconds).PlusNanoseconds(nanos)
+            let nanos = if nanos > 999999999 || nanos < 0 then 0 else nanos
+            if seconds > NodaTime.Instant.MaxValue.ToUnixTimeSeconds() then NodaTime.Instant.MaxValue
+            else if seconds < NodaTime.Instant.MinValue.ToUnixTimeSeconds() then NodaTime.Instant.MinValue
+            else NodaTime.Instant.FromUnixTimeSeconds(seconds).PlusNanoseconds(nanos)
         let writeJson o (w: JsonWriter) (v: NodaTime.Instant) =
             // this is implemented but is not used because the structured form is not serialized to JSON
             // but we can't serialize the ISO-string form here because this function only writes the fields (the start object delimiter is already written by this point)
@@ -891,7 +894,10 @@ module ValueCodec =
             let nanos = int (duration.Minus rounded).TotalNanoseconds
             (seconds, nanos)
         let compose ((seconds, nanos): (int64 * int32)) =
-            NodaTime.Duration.FromSeconds(seconds).Plus(NodaTime.Duration.FromNanoseconds (int64 nanos))
+            let nanos = if nanos > 999999999 || nanos < 0 then 0 else nanos
+            if seconds > int64 NodaTime.Duration.MaxValue.TotalSeconds then NodaTime.Duration.MaxValue
+            else if seconds < int64 NodaTime.Duration.MinValue.TotalSeconds then NodaTime.Duration.MinValue
+            else NodaTime.Duration.FromSeconds(seconds).Plus(NodaTime.Duration.FromNanoseconds (int64 nanos))
         let writeJson o (w: JsonWriter) (v: NodaTime.Duration) =
             // this is implemented but is not used because the structured form is not serialized to JSON
             // but we can't serialize the ISO-string form here because this function only writes the fields (the start object delimiter is already written by this point)
