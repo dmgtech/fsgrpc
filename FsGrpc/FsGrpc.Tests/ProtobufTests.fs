@@ -145,3 +145,59 @@ let ``Size of message with a oneof`` () =
     let actual = Enums.Proto.Force().Size TestCases.Value5
     let expected = 33
     Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Timestamp overflow results in NodaTime.Instant.MaxValue`` () =
+    let bytes = Convert.FromHexString "1A07088083D1FFAF07"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Timestamp = Some NodaTime.Instant.MaxValue }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Timestamp underflow results in NodaTime.Instant.MaxValue`` () =
+    let bytes = Convert.FromHexString "1A0B08FFFD998781F5FFFFFF01"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Timestamp = Some NodaTime.Instant.MinValue }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Timestamp nanosecond overflow results in 0 nanoseconds`` () =
+    let bytes = Convert.FromHexString "1A06108094EBDC03"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Timestamp = Some (NodaTime.Instant.FromUnixTimeSeconds(0L)) }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Timestamp nanosecond underflow results in 0 nanoseconds`` () =
+    let bytes = Convert.FromHexString "1A0B1080EC94A3FCFFFFFFFF01"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Timestamp = Some (NodaTime.Instant.FromUnixTimeSeconds(0L)) }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Duration overflow results in NodaTime.Duration.MaxValue`` () =
+    let bytes = Convert.FromHexString "22070881808080982A"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Duration = Some NodaTime.Duration.MaxValue }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Duration underflow results in NodaTime.Duration.MinValue`` () =
+    let bytes = Convert.FromHexString "220B08FFFFFFFFE7D5FFFFFF01"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Duration = Some NodaTime.Duration.MinValue }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Duration nanosecond overflow results in 0 nanoseconds`` () =
+    let bytes = Convert.FromHexString "2206108094EBDC03"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Duration = Some NodaTime.Duration.Zero }
+    Assert.Equal(expected, actual)
+
+[<Fact>]
+let ``Duration nanosecond underflow results in 0 nanoseconds`` () =
+    let bytes = Convert.FromHexString "220B1080EC94A3FCFFFFFFFF01"
+    let actual: Google = decode bytes
+    let expected = { Google.empty with Duration = Some NodaTime.Duration.Zero }
+    Assert.Equal(expected, actual)
