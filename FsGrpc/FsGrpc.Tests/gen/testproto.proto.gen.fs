@@ -910,11 +910,6 @@ type HelloReply = {
 namespace Test.Name.Space.Optics
 open FsGrpc.Optics
 module TestMessage =
-    let _id : ILens'<Test.Name.Space.TestMessage,Test.Name.Space.TestMessage> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.TestMessage) -> a2b s }
-        }
     let ``testInt`` : ILens'<Test.Name.Space.TestMessage,int> =
         {
             _getter = { _get = fun (s: Test.Name.Space.TestMessage) -> s.TestInt }
@@ -991,11 +986,6 @@ module TestMessage =
             _setter = { _over = fun a2b s -> { s with TestSint64 = a2b s.TestSint64 } }
         }
 module Nest =
-    let _id : ILens'<Test.Name.Space.Nest,Test.Name.Space.Nest> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.Nest) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.Nest) -> a2b s }
-        }
     let ``name`` : ILens'<Test.Name.Space.Nest,string> =
         {
             _getter = { _get = fun (s: Test.Name.Space.Nest) -> s.Name }
@@ -1017,22 +1007,12 @@ module Nest =
             _setter = { _over = fun a2b s -> { s with Special = a2b s.Special } }
         }
     module Inner =
-        let _id : ILens'<Test.Name.Space.Nest.Inner,Test.Name.Space.Nest.Inner> =
-            {
-                _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s }
-                _setter = { _over = fun a2b (s: Test.Name.Space.Nest.Inner) -> a2b s }
-            }
         let ``innerName`` : ILens'<Test.Name.Space.Nest.Inner,string> =
             {
                 _getter = { _get = fun (s: Test.Name.Space.Nest.Inner) -> s.InnerName }
                 _setter = { _over = fun a2b s -> { s with InnerName = a2b s.InnerName } }
             }
 module Special =
-    let _id : ILens'<Test.Name.Space.Special,Test.Name.Space.Special> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.Special) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.Special) -> a2b s }
-        }
     let ``intList`` : ILens'<Test.Name.Space.Special,int list> =
         {
             _getter = { _get = fun (s: Test.Name.Space.Special) -> s.IntList }
@@ -1059,11 +1039,6 @@ module Special =
             _setter = { _over = fun a2b s -> { s with Dictionary = a2b s.Dictionary } }
         }
 module Enums =
-    let _id : ILens'<Test.Name.Space.Enums,Test.Name.Space.Enums> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.Enums) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.Enums) -> a2b s }
-        }
     module UnionPrisms =
         let ifColor : IPrism'<Test.Name.Space.Enums.UnionCase,Test.Name.Space.Enums.Color> =
             {
@@ -1107,11 +1082,6 @@ module Enums =
             _setter = { _over = fun a2b s -> { s with MaybeColor = a2b s.MaybeColor } }
         }
 module Google =
-    let _id : ILens'<Test.Name.Space.Google,Test.Name.Space.Google> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.Google) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.Google) -> a2b s }
-        }
     let ``int32Val`` : ILens'<Test.Name.Space.Google,int option> =
         {
             _getter = { _get = fun (s: Test.Name.Space.Google) -> s.Int32Val }
@@ -1133,33 +1103,18 @@ module Google =
             _setter = { _over = fun a2b s -> { s with Duration = a2b s.Duration } }
         }
 module IntMap =
-    let _id : ILens'<Test.Name.Space.IntMap,Test.Name.Space.IntMap> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.IntMap) -> a2b s }
-        }
     let ``intMap`` : ILens'<Test.Name.Space.IntMap,Map<int, string>> =
         {
             _getter = { _get = fun (s: Test.Name.Space.IntMap) -> s.IntMap }
             _setter = { _over = fun a2b s -> { s with IntMap = a2b s.IntMap } }
         }
 module HelloRequest =
-    let _id : ILens'<Test.Name.Space.HelloRequest,Test.Name.Space.HelloRequest> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.HelloRequest) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.HelloRequest) -> a2b s }
-        }
     let ``name`` : ILens'<Test.Name.Space.HelloRequest,string> =
         {
             _getter = { _get = fun (s: Test.Name.Space.HelloRequest) -> s.Name }
             _setter = { _over = fun a2b s -> { s with Name = a2b s.Name } }
         }
 module HelloReply =
-    let _id : ILens'<Test.Name.Space.HelloReply,Test.Name.Space.HelloReply> =
-        {
-            _getter = { _get = fun (s: Test.Name.Space.HelloReply) -> s }
-            _setter = { _over = fun a2b (s: Test.Name.Space.HelloReply) -> a2b s }
-        }
     let ``message`` : ILens'<Test.Name.Space.HelloReply,string> =
         {
             _getter = { _get = fun (s: Test.Name.Space.HelloReply) -> s.Message }

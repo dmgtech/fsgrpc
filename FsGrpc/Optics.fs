@@ -168,14 +168,49 @@ type Prism<'s,'t,'a,'b> =
             ({ _toSeq = this._toSeq } :> IFold<'s,'a>).ComposeWith other
 
 module OptionPrism =
-    let ifSome : Prism<Option<'a>,Option<'a>,'a,'a> =
+    let ifSome<'a> : IPrism<Option<'a>,Option<'a>,'a,'a> =
         {
             _unto = fun a -> Some a
             _which = fun s ->
                 match s with
                 | Some a -> Ok a
                 | _ -> Error s
-        } : Prism<Option<'a>,Option<'a>,'a,'a>
+        } : IPrism<Option<'a>,Option<'a>,'a,'a>
+module ResultPrism =
+    let ifOk<'a,'b> : IPrism<Result<'a,'b>,Result<'a,'b>,'a,'a> =
+        {
+            _unto = fun a -> Ok a
+            _which = fun s ->
+                match s with
+                | Ok a -> Ok a
+                | _ -> Error s
+        } : IPrism<Result<'a,'b>,Result<'a,'b>,'a,'a>
+    let ifError<'a,'b> : IPrism<Result<'a,'b>,Result<'a,'b>,'b,'b> =
+        {
+            _unto = fun b -> Error b
+            _which = fun s ->
+                match s with
+                | Error b -> Ok b
+                | _ -> Error s
+        } : IPrism<Result<'a,'b>,Result<'a,'b>,'b,'b>
+
+let idLens<'T> : ILens'<'T,'T> =
+    {
+        _getter = { _get = fun (s: 'T) -> s }
+        _setter = { _over = fun a2b (s: 'T) -> a2b s }
+    }
+
+let fstLens<'a,'b> : ILens'<'a * 'b,'a> = 
+    {
+        _getter = { _get = fun (sa: 'a, sb: 'b) -> sa }
+        _setter = { _over = fun sa2c (sa: 'a, sb: 'b) -> (sa2c sa, sb) }
+    }
+
+let sndLens<'a,'b> : ILens'<'a * 'b,'b> = 
+    {
+        _getter = { _get = fun (sa: 'a, sb: 'b) -> sb }
+        _setter = { _over = fun sb2c (sa: 'a, sb: 'b) -> (sa, sb2c sb) }
+    }
 
 open System.Runtime.CompilerServices
 
@@ -193,6 +228,14 @@ type OpticsExtensions =
                 traversal.Over (fun a -> if predicate a then a2a a else a) s } :> ISetter<_,_,_,_>
         }
 
+
+    [<Extension>]
+    static member inline Each(traversal: ITraversal<'s,'t,array<'a>,array<'a>>) : ITraversal<'s,'t,'a,'a> =
+        {
+            _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
+            _setter = { _over = fun a2b s -> traversal.Over (Array.map a2b) s } :> ISetter<'s,'t,'a,'a>
+        }
+        
     [<Extension>]
     static member inline Each(traversal: ITraversal<'s,'t,list<'a>,list<'a>>) : ITraversal<'s,'t,'a,'a> =
         {
@@ -237,6 +280,22 @@ type OpticsExtensions =
     [<Extension>]
     static member inline IfSome(traversal: ITraversal<'s,'t,Option<'a>,Option<'a>>) : ITraversal<'s,'t,'a,'a> =
         traversal.ComposeWith(OptionPrism.ifSome)
+
+    [<Extension>]
+    static member inline IfOk(prism: IPrism<'s,'t,Result<'a,_>,Result<'a,_>>) : IPrism<'s,'t,'a,'a> =
+        prism.ComposeWith(ResultPrism.ifOk)
+        
+    [<Extension>]
+    static member inline IfOk(prism: ITraversal<'s,'t,Result<'a,_>,Result<'a,_>>) : ITraversal<'s,'t,'a,'a> =
+        prism.ComposeWith(ResultPrism.ifOk)
+
+    [<Extension>]
+    static member inline IfError(prism: IPrism<'s,'t,Result<_,'b>,Result<_,'b>>) : IPrism<'s,'t,'b,'b> =
+        prism.ComposeWith(ResultPrism.ifError)
+        
+    [<Extension>]
+    static member inline IfError(prism: ITraversal<'s,'t,Result<_,'b>,Result<_,'b>>) : ITraversal<'s,'t,'b,'b> =
+        prism.ComposeWith(ResultPrism.ifError)
         
     [<Extension>]
     static member inline Exists(fold: IFold<'s,'a>, predicate: 'a -> bool) =

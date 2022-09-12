@@ -920,15 +920,6 @@ let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relati
     Frag [
     Line $"module {opticsModuleName} ="
     Block [
-        Line $"let _id : ILens'<{fsFqName},{fsFqName}> ="
-        Block [
-            Line "{"
-            Block [
-                Line $"_getter = {{ _get = fun (s: {fsFqName}) -> s }}"
-                Line $"_setter = {{ _over = fun a2b (s: {fsFqName}) -> a2b s }}"
-            ]
-            Line "}"
-        ]
         Frag (Seq.map (toOneofPrismModule fsFqName) oneofUnions)
         Frag (Seq.map (toRecordMemberLens fsFqName) members)
         Frag nestedTypes        
