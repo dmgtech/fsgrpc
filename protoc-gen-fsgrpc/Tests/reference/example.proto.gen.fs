@@ -1238,7 +1238,6 @@ module Outer =
                 _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s.Inner }
                 _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
             }
-        module DoubleNested =
 module ResultEvent =
     let ``subscriptionState`` : ILens'<Ex.Ample.ResultEvent,Ex.Ample.EnumType> =
         {
