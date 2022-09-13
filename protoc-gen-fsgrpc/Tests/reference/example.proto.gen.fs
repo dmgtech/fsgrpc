@@ -976,11 +976,6 @@ type ResultEvent = {
 namespace Ex.Ample.Optics
 open FsGrpc.Optics
 module Inner =
-    let _id : ILens'<Ex.Ample.Inner,Ex.Ample.Inner> =
-        {
-            _getter = { _get = fun (s: Ex.Ample.Inner) -> s }
-            _setter = { _over = fun a2b (s: Ex.Ample.Inner) -> a2b s }
-        }
     let ``intFixed`` : ILens'<Ex.Ample.Inner,int> =
         {
             _getter = { _get = fun (s: Ex.Ample.Inner) -> s.IntFixed }
@@ -1012,11 +1007,6 @@ module Inner =
             _setter = { _over = fun a2b s -> { s with NestedEnum = a2b s.NestedEnum } }
         }
 module Outer =
-    let _id : ILens'<Ex.Ample.Outer,Ex.Ample.Outer> =
-        {
-            _getter = { _get = fun (s: Ex.Ample.Outer) -> s }
-            _setter = { _over = fun a2b (s: Ex.Ample.Outer) -> a2b s }
-        }
     module UnionPrisms =
         let ifInnerOption : IPrism'<Ex.Ample.Outer.UnionCase,Ex.Ample.Inner> =
             {
@@ -1238,11 +1228,6 @@ module Outer =
             _setter = { _over = fun a2b s -> { s with Anything = a2b s.Anything } }
         }
     module Nested =
-        let _id : ILens'<Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested> =
-            {
-                _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s }
-                _setter = { _over = fun a2b (s: Ex.Ample.Outer.Nested) -> a2b s }
-            }
         let ``enums`` : ILens'<Ex.Ample.Outer.Nested,Ex.Ample.Outer.NestEnumeration list> =
             {
                 _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s.Enums }
@@ -1253,18 +1238,7 @@ module Outer =
                 _getter = { _get = fun (s: Ex.Ample.Outer.Nested) -> s.Inner }
                 _setter = { _over = fun a2b s -> { s with Inner = a2b s.Inner } }
             }
-        module DoubleNested =
-            let _id : ILens'<Ex.Ample.Outer.Nested.DoubleNested,Ex.Ample.Outer.Nested.DoubleNested> =
-                {
-                    _getter = { _get = fun (s: Ex.Ample.Outer.Nested.DoubleNested) -> s }
-                    _setter = { _over = fun a2b (s: Ex.Ample.Outer.Nested.DoubleNested) -> a2b s }
-                }
 module ResultEvent =
-    let _id : ILens'<Ex.Ample.ResultEvent,Ex.Ample.ResultEvent> =
-        {
-            _getter = { _get = fun (s: Ex.Ample.ResultEvent) -> s }
-            _setter = { _over = fun a2b (s: Ex.Ample.ResultEvent) -> a2b s }
-        }
     let ``subscriptionState`` : ILens'<Ex.Ample.ResultEvent,Ex.Ample.EnumType> =
         {
             _getter = { _get = fun (s: Ex.Ample.ResultEvent) -> s.SubscriptionState }
@@ -1276,11 +1250,6 @@ module ResultEvent =
             _setter = { _over = fun a2b s -> { s with Records = a2b s.Records } }
         }
     module Record =
-        let _id : ILens'<Ex.Ample.ResultEvent.Record,Ex.Ample.ResultEvent.Record> =
-            {
-                _getter = { _get = fun (s: Ex.Ample.ResultEvent.Record) -> s }
-                _setter = { _over = fun a2b (s: Ex.Ample.ResultEvent.Record) -> a2b s }
-            }
         let ``key`` : ILens'<Ex.Ample.ResultEvent.Record,string> =
             {
                 _getter = { _get = fun (s: Ex.Ample.ResultEvent.Record) -> s.Key }

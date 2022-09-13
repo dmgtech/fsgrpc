@@ -917,23 +917,17 @@ let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relati
     let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsDefinitions typeMap $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}")
 
     let opticsModuleName = $"%s{fsName}"
-    Frag [
-    Line $"module {opticsModuleName} ="
-    Block [
-        Line $"let _id : ILens'<{fsFqName},{fsFqName}> ="
+    if (Seq.isEmpty oneofUnions && Seq.isEmpty members) then
+        Frag []
+    else
+        Frag [
+        Line $"module {opticsModuleName} ="
         Block [
-            Line "{"
-            Block [
-                Line $"_getter = {{ _get = fun (s: {fsFqName}) -> s }}"
-                Line $"_setter = {{ _over = fun a2b (s: {fsFqName}) -> a2b s }}"
-            ]
-            Line "}"
+            Frag (Seq.map (toOneofPrismModule fsFqName) oneofUnions)
+            Frag (Seq.map (toRecordMemberLens fsFqName) members)
+            Frag nestedTypes        
         ]
-        Frag (Seq.map (toOneofPrismModule fsFqName) oneofUnions)
-        Frag (Seq.map (toRecordMemberLens fsFqName) members)
-        Frag nestedTypes        
-    ]
-    ]
+        ]
 
 let rec private toOpticsExtensionMethods (typeMap: TypeMap) (opticsNs: string) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode =
     let protoName = protoMessageDef.Name

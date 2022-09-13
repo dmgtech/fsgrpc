@@ -137,22 +137,12 @@ type Args = {
 namespace Ex.Ample.Importable.Optics
 open FsGrpc.Optics
 module Imported =
-    let _id : ILens'<Ex.Ample.Importable.Imported,Ex.Ample.Importable.Imported> =
-        {
-            _getter = { _get = fun (s: Ex.Ample.Importable.Imported) -> s }
-            _setter = { _over = fun a2b (s: Ex.Ample.Importable.Imported) -> a2b s }
-        }
     let ``value`` : ILens'<Ex.Ample.Importable.Imported,string> =
         {
             _getter = { _get = fun (s: Ex.Ample.Importable.Imported) -> s.Value }
             _setter = { _over = fun a2b s -> { s with Value = a2b s.Value } }
         }
 module Args =
-    let _id : ILens'<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> =
-        {
-            _getter = { _get = fun (s: Ex.Ample.Importable.Args) -> s }
-            _setter = { _over = fun a2b (s: Ex.Ample.Importable.Args) -> a2b s }
-        }
     let ``value`` : ILens'<Ex.Ample.Importable.Args,string> =
         {
             _getter = { _get = fun (s: Ex.Ample.Importable.Args) -> s.Value }
