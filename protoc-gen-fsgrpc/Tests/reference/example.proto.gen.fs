@@ -1,6 +1,7 @@
 namespace rec Ex.Ample
 open FsGrpc.Protobuf
 #nowarn "40"
+#nowarn "1182"
 
 
 /// <summary>This is an enumeration</summary>

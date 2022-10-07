@@ -1,6 +1,7 @@
 namespace rec Test.Name.Space
 open FsGrpc.Protobuf
 #nowarn "40"
+#nowarn "1182"
 
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]

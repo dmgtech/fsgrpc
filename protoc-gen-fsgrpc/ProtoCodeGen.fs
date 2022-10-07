@@ -1149,6 +1149,7 @@ let private toFsNamespaceDecl (package: string) =
     Line $"namespace rec {toFsNamespace package}"
     Line $"open FsGrpc.Protobuf"
     Line $"#nowarn \"40\"" // TODO: need to see if we can eliminate this, possibly by having the implementation of the field writes be inlined by the generator itself
+    Line $"#nowarn \"1182\"" //suppress unused variable warnings
     ]
 
 let private render = createRenderer "    "
