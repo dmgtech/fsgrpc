@@ -1,6 +1,7 @@
 namespace rec Ex.Ample.Importable
 open FsGrpc.Protobuf
 #nowarn "40"
+#nowarn "1182"
 
 
 [<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
