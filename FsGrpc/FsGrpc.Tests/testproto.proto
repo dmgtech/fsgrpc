@@ -86,3 +86,11 @@ service Greeter {
     rpc SayHelloClientStreaming (stream HelloRequest) returns (HelloReply);
     rpc SayHelloDuplexStreaming (stream HelloRequest) returns (stream HelloReply);
 }
+
+message EmptyMessage { }
+message OneofWithNoParamsWrapper {
+    oneof Empty {
+        EmptyMessage first = 1;
+        EmptyMessage second = 2;
+    }
+}

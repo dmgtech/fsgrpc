@@ -1,0 +1,8 @@
+package test.name.space;
+
+enum SomeEnum {
+    VAL_0 = 0;
+    VAL_1 = 1;
+    VAL_2 = 2;
+    VAL_3 = 3;
+}

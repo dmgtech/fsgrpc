@@ -1076,17 +1076,19 @@ let private toFsRecordDefs (fileName: string) (typeMap: TypeMap) (protoNs: strin
     Frag [
     Frag (protoEnumDefs |> Seq.map toFsEnumDef)
     Frag (protoMessageDefs |> Seq.map (toFsRecordDef typeMap protoNs))
-    Line ""
-    Line $"namespace %s{opticsNs}"
-    Line $"open FsGrpc.Optics"
-    Frag (protoMessageDefs |> Seq.map (toOpticsDefinitions typeMap protoNs ""))
-    Line ""
-    Line $"namespace %s{toFsNamespace protoNs}"
-    Line $"open FsGrpc.Optics"
-    Line $"open System.Runtime.CompilerServices"
-    Line "[<Extension>]"
-    Line $"type OpticsExtensionMethods_%s{extensionMethodSuffix} ="
-    Block (protoMessageDefs |> Seq.map (toOpticsExtensionMethods typeMap opticsNs protoNs ""))
+    if Seq.isEmpty protoMessageDefs then Frag []
+    else
+        Line ""
+        Line $"namespace %s{opticsNs}"
+        Line $"open FsGrpc.Optics"
+        Frag (protoMessageDefs |> Seq.map (toOpticsDefinitions typeMap protoNs ""))
+        Line ""
+        Line $"namespace %s{toFsNamespace protoNs}"
+        Line $"open FsGrpc.Optics"
+        Line $"open System.Runtime.CompilerServices"
+        Line "[<Extension>]"
+        Line $"type OpticsExtensionMethods_%s{extensionMethodSuffix} ="
+        Block (protoMessageDefs |> Seq.map (toOpticsExtensionMethods typeMap opticsNs protoNs ""))
     ]
 
 let private getComments (scinfo: SourceCodeInfo option) : Map<string, string> =
