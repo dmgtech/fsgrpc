@@ -908,6 +908,143 @@ type HelloReply = {
     static member empty
         with get() = Test.Name.Space._HelloReply.Proto.Value.Empty
 
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module EmptyMessage =
+
+    [<System.Runtime.CompilerServices.IsByRefLike>]
+    type Builder =
+        struct
+        end
+        with
+        member x.Put ((tag, reader): int * Reader) =
+            match tag with
+            | _ -> reader.SkipLastField()
+        member x.Build = EmptyMessage.empty
+
+type EmptyMessage private() =
+    override _.Equals other : bool = other :? EmptyMessage
+    override _.GetHashCode() : int = 1116861113
+    static member empty = new EmptyMessage()
+    static member Proto : Lazy<ProtoDef<EmptyMessage>> =
+        lazy
+        // Proto Definition Implementation
+        { // ProtoDef<EmptyMessage>
+            Name = "EmptyMessage"
+            Empty = EmptyMessage.empty
+            Size = fun (m: EmptyMessage) ->
+                0
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: EmptyMessage) ->
+                ()
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable tag = 0
+                while read r &tag do
+                    r.SkipLastField()
+                EmptyMessage.empty
+            EncodeJson = fun _ _ _ -> ()
+            DecodeJson = fun _ -> EmptyMessage.empty
+        }
+
+[<CompilationRepresentation(CompilationRepresentationFlags.ModuleSuffix)>]
+module OneofWithNoParamsWrapper =
+
+    [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.OneofConverter<EmptyCase>>)>]
+    [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
+    [<StructuralEquality;NoComparison>]
+    [<RequireQualifiedAccess>]
+    type EmptyCase =
+    | None
+    | [<System.Text.Json.Serialization.JsonPropertyName("first")>] First of Test.Name.Space.EmptyMessage
+    | [<System.Text.Json.Serialization.JsonPropertyName("second")>] Second of Test.Name.Space.EmptyMessage
+    with
+        static member OneofCodec : Lazy<OneofCodec<EmptyCase>> = 
+            lazy
+            let First = FieldCodec.OneofCase "Empty" ValueCodec.Message<Test.Name.Space.EmptyMessage> (1, "first")
+            let Second = FieldCodec.OneofCase "Empty" ValueCodec.Message<Test.Name.Space.EmptyMessage> (2, "second")
+            let Empty = FieldCodec.Oneof "Empty" (FSharp.Collections.Map [
+                ("first", fun node -> EmptyCase.First (First.ReadJsonField node))
+                ("second", fun node -> EmptyCase.Second (Second.ReadJsonField node))
+                ])
+            Empty
+
+    [<System.Runtime.CompilerServices.IsByRefLike>]
+    type Builder =
+        struct
+            val mutable Empty: OptionBuilder<Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase>
+        end
+        with
+        member x.Put ((tag, reader): int * Reader) =
+            match tag with
+            | 1 -> x.Empty.Set (EmptyCase.First (ValueCodec.Message<Test.Name.Space.EmptyMessage>.ReadValue reader))
+            | 2 -> x.Empty.Set (EmptyCase.Second (ValueCodec.Message<Test.Name.Space.EmptyMessage>.ReadValue reader))
+            | _ -> reader.SkipLastField()
+        member x.Build : Test.Name.Space.OneofWithNoParamsWrapper = {
+            Empty = x.Empty.Build |> (Option.defaultValue EmptyCase.None)
+            }
+
+type private _OneofWithNoParamsWrapper = OneofWithNoParamsWrapper
+[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
+[<FsGrpc.Protobuf.Message>]
+type OneofWithNoParamsWrapper = {
+    // Field Declarations
+    Empty: Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase
+    }
+    with
+    static member Proto : Lazy<ProtoDef<OneofWithNoParamsWrapper>> =
+        lazy
+        // Field Definitions
+        let First = FieldCodec.OneofCase "Empty" ValueCodec.Message<Test.Name.Space.EmptyMessage> (1, "first")
+        let Second = FieldCodec.OneofCase "Empty" ValueCodec.Message<Test.Name.Space.EmptyMessage> (2, "second")
+        let Empty = FieldCodec.Oneof "Empty" (FSharp.Collections.Map [
+            ("first", fun node -> Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First (First.ReadJsonField node))
+            ("second", fun node -> Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second (Second.ReadJsonField node))
+            ])
+        // Proto Definition Implementation
+        { // ProtoDef<OneofWithNoParamsWrapper>
+            Name = "OneofWithNoParamsWrapper"
+            Empty = {
+                Empty = Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.None
+                }
+            Size = fun (m: OneofWithNoParamsWrapper) ->
+                0
+                + match m.Empty with
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.None -> 0
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First v -> First.CalcFieldSize v
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second v -> Second.CalcFieldSize v
+            Encode = fun (w: Google.Protobuf.CodedOutputStream) (m: OneofWithNoParamsWrapper) ->
+                (match m.Empty with
+                | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.None -> ()
+                | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First v -> First.WriteField w v
+                | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second v -> Second.WriteField w v
+                )
+            Decode = fun (r: Google.Protobuf.CodedInputStream) ->
+                let mutable builder = new Test.Name.Space.OneofWithNoParamsWrapper.Builder()
+                let mutable tag = 0
+                while read r &tag do
+                    builder.Put (tag, r)
+                builder.Build
+            EncodeJson = fun (o: JsonOptions) ->
+                let writeEmptyNone = Empty.WriteJsonNoneCase o
+                let writeFirst = First.WriteJsonField o
+                let writeSecond = Second.WriteJsonField o
+                let encode (w: System.Text.Json.Utf8JsonWriter) (m: OneofWithNoParamsWrapper) =
+                    (match m.Empty with
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.None -> writeEmptyNone w
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First v -> writeFirst w v
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second v -> writeSecond w v
+                    )
+                encode
+            DecodeJson = fun (node: System.Text.Json.Nodes.JsonNode) ->
+                let update value (kvPair: System.Collections.Generic.KeyValuePair<string,System.Text.Json.Nodes.JsonNode>) : OneofWithNoParamsWrapper =
+                    match kvPair.Key with
+                    | "first" -> { value with Empty = Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First (First.ReadJsonField kvPair.Value) }
+                    | "second" -> { value with Empty = Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second (Second.ReadJsonField kvPair.Value) }
+                    | "empty" -> { value with Empty = Empty.ReadJsonField kvPair.Value }
+                    | _ -> value
+                Seq.fold update _OneofWithNoParamsWrapper.empty (node.AsObject ())
+        }
+    static member empty
+        with get() = Test.Name.Space._OneofWithNoParamsWrapper.Proto.Value.Empty
+
 namespace Test.Name.Space.Optics
 open FsGrpc.Optics
 module TestMessage =
@@ -1120,6 +1257,29 @@ module HelloReply =
         {
             _getter = { _get = fun (s: Test.Name.Space.HelloReply) -> s.Message }
             _setter = { _over = fun a2b s -> { s with Message = a2b s.Message } }
+        }
+module OneofWithNoParamsWrapper =
+    module EmptyPrisms =
+        let ifFirst : IPrism'<Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.EmptyMessage> =
+            {
+                _unto = fun a -> Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First a
+                _which = fun s ->
+                    match s with
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.First a -> Ok a
+                    | _ -> Error s
+            }
+        let ifSecond : IPrism'<Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.EmptyMessage> =
+            {
+                _unto = fun a -> Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second a
+                _which = fun s ->
+                    match s with
+                    | Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase.Second a -> Ok a
+                    | _ -> Error s
+            }
+    let ``empty`` : ILens'<Test.Name.Space.OneofWithNoParamsWrapper,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase> =
+        {
+            _getter = { _get = fun (s: Test.Name.Space.OneofWithNoParamsWrapper) -> s.Empty }
+            _setter = { _over = fun a2b s -> { s with Empty = a2b s.Empty } }
         }
 
 namespace Test.Name.Space
@@ -1361,6 +1521,24 @@ type OpticsExtensionMethods_testproto_proto =
     [<Extension>]
     static member inline Message(traversal : ITraversal<'a,'b,Test.Name.Space.HelloReply,Test.Name.Space.HelloReply>) : ITraversal<'a,'b,string,string> =
         traversal.ComposeWith(Test.Name.Space.Optics.HelloReply.``message``)
+    [<Extension>]
+    static member inline Empty(lens : ILens<'a,'b,Test.Name.Space.OneofWithNoParamsWrapper,Test.Name.Space.OneofWithNoParamsWrapper>) : ILens<'a,'b,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase> =
+        lens.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.``empty``)
+    [<Extension>]
+    static member inline Empty(traversal : ITraversal<'a,'b,Test.Name.Space.OneofWithNoParamsWrapper,Test.Name.Space.OneofWithNoParamsWrapper>) : ITraversal<'a,'b,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase> =
+        traversal.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.``empty``)
+    [<Extension>]
+    static member inline IfFirst(prism : IPrism<'s,'t,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase>) : IPrism<'s,'t,Test.Name.Space.EmptyMessage,Test.Name.Space.EmptyMessage> = 
+        prism.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.EmptyPrisms.ifFirst)
+    [<Extension>]
+    static member inline IfFirst(traversal : ITraversal<'s,'t,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase>) : ITraversal<'s,'t,Test.Name.Space.EmptyMessage,Test.Name.Space.EmptyMessage> = 
+        traversal.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.EmptyPrisms.ifFirst)
+    [<Extension>]
+    static member inline IfSecond(prism : IPrism<'s,'t,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase>) : IPrism<'s,'t,Test.Name.Space.EmptyMessage,Test.Name.Space.EmptyMessage> = 
+        prism.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.EmptyPrisms.ifSecond)
+    [<Extension>]
+    static member inline IfSecond(traversal : ITraversal<'s,'t,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase,Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase>) : ITraversal<'s,'t,Test.Name.Space.EmptyMessage,Test.Name.Space.EmptyMessage> = 
+        traversal.ComposeWith(Test.Name.Space.Optics.OneofWithNoParamsWrapper.EmptyPrisms.ifSecond)
 
 module Greeter =
     let private __Marshaller__test_name_space_HelloReply = Grpc.Core.Marshallers.Create(

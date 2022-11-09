@@ -7,6 +7,7 @@
 <ItemGroup>
     <!-- These files are listed in dependency order such that none is listed above any other file on which it depends -->
     <!-- Add <Import Project="path/to/Protobuf.targets" /> to your .fsproj to use it -->
+    <Compile Include="$(MSBuildThisFileDirectory)/only_enums.proto.gen.fs" />
     <Compile Include="$(MSBuildThisFileDirectory)/testproto.proto.gen.fs" />
 </ItemGroup>
 <ItemGroup>
