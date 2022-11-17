@@ -57,9 +57,12 @@ module Fixtures =
 
             let builder : WebApplicationBuilder = WebApplication.CreateBuilder()
             builder.Services.AddGrpc() |> ignore
-            builder.WebHost.ConfigureKestrel(fun serverOptions -> 
-                serverOptions.ConfigureEndpointDefaults(fun listenOptions -> 
-                    listenOptions.Protocols <- Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2)) |> ignore
+            builder.WebHost
+                .ConfigureKestrel(fun serverOptions -> 
+                    serverOptions.ConfigureEndpointDefaults(fun listenOptions -> 
+                        listenOptions.Protocols <- Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2))
+                .UseShutdownTimeout(TimeSpan.FromSeconds(60))        
+                |> ignore
             app <- builder.Build()
             app.MapGrpcService<Greeter.Service>() |> ignore
             app.StartAsync().Wait()

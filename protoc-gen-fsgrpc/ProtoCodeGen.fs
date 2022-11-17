@@ -905,7 +905,7 @@ let toBuilderInit (m: MemberType) : CodeNode =
         let builderExpr = System.String.Format(builder.BuildExprPattern, fieldExpr)
         Line $"%s{field.FsName} = {builderExpr}"
 
-let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode =
+let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode option =
     let protoName = protoMessageDef.Name
     let fsName = toFsTypeName protoName
     let fsNs = toFsNamespace protoNs
@@ -914,11 +914,14 @@ let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relati
     let members = recordMembers typeMap protoMessageDef.OneofDecls protoMessageDef.Fields
 
     let oneofUnions = members |> Seq.choose (fun m -> match m with | MemberType.Oneof oneof -> Some oneof | _ -> None)
-    let nestedTypes = protoMessageDef.NestedTypes |> Seq.filter (isMapType >> not) |> Seq.map (toOpticsDefinitions typeMap $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}")
+    let nestedTypes = 
+        protoMessageDef.NestedTypes 
+        |> Seq.filter (isMapType >> not) 
+        |> Seq.choose (toOpticsDefinitions typeMap $"{protoNs}.{protoName}" $"{relativeNs}.{protoName}") 
 
     let opticsModuleName = $"%s{fsName}"
     if (Seq.isEmpty oneofUnions && Seq.isEmpty members) then
-        Frag []
+        None
     else
         Frag [
         Line $"module {opticsModuleName} ="
@@ -928,6 +931,7 @@ let rec private toOpticsDefinitions (typeMap: TypeMap) (protoNs: string) (relati
             Frag nestedTypes        
         ]
         ]
+        |> Some
 
 let rec private toOpticsExtensionMethods (typeMap: TypeMap) (opticsNs: string) (protoNs: string) (relativeNs: string) (protoMessageDef: MessageDef) : CodeNode =
     let protoName = protoMessageDef.Name
@@ -1076,19 +1080,22 @@ let private toFsRecordDefs (fileName: string) (typeMap: TypeMap) (protoNs: strin
     Frag [
     Frag (protoEnumDefs |> Seq.map toFsEnumDef)
     Frag (protoMessageDefs |> Seq.map (toFsRecordDef typeMap protoNs))
-    if Seq.isEmpty protoMessageDefs then Frag []
+    
+    let opticsMessageDefs = protoMessageDefs |> Seq.choose (toOpticsDefinitions typeMap protoNs "")
+    let opticsExtensionMethods = protoMessageDefs |> Seq.map (toOpticsExtensionMethods typeMap opticsNs protoNs "")  
+    if Seq.isEmpty opticsMessageDefs then Frag []
     else
         Line ""
         Line $"namespace %s{opticsNs}"
         Line $"open FsGrpc.Optics"
-        Frag (protoMessageDefs |> Seq.map (toOpticsDefinitions typeMap protoNs ""))
+        Frag (opticsMessageDefs)
         Line ""
         Line $"namespace %s{toFsNamespace protoNs}"
         Line $"open FsGrpc.Optics"
         Line $"open System.Runtime.CompilerServices"
         Line "[<Extension>]"
         Line $"type OpticsExtensionMethods_%s{extensionMethodSuffix} ="
-        Block (protoMessageDefs |> Seq.map (toOpticsExtensionMethods typeMap opticsNs protoNs ""))
+        Block opticsExtensionMethods
     ]
 
 let private getComments (scinfo: SourceCodeInfo option) : Map<string, string> =
