@@ -836,7 +836,7 @@ let private toOneofUnionDefs (parentFields: MemberType seq) (oneof: OneofInfo) =
         Line ""
         Line $"[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.OneofConverter<{oneof.FsName}Case>>)>]"
         Line $"[<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]"
-        Line $"[<StructuralEquality;NoComparison>]"
+        Line $"[<StructuralEquality;StructuralComparison>]"
         Line $"[<RequireQualifiedAccess>]"
         Line $"type {oneof.FsName}Case ="
         Line $"| None"
@@ -1024,11 +1024,11 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
     match memberCount with
     | 0 ->
         Frag[
-            Line $"type {fsName} private() ="
+            Line $"[<StructuralEquality;StructuralComparison>]"
+            Line $"type {fsName} = | Unused"
             Block [
-                Line $"override _.Equals other : bool = other :? {fsName}"
-                Line $"override _.GetHashCode() : int = {md5_32 fsFqName}"
-                Line $"static member empty = new {fsName}()"
+                Line "with" 
+                Line $"static member empty = Unused "
                 Line $"static member Proto : Lazy<ProtoDef<{fsName}>> ="
                 Block [
                     Line "lazy"

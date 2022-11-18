@@ -143,7 +143,7 @@ module Outer =
 
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.OneofConverter<UnionCase>>)>]
     [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
-    [<StructuralEquality;NoComparison>]
+    [<StructuralEquality;StructuralComparison>]
     [<RequireQualifiedAccess>]
     type UnionCase =
     | None
@@ -182,10 +182,10 @@ module Outer =
                     | _ -> reader.SkipLastField()
                 member x.Build = DoubleNested.empty
 
-        type DoubleNested private() =
-            override _.Equals other : bool = other :? DoubleNested
-            override _.GetHashCode() : int = 424431930
-            static member empty = new DoubleNested()
+        [<StructuralEquality;StructuralComparison>]
+        type DoubleNested = | Unused
+            with
+            static member empty = Unused 
             static member Proto : Lazy<ProtoDef<DoubleNested>> =
                 lazy
                 // Proto Definition Implementation

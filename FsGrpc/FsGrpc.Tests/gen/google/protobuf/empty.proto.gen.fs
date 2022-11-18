@@ -17,10 +17,10 @@ module Empty =
             | _ -> reader.SkipLastField()
         member x.Build = Empty.empty
 
-type Empty private() =
-    override _.Equals other : bool = other :? Empty
-    override _.GetHashCode() : int = 762099046
-    static member empty = new Empty()
+[<StructuralEquality;StructuralComparison>]
+type Empty = | Unused
+    with
+    static member empty = Unused 
     static member Proto : Lazy<ProtoDef<Empty>> =
         lazy
         // Proto Definition Implementation
