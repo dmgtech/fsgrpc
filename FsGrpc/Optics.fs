@@ -194,22 +194,32 @@ module ResultPrism =
                 | _ -> Error s
         } : IPrism<Result<'a,'b>,Result<'a,'b>,'b,'b>
 
-let idLens<'T> : ILens'<'T,'T> =
+
+let idSetter<'s,'t> : ISetter<'s,'t,'s,'t> =
+    { _over = fun s2t s -> s2t s }
+
+let idLens<'s,'t> : ILens<'s,'t,'s,'t> =
     {
-        _getter = { _get = fun (s: 'T) -> s }
-        _setter = { _over = fun a2b (s: 'T) -> a2b s }
+        _getter = { _get = fun s -> s }
+        _setter = idSetter
     }
 
-let fstLens<'a,'b> : ILens'<'a * 'b,'a> = 
+let fstSetter<'sfst,'ssnd,'t> : ISetter<('sfst*'ssnd),('t*'ssnd),_,_> =
+    { _over = fun s2t (pFst: 'sfst, pSnd: 'ssnd) -> (s2t pFst, pSnd) }
+
+let fstLens<'sfst,'ssnd,'t> : ILens<('sfst*'ssnd),('t*'ssnd),'sfst,'t> = 
     {
-        _getter = { _get = fun (sa: 'a, sb: 'b) -> sa }
-        _setter = { _over = fun sa2c (sa: 'a, sb: 'b) -> (sa2c sa, sb) }
+        _getter = { _get = fun (pFst: 'sfst, _) -> pFst }
+        _setter = fstSetter
     }
 
-let sndLens<'a,'b> : ILens'<'a * 'b,'b> = 
+let sndSetter<'sfst,'ssnd,'t> : ISetter<('sfst*'ssnd),('sfst*'t),_,_> =
+    { _over = fun s2t (pFst: 'sfst, pSnd: 'ssnd) -> (pFst, s2t pSnd) }
+
+let sndLens<'sfst,'ssnd,'t> : ILens<('sfst*'ssnd),('sfst*'t),'ssnd,'t> = 
     {
-        _getter = { _get = fun (sa: 'a, sb: 'b) -> sb }
-        _setter = { _over = fun sb2c (sa: 'a, sb: 'b) -> (sa, sb2c sb) }
+        _getter = { _get = fun (_, pSnd: 'ssnd) -> pSnd }
+        _setter = sndSetter
     }
 
 open System.Runtime.CompilerServices
@@ -230,31 +240,31 @@ type OpticsExtensions =
 
 
     [<Extension>]
-    static member inline Each(traversal: ITraversal<'s,'t,array<'a>,array<'a>>) : ITraversal<'s,'t,'a,'a> =
+    static member inline Each(traversal: ITraversal<'s,'t,array<'a>,array<'b>>) : ITraversal<'s,'t,'a,'b> =
         {
             _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Array.map a2b) s } :> ISetter<'s,'t,'a,'a>
+            _setter = { _over = fun a2b s -> traversal.Over (Array.map a2b) s } :> ISetter<'s,'t,'a,'b>
         }
         
     [<Extension>]
-    static member inline Each(traversal: ITraversal<'s,'t,list<'a>,list<'a>>) : ITraversal<'s,'t,'a,'a> =
+    static member inline Each(traversal: ITraversal<'s,'t,list<'a>,list<'b>>) : ITraversal<'s,'t,'a,'b> =
         {
             _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (List.map a2b) s } :> ISetter<'s,'t,'a,'a>
+            _setter = { _over = fun a2b s -> traversal.Over (List.map a2b) s } :> ISetter<'s,'t,'a,'b>
         }
 
     [<Extension>]
-    static member inline Each(traversal: ITraversal<'s,'t,Set<'a>,Set<'a>>) : ITraversal<'s,'t,'a,'a> =
+    static member inline Each(traversal: ITraversal<'s,'t,Set<'a>,Set<'b>>) : ITraversal<'s,'t,'a,'b> =
         {
             _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Set.map a2b) s } :> ISetter<'s,'t,'a,'a>
+            _setter = { _over = fun a2b s -> traversal.Over (Set.map a2b) s } :> ISetter<'s,'t,'a,'b>
         }
     
     [<Extension>]
-    static member inline Each(traversal: ITraversal<'s,'t,seq<'a>,seq<'a>>) : ITraversal<'s,'t,'a,'a> =
+    static member inline Each(traversal: ITraversal<'s,'t,seq<'a>,seq<'b>>) : ITraversal<'s,'t,'a,'b> =
         {
             _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Seq.map a2b) s } :> ISetter<'s,'t,'a,'a>
+            _setter = { _over = fun a2b s -> traversal.Over (Seq.map a2b) s } :> ISetter<'s,'t,'a,'b>
         }
 
     [<Extension>]

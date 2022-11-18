@@ -4,6 +4,7 @@ package test.name.space;
 import "google/protobuf/wrappers.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
 
 
 message TestMessage {

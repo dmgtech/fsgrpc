@@ -484,7 +484,7 @@ module Enums =
 
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.OneofConverter<UnionCase>>)>]
     [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
-    [<StructuralEquality;NoComparison>]
+    [<StructuralEquality;StructuralComparison>]
     [<RequireQualifiedAccess>]
     type UnionCase =
     | None
@@ -921,10 +921,10 @@ module EmptyMessage =
             | _ -> reader.SkipLastField()
         member x.Build = EmptyMessage.empty
 
-type EmptyMessage private() =
-    override _.Equals other : bool = other :? EmptyMessage
-    override _.GetHashCode() : int = 1116861113
-    static member empty = new EmptyMessage()
+[<StructuralEquality;StructuralComparison>]
+type EmptyMessage = | Unused
+    with
+    static member empty = Unused 
     static member Proto : Lazy<ProtoDef<EmptyMessage>> =
         lazy
         // Proto Definition Implementation
@@ -949,7 +949,7 @@ module OneofWithNoParamsWrapper =
 
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.OneofConverter<EmptyCase>>)>]
     [<CompilationRepresentation(CompilationRepresentationFlags.UseNullAsTrueValue)>]
-    [<StructuralEquality;NoComparison>]
+    [<StructuralEquality;StructuralComparison>]
     [<RequireQualifiedAccess>]
     type EmptyCase =
     | None
