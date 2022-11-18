@@ -12,6 +12,12 @@ let ``Lens.id works`` () =
     Assert.Equal(snd TestCases.Value1, result)
 
 [<Fact>]
+let ``Lens.id works (new type)`` () =
+    let (_, case) = TestCases.Value1
+    let result = case |> idLens.Set 5
+    Assert.Equal(5, result)
+
+[<Fact>]
 let ``Get works`` () =
     let (_, case) = TestCases.Value1
     let result = case |> idLens.TestBytes().Get
@@ -65,8 +71,14 @@ let ``Each works (set)`` () =
 [<Fact>]
 let ``Each works (array)`` () =
     let expected = [|2; 3; 4|]
-    let result: int array = [|1; 2; 3|] |> idLens<int array>.Each().Over(fun x -> x + 1)
+    let result: int array = [|1; 2; 3|] |> idLens<int array,_>.Each().Over(fun x -> x + 1)
     Assert.Equal<int array>(expected, result)
+    
+[<Fact>]
+let ``Each works (array, new type)`` () =
+    let expected = [|"1"; "2"; "3"|]
+    let result: string array = [|1; 2; 3|] |> idLens<int array,string array>.Each().Over(string)
+    Assert.Equal<string array>(expected, result)
     
 [<Fact>]
 let ``Filtered works (toSeq)`` () =
@@ -194,6 +206,12 @@ let ``fstLens works (setter)`` () =
     Assert.Equal(expected, result) 
 
 [<Fact>]
+let ``fstLens works (setter w/ new type)`` () =
+    let expected = (1L, "asdf")
+    let result = (1, "asdf") |> Optics.fstLens.Over int64
+    Assert.Equal(expected, result) 
+
+[<Fact>]
 let ``fstLens works (getter)`` () =
     let expected = 1
     let result = (1, "asdf") |> Optics.fstLens.Get
@@ -203,6 +221,24 @@ let ``fstLens works (getter)`` () =
 let ``sndLens works (setter)`` () =
     let expected = (1, "fdsa")
     let result = (1, "asdf") |> Optics.sndLens.Over (fun s -> new string(s.ToCharArray() |> Array.rev)) 
+    Assert.Equal(expected, result) 
+
+[<Fact>]
+let ``sndLens works (setter w/ new type)`` () =
+    let expected = (1, 4)
+    let result = (1, "asdf") |> Optics.sndLens.Over String.length
+    Assert.Equal(expected, result) 
+
+[<Fact>]
+let ``sndLens works (setter w/ new type, nested)`` () =
+    let expected = ("qwerty", (1, 4))
+    let result = ("qwerty", (1, "asdf")) |> sndLens.ComposeWith(sndLens).Over String.length
+    Assert.Equal(expected, result) 
+
+[<Fact>]
+let ``sndLens works (setter w/ new type, nested, using '>>' operator)`` () =
+    let expected = ("qwerty", (1, 4))
+    let result = ("qwerty", (1, "asdf")) |> (sndLens.Over >> sndLens.Over) String.length 
     Assert.Equal(expected, result) 
 
 [<Fact>]
