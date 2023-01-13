@@ -828,7 +828,7 @@ module ValueCodec =
     let private instantReadFormatter = NodaTime.Text.InstantPattern.CreateWithInvariantCulture("uuuu'-'MM'-'dd'T'HH':'mm':'ss;FFFFFFFFF'Z'")
     let private instantToProto3String (instant: NodaTime.Instant) : string =
         $"{instantFormatter.Format instant |> pad3}Z"
-    let private durationFormatter = NodaTime.Text.DurationPattern.CreateWithInvariantCulture("SS.FFFFFFFFF")
+    let private durationFormatter = NodaTime.Text.DurationPattern.CreateWithInvariantCulture("-SS.FFFFFFFFF")
     let private durationToProto3String (duration: NodaTime.Duration) : string =
         $"{durationFormatter.Format duration |> pad3}s"
 
