@@ -581,18 +581,14 @@ type Generator =
     |> Gen.map Bytes.CopyFrom
     |> Arb.fromGen
   static member Instant() =
-    let range = Duration.FromDays(100).TotalSeconds |> int
-    let now = NodaTime.SystemClock.Instance.GetCurrentInstant()
-    Gen.sized (fun s -> Gen.choose (-1*range, range))
-    |> Gen.map int64
-    |> Gen.map (NodaTime.Duration.FromSeconds)
-    |> Gen.map (fun x -> now.Plus x)
+    Arb.generate<int64>
+    |> Gen.filter (fun x -> x >= Instant.MinValue.ToUnixTimeTicks() && x <= Instant.MaxValue.ToUnixTimeTicks())
+    |> Gen.map Instant.FromUnixTimeTicks
     |> Arb.fromGen
   static member Duration() =
-    let range = Duration.FromDays(10).TotalSeconds |> int
-    Gen.sized (fun s -> Gen.choose (0, range))
-    |> Gen.map int64
-    |> Gen.map (NodaTime.Duration.FromSeconds)
+    Arb.generate<float>
+    |> Gen.filter (fun x -> x >= Duration.MinValue.TotalTicks && x <= Duration.MaxValue.TotalTicks)
+    |> Gen.map Duration.FromTicks
     |> Arb.fromGen
   static member Float() = 
     // NaN, +/- Infinity cannot be written as valid JSON
