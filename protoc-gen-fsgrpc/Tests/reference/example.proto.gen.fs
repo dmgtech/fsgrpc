@@ -153,16 +153,20 @@ module Outer =
     | [<System.Text.Json.Serialization.JsonPropertyName("stringOption")>] StringOption of string
     /// <summary>a message type from another file</summary>
     | [<System.Text.Json.Serialization.JsonPropertyName("importedOption")>] ImportedOption of Ex.Ample.Importable.Args
+    /// <summary>the fsgrpc bytes type</summary>
+    | [<System.Text.Json.Serialization.JsonPropertyName("bytesOption")>] BytesOption of FsGrpc.Bytes
     with
         static member OneofCodec : Lazy<OneofCodec<UnionCase>> = 
             lazy
             let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
             let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
             let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+            let BytesOption = FieldCodec.OneofCase "union" ValueCodec.Bytes (48, "bytesOption")
             let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
                 ("innerOption", fun node -> UnionCase.InnerOption (InnerOption.ReadJsonField node))
                 ("stringOption", fun node -> UnionCase.StringOption (StringOption.ReadJsonField node))
                 ("importedOption", fun node -> UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
+                ("bytesOption", fun node -> UnionCase.BytesOption (BytesOption.ReadJsonField node))
                 ])
             Union
 
@@ -350,6 +354,7 @@ module Outer =
             | 25 -> x.Union.Set (UnionCase.InnerOption (ValueCodec.Message<Ex.Ample.Inner>.ReadValue reader))
             | 26 -> x.Union.Set (UnionCase.StringOption (ValueCodec.String.ReadValue reader))
             | 30 -> x.Union.Set (UnionCase.ImportedOption (ValueCodec.Message<Ex.Ample.Importable.Args>.ReadValue reader))
+            | 48 -> x.Union.Set (UnionCase.BytesOption (ValueCodec.Bytes.ReadValue reader))
             | 27 -> x.Nested.Set (ValueCodec.Message<Ex.Ample.Outer.Nested>.ReadValue reader)
             | 28 -> x.Imported.Set (ValueCodec.Message<Ex.Ample.Importable.Imported>.ReadValue reader)
             | 29 -> x.EnumImported <- ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport>.ReadValue reader
@@ -523,6 +528,7 @@ type Outer = {
         let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
         let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
         let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+        let BytesOption = FieldCodec.OneofCase "union" ValueCodec.Bytes (48, "bytesOption")
         let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (27, "nested")
         let Imported = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Importable.Imported> (28, "imported")
         let EnumImported = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport> (29, "enumImported")
@@ -545,6 +551,7 @@ type Outer = {
             ("innerOption", fun node -> Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField node))
             ("stringOption", fun node -> Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField node))
             ("importedOption", fun node -> Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
+            ("bytesOption", fun node -> Ex.Ample.Outer.UnionCase.BytesOption (BytesOption.ReadJsonField node))
             ])
         // Proto Definition Implementation
         { // ProtoDef<Outer>
@@ -617,6 +624,7 @@ type Outer = {
                     | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.CalcFieldSize v
                     | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.CalcFieldSize v
                     | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.CalcFieldSize v
+                    | Ex.Ample.Outer.UnionCase.BytesOption v -> BytesOption.CalcFieldSize v
                 + Nested.CalcFieldSize m.Nested
                 + Imported.CalcFieldSize m.Imported
                 + EnumImported.CalcFieldSize m.EnumImported
@@ -661,6 +669,7 @@ type Outer = {
                 | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.WriteField w v
                 | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.WriteField w v
                 | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.WriteField w v
+                | Ex.Ample.Outer.UnionCase.BytesOption v -> BytesOption.WriteField w v
                 )
                 Nested.WriteField w m.Nested
                 Imported.WriteField w m.Imported
@@ -711,6 +720,7 @@ type Outer = {
                 let writeInnerOption = InnerOption.WriteJsonField o
                 let writeStringOption = StringOption.WriteJsonField o
                 let writeImportedOption = ImportedOption.WriteJsonField o
+                let writeBytesOption = BytesOption.WriteJsonField o
                 let writeNested = Nested.WriteJsonField o
                 let writeImported = Imported.WriteJsonField o
                 let writeEnumImported = EnumImported.WriteJsonField o
@@ -755,6 +765,7 @@ type Outer = {
                     | Ex.Ample.Outer.UnionCase.InnerOption v -> writeInnerOption w v
                     | Ex.Ample.Outer.UnionCase.StringOption v -> writeStringOption w v
                     | Ex.Ample.Outer.UnionCase.ImportedOption v -> writeImportedOption w v
+                    | Ex.Ample.Outer.UnionCase.BytesOption v -> writeBytesOption w v
                     )
                     writeNested w m.Nested
                     writeImported w m.Imported
@@ -801,6 +812,7 @@ type Outer = {
                     | "innerOption" -> { value with Union = Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField kvPair.Value) }
                     | "stringOption" -> { value with Union = Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField kvPair.Value) }
                     | "importedOption" -> { value with Union = Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField kvPair.Value) }
+                    | "bytesOption" -> { value with Union = Ex.Ample.Outer.UnionCase.BytesOption (BytesOption.ReadJsonField kvPair.Value) }
                     | "union" -> { value with Union = Union.ReadJsonField kvPair.Value }
                     | "nested" -> { value with Nested = Nested.ReadJsonField kvPair.Value }
                     | "imported" -> { value with Imported = Imported.ReadJsonField kvPair.Value }
@@ -1031,6 +1043,14 @@ module Outer =
                 _which = fun s ->
                     match s with
                     | Ex.Ample.Outer.UnionCase.ImportedOption a -> Ok a
+                    | _ -> Error s
+            }
+        let ifBytesOption : IPrism'<Ex.Ample.Outer.UnionCase,FsGrpc.Bytes> =
+            {
+                _unto = fun a -> Ex.Ample.Outer.UnionCase.BytesOption a
+                _which = fun s ->
+                    match s with
+                    | Ex.Ample.Outer.UnionCase.BytesOption a -> Ok a
                     | _ -> Error s
             }
     let ``doubleVal`` : ILens'<Ex.Ample.Outer,double> =
@@ -1555,6 +1575,12 @@ type OpticsExtensionMethods_example_proto =
     [<Extension>]
     static member inline IfImportedOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> = 
         traversal.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifImportedOption)
+    [<Extension>]
+    static member inline IfBytesOption(prism : IPrism<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : IPrism<'s,'t,FsGrpc.Bytes,FsGrpc.Bytes> = 
+        prism.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifBytesOption)
+    [<Extension>]
+    static member inline IfBytesOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,FsGrpc.Bytes,FsGrpc.Bytes> = 
+        traversal.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifBytesOption)
     [<Extension>]
     static member inline Enums(lens : ILens<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ILens<'a,'b,Ex.Ample.Outer.NestEnumeration list,Ex.Ample.Outer.NestEnumeration list> =
         lens.ComposeWith(Ex.Ample.Optics.Outer.Nested.``enums``)

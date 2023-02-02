@@ -51,3 +51,16 @@ let ``Bytes hash code works`` () =
     // Note: it is possible that these legitimately give the same hash code
     //       but it is improbable enough that if it does, you should check to make sure the hash function is good
     Assert.NotEqual(b1.GetHashCode(), b2.GetHashCode())
+
+[<Fact>]
+let ``Bytes Comparison Works`` () =
+    let b1 = FsGrpc.Bytes.FromUtf8 "123"
+    let b2 = FsGrpc.Bytes.FromUtf8 "456"
+    let b3 = FsGrpc.Bytes.CopyFrom "789"B
+
+    Assert.True(b1 < b2)
+    Assert.True(b2 > b1)
+    Assert.True(b2 < b3)
+    Assert.True(b3 > b2)
+    Assert.True(b1 < b3)
+    Assert.True(b3 > b1)

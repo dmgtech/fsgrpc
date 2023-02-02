@@ -4,7 +4,7 @@ open System.Text.Json
 open System
 open System.Runtime.CompilerServices
 
-[<Struct;IsReadOnlyAttribute;CustomEquality;NoComparison;StructuredFormatDisplay("Bytes: {Base64}")>]
+[<Struct;IsReadOnlyAttribute;CustomEquality;CustomComparison;StructuredFormatDisplay("Bytes: {Base64}")>]
 [<JsonConverter(typeof<BytesConverter>)>]
 type Bytes(mem: Google.Protobuf.ByteString) =
     member internal _.ByteString = match mem with | null -> Google.Protobuf.ByteString.Empty | mem -> mem
@@ -27,6 +27,16 @@ type Bytes(mem: Google.Protobuf.ByteString) =
         x.ByteString.GetHashCode()
     interface IEquatable<Bytes> with
         member x.Equals(other: Bytes) = x.Equals other
+    interface IComparable<Bytes> with
+        member x.CompareTo(other: Bytes) =
+            x.ByteString.Span.SequenceCompareTo other.ByteString.Span
+
+    interface IComparable with
+        member x.CompareTo other =
+            match other with
+              | null                 -> 1
+              | :? Bytes as other -> (x :> IComparable<_>).CompareTo other
+              | _                    -> invalidArg "x" "not a Bytes"
 and BytesConverter() =
     inherit JsonConverter<Bytes>()
     override _.Read (reader: byref<Utf8JsonReader>, typeToConvert: Type, options: JsonSerializerOptions): Bytes =
