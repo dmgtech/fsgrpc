@@ -69,7 +69,7 @@ type CommentMap = (string -> string)
 let private toFsEnumValueName (enumType: EnumDef) (value: EnumValueDef) =
     let prefix = toPascalCase enumType.Name
     let fullVal = toPascalCase value.Name
-    if fullVal.StartsWith(prefix) then
+    if fullVal.StartsWith(prefix) && fullVal <> prefix then
         fullVal[prefix.Length..]
     else
         fullVal
@@ -1380,8 +1380,6 @@ let generateTargetsFile (files: FileDef seq) (_request: Google.Protobuf.Compiler
 let generateFile (infile: FileDef) (typeMap: TypeMap) (_request: Google.Protobuf.Compiler.CodeGeneratorRequest) =
     let protoMessageDefs = infile.MessageTypes
     let protoEnumDefs = infile.EnumTypes
-    //let comments = getComments infile.SourceCodeInfo
-    //let findComment = comments.TryFind
     let fsNamespace = toFsNamespaceDecl infile.Package
     let fsRecordDefs = toFsRecordDefs infile.Name typeMap infile.Package protoMessageDefs protoEnumDefs
     render 0 (Frag [
