@@ -8,22 +8,16 @@ Idiomatic F# code generation for Protocol Buffers and gRPC
 Generate idiomatic F# records from proto3 message definitions, complete with oneofs as discriminated unions, and serialize/deserialize to and from protocol buffer wire format.
 
 # System Diagram
-```plantuml
-' Documentation for C4 diagrams is here: https://github.com/plantuml-stdlib/C4-PlantUML#including-the-c4-plantuml-library
-@startuml Basic Sample
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-HIDE_STEREOTYPE()
 
-Boundary(c1, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
-    Container(your_app, "Web Application"){
-        Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
-    }
-    Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
-}
-Boundary(buf, "buf.build"){
-    Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
-}
+```mermaid
+    C4Context
+  Container_Boundary(c1, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
+      Container_Boundary(your_app, "Web Application"){
+          Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
+          Component(projectfile, "Web Application fsproj")
+      }
+      Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
+  }
 
 Boundary(fsgrpc_repository, "FsGrpc Repository"){
    Boundary(protoc_component, "protoc FsGrpc Plugin"){
@@ -36,29 +30,32 @@ Boundary(fsgrpc_repository, "FsGrpc Repository"){
    }
 }
 
+Boundary(buf, "buf.build"){
+    Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
+}
+
 Boundary(nuget, "Nuget"){
     Component(fsgrpc_nuget, "FsGrpc Package", "FsGrpc as a nuget package")
 }
 
 Rel(generatedcode, fsgrpc, "depends on")
-Rel(fsgrpc, fsgrpc_nuget, "Publishes")
+Rel(fsgrpc, fsgrpc_nuget, "publishes")
 Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, "Publishes")
-Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "Publishes (for local-only builds)")
+Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "publishes (for local-only builds)")
 Rel(protoc_fsgrpc_plugin, generatedcode, "generates")
+Rel(projectfile, fsgrpc_nuget, "references")
 Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates")
 Rel(protoc_gen_fsgrpc, fsgrpc, "references")
 Rel(fsgrpc_tests, fsgrpc, "references")
 Rel(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, "references")
-Rel(your_app, fsgrpc_nuget, "references")
 
-@enduml
 ```
 
-## Getting Started
+# Getting Started
 
 There are a couple of approaches you can use to generate code from your protos.
 
-### Option 1: Use the buf cli
+## Option 1: Use the buf cli
 
 1. If using buf (or if you just want to use the buf cli), start by installing the buf cli from https://docs.buf.build/installation.
 
