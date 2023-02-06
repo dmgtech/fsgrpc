@@ -10,8 +10,9 @@ Generate idiomatic F# records from proto3 message definitions, complete with one
 # System Diagram
 
 ```mermaid
+
 C4Context
-  Container_Boundary(c1, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
+  Container_Boundary(workstation, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
       Container_Boundary(your_app, "Web Application"){
           Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
           Component(projectfile, "Web Application fsproj")
@@ -19,35 +20,55 @@ C4Context
       Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
   }
 
-Boundary(fsgrpc_repository, "FsGrpc Repository"){
-   Boundary(protoc_component, "protoc FsGrpc Plugin"){
-       Component(protoc_gen_fsgrpc,"protoc-gen-fsgrpc", "Generates F# representations of your protobuf schema")
-       Component(protoc_gen_fsgrpc_tests, "Tests")
-   }
-   Boundary(fsgrpc_component, "FsGrpc"){
-       Component(fsgrpc, "FsGrpc", "Support Library for generated code")
-       Component(fsgrpc_tests, "FsGrpc.Tests")
-   }
-}
+  Boundary(fsgrpc_repository, "FsGrpc Repository"){
+     Boundary(protoc_component, "protoc FsGrpc Plugin"){
+         Component(protoc_gen_fsgrpc,"protoc-gen-fsgrpc", "Generates F# representations of your protobuf schema")
+         Component(protoc_gen_fsgrpc_tests, "Tests")
+     }
+     Boundary(fsgrpc_component, "FsGrpc"){
+         Component(fsgrpc, "FsGrpc", "Support Library for generated code")
+         Component(fsgrpc_tests, "FsGrpc.Tests")
+     }
+  }
 
-Boundary(buf, "buf.build"){
-    Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
-}
+  Boundary(buf, "buf.build"){
+      Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
+  }
 
-Boundary(nuget, "Nuget"){
-    Component(fsgrpc_nuget, "FsGrpc Package", "FsGrpc as a nuget package")
-}
+  Boundary(nuget, "Nuget"){
+      Component(fsgrpc_nuget, "FsGrpc Package", "FsGrpc as a nuget package")
+  }
 
-Rel(generatedcode, fsgrpc, "depends on")
-Rel(fsgrpc, fsgrpc_nuget, "publishes")
-Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, "Publishes")
-Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "publishes (for local-only builds)")
-Rel(protoc_fsgrpc_plugin, generatedcode, "generates")
-Rel(projectfile, fsgrpc_nuget, "references")
-Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates")
-Rel(protoc_gen_fsgrpc, fsgrpc, "references")
-Rel(fsgrpc_tests, fsgrpc, "references")
-Rel(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, "references")
+
+  UpdateElementStyle(workstation, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(your_app, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  
+  UpdateElementStyle(fsgrpc_repository, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(protoc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(fsgrpc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  
+  UpdateElementStyle(buf, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(nuget, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  Rel(generatedcode, fsgrpc, "depends on")
+  UpdateRelStyle(generatedcode, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(fsgrpc, fsgrpc_nuget, "publishes")
+  UpdateRelStyle(fsgrpc, fsgrpc_nuget, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, "Publishes")
+  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "publishes (for local-only builds)")
+  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, $textColor="red", $lineColor="red")
+  Rel(protoc_fsgrpc_plugin, generatedcode, "generates")
+  UpdateRelStyle(protoc_fsgrpc_plugin, generatedcode, $textColor="red", $lineColor="red")
+  Rel(projectfile, fsgrpc_nuget, "references")
+  UpdateRelStyle(projectfile, fsgrpc_nuget, $textColor="red", $lineColor="red")
+  Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates")
+  UpdateRelStyle(protoc_fsgrpc_plugin_local, generatedcode, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, fsgrpc, "references")
+  UpdateRelStyle(protoc_gen_fsgrpc, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(fsgrpc_tests, fsgrpc, "references")
+  UpdateRelStyle(fsgrpc_tests, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, "references")
+  UpdateRelStyle(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, $textColor="red", $lineColor="red")
 
 ```
 
