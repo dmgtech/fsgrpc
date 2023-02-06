@@ -10,7 +10,7 @@ Generate idiomatic F# records from proto3 message definitions, complete with one
 # System Diagram
 
 ```mermaid
-    C4Context
+C4Context
   Container_Boundary(c1, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
       Container_Boundary(your_app, "Web Application"){
           Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
