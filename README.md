@@ -80,13 +80,27 @@ There are a couple of approaches you can use to generate code from your protos.
 
 1. If using buf (or if you just want to use the buf cli), start by installing the buf cli from https://docs.buf.build/installation.
 
-2. Add the following "remote" line to your buf.gen.yaml (or create a new buf.gen.yaml if one doesn't already exist):
-```yaml
-version: v1
-plugins:
-  - remote: buf.build/divisions-maintenance-group/plugins/fsharp
-    out: gen
-```
+2. Add the following "remote" section to your buf.gen.yaml (or create a new buf.gen.yaml if one doesn't already exist):
+    A.
+    ```yaml
+    version: v1
+    plugins:
+    - remote: buf.build/divisions-maintenance-group/plugins/fsharp
+        out: gen
+        strategy: all
+    ```
+    B. If you need to run the plugin offline:
+    1. Pull the fsgrpc repo locally
+    2. Build the protoc-gen-fsgrpc project in that repo
+    3. Change your buf.gen.yaml file to look like this:
+        ```yaml
+        version: v1
+        plugins:
+        - plugin: fsgrpc.exe 'fsgrpc for non-windows operating systems and fsgrpc.exe for windows
+            out: gen
+            path: <path to the fsgrpc repo>/fsgrpc/protoc-gen-fsgrpc/bin/Debug/net6.0/protoc-gen-fsgrpc
+            strategy: all
+        ```
 
 3. Generate the code
 
@@ -107,18 +121,21 @@ plugins:
 4. Add the generated code to your F# project
 Using `buf generate` with the above example will generate .fs files in the "gen" directory, and also a Protobuf.targets file in that directory which includes those files in correct dependency order.
 
-You then add the following line to your .fsproj in the top-level "project" element:
+You then add the following line to your .fsproj inside the top-level "project" element:
 ```xml
 <Import Project="gen/Protobuf.targets" />
 ```
 
 And run
+
 ```bash
-dotnet add package fsgrpc --prerelease
+dotnet add package fsgrpc
 ```
+
 or
+
 ```powershell
-Install-Package FsGrpc -Version -IncludePrerelease
+Install-Package FsGrpc
 ```
 
 ## Usage in F#
