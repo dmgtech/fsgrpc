@@ -13,7 +13,7 @@ Generate idiomatic F# records from proto3 message definitions, complete with one
 
 C4Context
   Container_Boundary(workstation, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
-      Container_Boundary(your_app, "Web Application"){
+      Container_Boundary(your_fsharp_project, "Your F# project"){
           Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
           Component(projectfile, "Web Application fsproj")
       }
@@ -41,7 +41,7 @@ C4Context
 
 
   UpdateElementStyle(workstation, $fontColor="blue", $borderColor="blue", $legendTest=" ")
-  UpdateElementStyle(your_app, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(your_fsharp_project, $fontColor="blue", $borderColor="blue", $legendTest=" ")
   
   UpdateElementStyle(fsgrpc_repository, $fontColor="blue", $borderColor="blue", $legendTest=" ")
   UpdateElementStyle(protoc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
