@@ -201,7 +201,7 @@ let idSetter<'s,'t> : ISetter<'s,'t,'s,'t> =
 let idLens<'s,'t> : ILens<'s,'t,'s,'t> =
     {
         _getter = { _get = fun s -> s }
-        _setter = idSetter
+        _setter = idSetter<'s,'t>
     }
 
 let fstSetter<'sfst,'ssnd,'t> : ISetter<('sfst*'ssnd),('t*'ssnd),_,_> =
@@ -222,6 +222,64 @@ let sndLens<'sfst,'ssnd,'t> : ILens<('sfst*'ssnd),('sfst*'t),'ssnd,'t> =
         _setter = sndSetter
     }
 
+let filteredPrism predicate : IPrism<_,_,_,_> =
+        {
+            _unto = fun s -> s
+            _which = fun s ->
+                match predicate s with
+                | true -> Ok s
+                | _ -> Error s
+        } : IPrism<_,_,_,_>
+
+let memberTraversal key : ITraversal<_,_,_,_> =
+        {
+            _fold = { _toSeq = fun s -> 
+                            match Map.tryFind key s with
+                            | Some v -> Seq.singleton v
+                            | None -> Seq.empty } :> IFold<_,_>
+            _setter = { _over = fun a2b s -> 
+                            match Map.tryFind key s with
+                            | Some v -> Map.add key (a2b v) s
+                            | None -> s } :> ISetter<_,_,_,_>
+        } : ITraversal<_,_,_,_>
+
+let existsFold predicate : IFold<_,_> = 
+    { _toSeq = Seq.filter predicate }
+
+module EachTraversal =
+    let eachOfArray<'a,'b> : ITraversal<'a array,'b array,'a,'b> =
+        {
+            _fold = { _toSeq = fun s -> Array.toSeq s } :> IFold<'a array,'a>
+            _setter = { _over = fun a2b s -> Array.map a2b s } :> ISetter<'a array,'b array,'a,'b>
+        }
+    let eachOfList<'a,'b> : ITraversal<'a list,'b list,'a,'b> =
+        {
+            _fold = { _toSeq = fun s -> List.toSeq s } :> IFold<'a list,'a>
+            _setter = { _over = fun a2b s -> List.map a2b s } :> ISetter<'a list,'b list,'a,'b>
+        }
+    let eachOfSet<'a,'b when 'a:comparison and 'b:comparison> : ITraversal<Set<'a>,Set<'b>,'a,'b> =
+        {
+            _fold = { _toSeq = fun s -> Set.toSeq s } :> IFold<Set<'a>,'a>
+            _setter = { _over = fun a2b s -> Set.map a2b s } :> ISetter<Set<'a>,Set<'b>,'a,'b>
+        }
+    let eachOfSeq<'a,'b> : ITraversal<'a seq,'b seq,'a,'b> =
+        {
+            _fold = { _toSeq = fun s -> s } :> IFold<'a seq,'a>
+            _setter = { _over = fun a2b s -> Seq.map a2b s } :> ISetter<'a seq,'b seq,'a,'b>
+        }
+    let eachOfMap<'aKey,'aVal,'bKey,'bVal when 'aKey:comparison and 'bKey:comparison> : ITraversal<Map<'aKey,'aVal>,Map<'bKey,'bVal>,'aKey*'aVal,'bKey*'bVal> =
+        {
+            _fold = { _toSeq = fun s -> Map.toSeq s } :> IFold<Map<'aKey,'aVal>,'aKey*'aVal>
+            _setter = { _over = fun a2b s -> s |> Map.toSeq |> Seq.map a2b |> Map.ofSeq } :> ISetter<Map<'aKey,'aVal>,Map<'bKey,'bVal>,'aKey*'aVal,'bKey*'bVal>
+        }
+    let eachOfMapValue<'aKey,'aVal,'bVal when 'aKey:comparison> : ITraversal<Map<'aKey,'aVal>,Map<'aKey,'bVal>,'aVal,'bVal> =
+        {
+            _fold = { _toSeq = fun s -> Map.values s } :> IFold<Map<'aKey,'aVal>,'aVal>
+            _setter = { _over = fun a2b s -> Map.map (fun _ v -> a2b v) s } :> ISetter<Map<'aKey,'aVal>,Map<'aKey,'bVal>,'aVal,'bVal>
+        }
+
+
+
 open System.Runtime.CompilerServices
 
 [<Extension>]
@@ -230,58 +288,36 @@ type OpticsExtensions =
     static member inline Set(setter: ISetter<'s,'t,'a,'b>, x : 'b) = fun s -> setter.Over (fun _ -> x) s
 
     [<Extension>]
-    static member inline Filtered(traversal: ITraversal<'s,'t,'a,'a>, predicate: 'a -> bool) : ITraversal<_,_,_,_> =
-        {
-            _fold = { _toSeq = fun s -> 
-                traversal.ToSeq s |> Seq.filter predicate } :> IFold<_,_>
-            _setter = { _over = fun a2a s -> 
-                traversal.Over (fun a -> if predicate a then a2a a else a) s } :> ISetter<_,_,_,_>
-        }
-
+    static member inline Filtered(traversal: ITraversal<'s,'t,'a,'a>, predicate: 'a -> bool) : ITraversal<'s,'t,'a,'a> =
+        traversal.ComposeWith(filteredPrism predicate)
 
     [<Extension>]
     static member inline Each(traversal: ITraversal<'s,'t,array<'a>,array<'b>>) : ITraversal<'s,'t,'a,'b> =
-        {
-            _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Array.map a2b) s } :> ISetter<'s,'t,'a,'b>
-        }
+        traversal.ComposeWith(EachTraversal.eachOfArray)
         
     [<Extension>]
     static member inline Each(traversal: ITraversal<'s,'t,list<'a>,list<'b>>) : ITraversal<'s,'t,'a,'b> =
-        {
-            _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (List.map a2b) s } :> ISetter<'s,'t,'a,'b>
-        }
+        traversal.ComposeWith(EachTraversal.eachOfList)
 
     [<Extension>]
     static member inline Each(traversal: ITraversal<'s,'t,Set<'a>,Set<'b>>) : ITraversal<'s,'t,'a,'b> =
-        {
-            _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Set.map a2b) s } :> ISetter<'s,'t,'a,'b>
-        }
+        traversal.ComposeWith(EachTraversal.eachOfSet)
+    
+    [<Extension>]
+    static member inline Each(traversal: ITraversal<'s,'t,Map<'aKey,'aVal>,Map<'bKey,'bVal>>) : ITraversal<'s,'t,'aKey*'aVal,'bKey*'bVal> =
+        traversal.ComposeWith(EachTraversal.eachOfMap)
     
     [<Extension>]
     static member inline Each(traversal: ITraversal<'s,'t,seq<'a>,seq<'b>>) : ITraversal<'s,'t,'a,'b> =
-        {
-            _fold = { _toSeq = fun s -> traversal.ToSeq s |> Seq.concat } :> IFold<'s,'a>
-            _setter = { _over = fun a2b s -> traversal.Over (Seq.map a2b) s } :> ISetter<'s,'t,'a,'b>
-        }
+        traversal.ComposeWith(EachTraversal.eachOfSeq)
+    
+    [<Extension>]
+    static member inline EachValue(traversal: ITraversal<'s,'t,Map<'aKey,'aVal>,Map<'aKey,'bVal>>) : ITraversal<'s,'t,'aVal,'bVal> =
+        traversal.ComposeWith(EachTraversal.eachOfMapValue)
 
     [<Extension>]
     static member inline Member(traversal: ITraversal<'s,'t,Map<'a,'b>,Map<'a,'b>>, key: 'a) : ITraversal<'s,'t,'b,'b> =
-        {
-            _fold = { _toSeq = fun s -> 
-                traversal.ToSeq s
-                |> Seq.collect(fun m ->
-                    match Map.tryFind key m with
-                    | None -> Seq.empty
-                    | Some x -> Seq.singleton x) } :> IFold<'s,'b>
-            _setter = { _over = fun a2b s ->
-                s |> traversal.Over (fun m -> 
-                    match Map.tryFind key m with
-                    | None -> m
-                    | Some v -> Map.add key (a2b v) m) } :> ISetter<'s,'t,'b,'b>
-        }
+        traversal.ComposeWith(memberTraversal key)
 
     [<Extension>]
     static member inline IfSome(prism: IPrism<'s,'t,Option<'a>,Option<'a>>) : IPrism<'s,'t,'a,'a> =
@@ -309,8 +345,8 @@ type OpticsExtensions =
         
     [<Extension>]
     static member inline Exists(fold: IFold<'s,'a>, predicate: 'a -> bool) =
-        fun s -> fold.ToSeq s |> Seq.exists predicate
+        fold.ComposeWith(existsFold predicate)
 
     [<Extension>]
     static member inline Exists(fold: IFold<'s,'a>) =
-        fold.Exists(fun _ -> true)
+        fold.ComposeWith(existsFold (fun _ -> true))

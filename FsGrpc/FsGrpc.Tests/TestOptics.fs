@@ -1,5 +1,5 @@
 module TestOptics
-open  FsGrpc.Optics
+open FsGrpc.Optics
 open FsGrpc
 open Test.Name.Space
 open Test.Name.Space.Enums
@@ -79,6 +79,24 @@ let ``Each works (array, new type)`` () =
     let expected = [|"1"; "2"; "3"|]
     let result: string array = [|1; 2; 3|] |> idLens<int array,string array>.Each().Over(string)
     Assert.Equal<string array>(expected, result)
+    
+[<Fact>]
+let ``Each works (map)`` () =
+    let expected = Map.ofArray [|(1,"a"); (2,"b"); (3,"c")|]
+    let result: Map<int,string> = Map.ofArray [|("1", 'a'); ("2", 'b'); ("3", 'c')|] |> idLens<Map<string,char>,_>.Each().Over(fun (k,v) -> (int k, string v))
+    Assert.Equal<Map<int,string>>(expected, result)
+    
+[<Fact>]
+let ``EachValue works (map)`` () =
+    let expected = Map.ofArray [|(1,"a"); (2,"b"); (3,"c")|]
+    let result: Map<int,string> = Map.ofArray [|(1, 'a'); (2, 'b'); (3, 'c')|] |> idLens<Map<int,char>,_>.EachValue().Over(fun v -> string v)
+    Assert.Equal<Map<int,string>>(expected, result)
+    
+[<Fact>]
+let ``Each works (seq)`` () =
+    let expected = seq { yield 2; yield 3; yield 4 }
+    let result = seq { yield 1; yield 2; yield 3 } |> idLens<int seq,_>.Each().Over(fun x -> x + 1)
+    Assert.True(System.Linq.Enumerable.SequenceEqual(expected, result))
     
 [<Fact>]
 let ``Filtered works (toSeq)`` () =
