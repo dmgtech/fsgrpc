@@ -264,3 +264,11 @@ let ``sndLens works (getter)`` () =
     let expected = "asdf"
     let result = (1, "asdf") |> Optics.sndLens.Get
     Assert.Equal(expected, result) 
+
+[<Fact>]
+let ``Exists works`` () =
+    let input = [1; 2; 5]
+    Assert.Equal(false, [] |> idLens<_ list,_>.Each().Exists()) 
+    Assert.Equal(true, input |> idLens<_ list,_>.Each().Exists()) 
+    Assert.Equal(true, input |> idLens<_ list,_>.Each().Exists(fun x -> x = 1)) 
+    Assert.Equal(false, input |> idLens<_ list,_>.Each().Exists(fun x -> x = 3)) 
