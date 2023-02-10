@@ -243,9 +243,6 @@ let memberTraversal key : ITraversal<_,_,_,_> =
                             | None -> s } :> ISetter<_,_,_,_>
         } : ITraversal<_,_,_,_>
 
-let existsFold predicate : IFold<_,_> = 
-    { _toSeq = Seq.filter predicate }
-
 module EachTraversal =
     let eachOfArray<'a,'b> : ITraversal<'a array,'b array,'a,'b> =
         {
@@ -345,8 +342,8 @@ type OpticsExtensions =
         
     [<Extension>]
     static member inline Exists(fold: IFold<'s,'a>, predicate: 'a -> bool) =
-        fold.ComposeWith(existsFold predicate)
+        fun x -> x |> fold.ToSeq |> Seq.exists predicate
 
     [<Extension>]
     static member inline Exists(fold: IFold<'s,'a>) =
-        fold.ComposeWith(existsFold (fun _ -> true))
+        fun x -> x |> fold.ToSeq |> Seq.exists(fun _ -> true)
