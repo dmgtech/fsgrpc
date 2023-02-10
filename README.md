@@ -7,68 +7,44 @@ Idiomatic F# code generation for Protocol Buffers and gRPC
 
 Generate idiomatic F# records from proto3 message definitions, complete with oneofs as discriminated unions, and serialize/deserialize to and from protocol buffer wire format.
 
-# System Diagram
+# Usage System Diagram
 
 ```mermaid
 
 C4Context
   Container_Boundary(workstation, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
-      Container_Boundary(your_fsharp_project, "Your F# project"){
-          Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
-          Component(projectfile, "Web Application fsproj")
+      Container_Boundary(fsgrpc_repository, "FsGrpc Repository"){
+          Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
       }
-      Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
-  }
-
-  Boundary(fsgrpc_repository, "FsGrpc Repository"){
-     Boundary(protoc_component, "protoc FsGrpc Plugin"){
-         Component(protoc_gen_fsgrpc,"protoc-gen-fsgrpc", "Generates F# representations of your protobuf schema")
-         Component(protoc_gen_fsgrpc_tests, "Tests")
-     }
-     Boundary(fsgrpc_component, "FsGrpc"){
-         Component(fsgrpc, "FsGrpc", "Support Library for generated code")
-         Component(fsgrpc_tests, "FsGrpc.Tests")
-     }
-  }
-
-  Boundary(buf, "buf.build"){
-      Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
+      Container_Boundary(your_fsharp_project, "Your F# project"){
+          Component(projectfile, "Web Application fsproj")
+          Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
+      }
   }
 
   Boundary(nuget, "Nuget"){
       Component(fsgrpc_nuget, "FsGrpc Package", "FsGrpc as a nuget package")
   }
 
+  Boundary(buf, "buf.build"){
+      Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
+  }
 
   UpdateElementStyle(workstation, $fontColor="blue", $borderColor="blue", $legendTest=" ")
   UpdateElementStyle(your_fsharp_project, $fontColor="blue", $borderColor="blue", $legendTest=" ")
-  
-  UpdateElementStyle(fsgrpc_repository, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+
   UpdateElementStyle(protoc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
   UpdateElementStyle(fsgrpc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
-  
+
   UpdateElementStyle(buf, $fontColor="blue", $borderColor="blue", $legendTest=" ")
   UpdateElementStyle(nuget, $fontColor="blue", $borderColor="blue", $legendTest=" ")
-  Rel(generatedcode, fsgrpc, "depends on")
-  UpdateRelStyle(generatedcode, fsgrpc, $textColor="red", $lineColor="red")
-  Rel(fsgrpc, fsgrpc_nuget, "publishes")
-  UpdateRelStyle(fsgrpc, fsgrpc_nuget, $textColor="red", $lineColor="red")
-  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, "Publishes")
-  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, $textColor="red", $lineColor="red")
-  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "publishes (for local-only builds)")
-  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, $textColor="red", $lineColor="red")
-  Rel(protoc_fsgrpc_plugin, generatedcode, "generates")
+
+  Rel(protoc_fsgrpc_plugin, generatedcode, "generates (Buf)")
   UpdateRelStyle(protoc_fsgrpc_plugin, generatedcode, $textColor="red", $lineColor="red")
   Rel(projectfile, fsgrpc_nuget, "references")
   UpdateRelStyle(projectfile, fsgrpc_nuget, $textColor="red", $lineColor="red")
-  Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates")
+  Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates (offline)")
   UpdateRelStyle(protoc_fsgrpc_plugin_local, generatedcode, $textColor="red", $lineColor="red")
-  Rel(protoc_gen_fsgrpc, fsgrpc, "references")
-  UpdateRelStyle(protoc_gen_fsgrpc, fsgrpc, $textColor="red", $lineColor="red")
-  Rel(fsgrpc_tests, fsgrpc, "references")
-  UpdateRelStyle(fsgrpc_tests, fsgrpc, $textColor="red", $lineColor="red")
-  Rel(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, "references")
-  UpdateRelStyle(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, $textColor="red", $lineColor="red")
 
 ```
 
@@ -149,26 +125,31 @@ let message =
 	    Description = "some string here" }
 ```
 
-Serializing a message to bytes looks like this:
+You can serialize/deserialize from various formats:
+
+### Serializing to/from bytes
+
 ```fsharp
-let bytes = message |> FsGrpc.Protobuf.encode
+let encodedMessage = FsGrpc.Protobuf.encode message 
+
+let decodedMessage: MyMessage = FsGrpc.Protobuf.decode encodedMessage
 ```
 
-And deserializing looks like this:
+### Serializing to/from a CodedOutputStream
+
 ```fsharp
-let message: MyMessage = bytes |> FsGrpc.Protobuf.decode
+let decodedMessage = MyMessage.Proto.Value.Decode cis
+
+MyMessage.Proto.Value.Encode cos decodedMessage
 ```
 
-You can also serialize/deserialize from a CodedOutputStream/CodedInputStream using:
+### Serializing to/from json
+
 ```fsharp
-// decode from a CodedInputStream named cis
-let message = MyMessage.Proto.Decode cis
+let serializedMessage = FsGrpc.Json.serialize message
 
-// encode to a CodedOutputStream named cos
-MyMessage.Proto.Encode cos message
+let deserializedMessage : Http = FsGrpc.Json.deserialize serializedMessage
 ```
-
-
 
 ## Status
 Note: This is currently a work in progress.  Code generation for protocol buffers is currently working but considered an alpha version.  gRPC and other features (such as code comments and reflection) are not complete.
@@ -185,4 +166,67 @@ The major features intended are:
 - [ ] Protocol Buffer reflection
 - [x] Idiomatic functional implementation for gRPC endpoints
 
+# Contributing
 
+## Development System Diagram
+```mermaid
+
+C4Context
+  Container_Boundary(workstation, "Developer Workstation", $link="https://github.com/plantuml-stdlib/C4-PlantUML") {
+      Container_Boundary(your_fsharp_project, "Your F# project"){
+          Component(generatedcode, "Generated F# Protobuf Code", "F# representations of your protobuf schema")
+          Component(projectfile, "Web Application fsproj")
+      }
+      Component(protoc_fsgrpc_plugin_local, "Protoc FsGrpc Plugin", "local protoc-gen-fsgrpc")
+  }
+
+  Boundary(fsgrpc_repository, "FsGrpc Repository"){
+     Boundary(protoc_component, "protoc FsGrpc Plugin"){
+         Component(protoc_gen_fsgrpc,"protoc-gen-fsgrpc", "Generates F# representations of your protobuf schema")
+         Component(protoc_gen_fsgrpc_tests, "Tests")
+     }
+     Boundary(fsgrpc_component, "FsGrpc"){
+         Component(fsgrpc, "FsGrpc", "Support Library for generated code")
+         Component(fsgrpc_tests, "FsGrpc.Tests")
+     }
+  }
+
+  Boundary(buf, "buf.build"){
+      Component(protoc_fsgrpc_plugin, "Protoc FsGrpc Plugin", "Hosted protoc-gen-fsgrpc as a service")
+  }
+
+  Boundary(nuget, "Nuget"){
+      Component(fsgrpc_nuget, "FsGrpc Package", "FsGrpc as a nuget package")
+  }
+
+
+  UpdateElementStyle(workstation, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(your_fsharp_project, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  
+  UpdateElementStyle(fsgrpc_repository, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(protoc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(fsgrpc_component, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  
+  UpdateElementStyle(buf, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  UpdateElementStyle(nuget, $fontColor="blue", $borderColor="blue", $legendTest=" ")
+  Rel(generatedcode, fsgrpc, "depends on")
+  UpdateRelStyle(generatedcode, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(fsgrpc, fsgrpc_nuget, "publishes")
+  UpdateRelStyle(fsgrpc, fsgrpc_nuget, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, "Publishes")
+  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, "publishes (for local-only builds)")
+  UpdateRelStyle(protoc_gen_fsgrpc, protoc_fsgrpc_plugin_local, $textColor="red", $lineColor="red")
+  Rel(protoc_fsgrpc_plugin, generatedcode, "generates (Buf)")
+  UpdateRelStyle(protoc_fsgrpc_plugin, generatedcode, $textColor="red", $lineColor="red")
+  Rel(projectfile, fsgrpc_nuget, "references")
+  UpdateRelStyle(projectfile, fsgrpc_nuget, $textColor="red", $lineColor="red")
+  Rel(protoc_fsgrpc_plugin_local, generatedcode, "generates (offline)")
+  UpdateRelStyle(protoc_fsgrpc_plugin_local, generatedcode, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc, fsgrpc, "references")
+  UpdateRelStyle(protoc_gen_fsgrpc, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(fsgrpc_tests, fsgrpc, "references")
+  UpdateRelStyle(fsgrpc_tests, fsgrpc, $textColor="red", $lineColor="red")
+  Rel(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, "references")
+  UpdateRelStyle(protoc_gen_fsgrpc_tests, protoc_gen_fsgrpc, $textColor="red", $lineColor="red")
+```
