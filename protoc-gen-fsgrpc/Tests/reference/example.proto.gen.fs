@@ -1685,17 +1685,6 @@ module ServiceOne =
                 | null -> Unchecked.defaultof<Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>>
                 | _ -> Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>(serviceImpl.ExampleSubscription)
             serviceBinder.AddMethod(__Method_ExampleSubscription, serviceMethodOrNull) |> ignore
-    type Service() = 
-        inherit ServiceBase()
-        static member val exampleUnaryRpcImpl : Ex.Ample.Inner -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Imported> =
-            (fun _ _ -> failwith "\"Service.ExampleUnaryRpcImpl\" has not been set.") with get, set 
-        override this.ExampleUnaryRpc request context = Service.exampleUnaryRpcImpl request context
-        static member val exampleServerStreamingRpcImpl : Ex.Ample.Outer.Nested -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Imported> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.ExampleServerStreamingRpcImpl\" has not been set.") with get, set 
-        override this.ExampleServerStreamingRpc request writer context = Service.exampleServerStreamingRpcImpl request writer context
-        static member val exampleSubscriptionImpl : Ex.Ample.Importable.Args -> Grpc.Core.IServerStreamWriter<Ex.Ample.ResultEvent> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.ExampleSubscriptionImpl\" has not been set.") with get, set 
-        override this.ExampleSubscription request writer context = Service.exampleSubscriptionImpl request writer context
     type Client = 
         inherit Grpc.Core.ClientBase<Client>
         new () = { inherit Grpc.Core.ClientBase<Client>() }

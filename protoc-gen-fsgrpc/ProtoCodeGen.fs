@@ -1321,23 +1321,6 @@ let fsClientFunctions (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) 
         ]
         ]
 
-let toFsServiceMethodOverride (typeMap: TypeMap) (method: MethodDescriptorProto) =
-    let implName = $"{method.Name}Impl"
-    let methodDef = 
-        match (method.ClientStreaming, method.ServerStreaming) with
-        | (false, false) -> $"override this.{method.Name} request context = Service.{camelCase implName} request context"
-        | (true, false) ->  $"override this.{method.Name} requestStream context = Service.{camelCase implName} requestStream context"
-        | (false, true) ->  $"override this.{method.Name} request writer context = Service.{camelCase implName} request writer context"
-        | (true, true) ->   $"override this.{method.Name} requestStream writer context = Service.{camelCase implName} requestStream writer context"
-    let funDefPrefix = if method.ServerStreaming then "fun _ _ _" else "fun _ _"
-    Frag [
-    Line $"static member val {camelCase implName} : {toFsServiceMethodSignature typeMap method} ="
-    Block [
-        Line $"""({funDefPrefix} -> failwith "\"Service.{implName}\" has not been set.") with get, set """
-    ]
-    Line methodDef
-    ]
-
 let private toFsServiceDefs (typeMap: TypeMap) (file: FileDef)  : CodeNode =
     let serviceBaseClasses = seq [
         for service in file.Services do
@@ -1353,11 +1336,6 @@ let private toFsServiceDefs (typeMap: TypeMap) (file: FileDef)  : CodeNode =
                     Frag <| List.map (fun x -> Line $"abstract member {x.Name} : {toFsServiceMethodSignature typeMap x}") service.Methods
                     Line $"static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) ="
                     Block <| List.map (toFsServiceMethodBindSection typeMap) service.Methods
-                ]
-                Line $"type Service() = "
-                Block [
-                    Line "inherit ServiceBase()"
-                    Frag <| List.map (toFsServiceMethodOverride typeMap) service.Methods
                 ]
                 Line $"type Client = "
                 Block [

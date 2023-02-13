@@ -1,77 +1,72 @@
 namespace FsGrpc
 
-open Helpers
 open System
 open Xunit
-open FsGrpc.Protobuf
 
 open Test.Name.Space
 open Grpc.Core
 open FSharp.Control
 open System.Threading
-open System.Threading.Tasks
-open Grpc.AspNetCore
 open Microsoft.AspNetCore.Builder
 open Microsoft.Extensions.DependencyInjection
-open Microsoft.AspNetCore.Http
 open System.Linq
 open Microsoft.AspNetCore.Hosting
 open FSharp.Core
 
-module Fixtures = 
+module Fixtures =
     let mutable app = Unchecked.defaultof<WebApplication>
-    type ServiceFixture() =
-        //DO THE TEST SETUP HERE
-        //(THIS IS THE CONSTRUCTOR)
-        do
-            let handler (request: HelloRequest) (context: ServerCallContext) : Task<HelloReply> =
-                task {
-                    return { Message = "Hello " + request.Name }
-                }
-            Greeter.Service.sayHelloImpl <- handler
-            Greeter.Service.sayHelloServerStreamingImpl <- 
-                fun (request: HelloRequest) (writer: IServerStreamWriter<HelloReply>) (context: ServerCallContext) -> 
-                    task {
-                        for i in [1..5] do
-                            let! x = handler request context
-                            do! writer.WriteAsync x
-                    }
-            Greeter.Service.sayHelloClientStreamingImpl <- 
-                fun (requestStream: IAsyncStreamReader<HelloRequest>) (context: ServerCallContext) ->
+
+    type GRPCService () =
+        inherit Greeter.ServiceBase()
+
+        override _.SayHello (request: HelloRequest) (context: ServerCallContext) =
+            task { return { Message = "Hello " + request.Name } }
+
+        override _.SayHelloServerStreaming (request: HelloRequest) (writer: IServerStreamWriter<HelloReply>) (context: ServerCallContext) =
+            task {
+                for i in [1..5] do
+                    do! writer.WriteAsync { Message = "Hello " + request.Name }
+            }
+
+        override _.SayHelloClientStreaming (requestStream: IAsyncStreamReader<HelloRequest>) (context: ServerCallContext) =
+            task {
+                let! names =
                     AsyncSeq.ofAsyncEnum (requestStream.ReadAllAsync())
                     |> AsyncSeq.toListAsync
-                    |> fun xs -> async {
-                        let! xs' = xs
-                        let names = String.concat ", " (Seq.map (fun x -> x.Name) xs')
-                        return { Message = $"""Hello {names}""" } }
-                    |> Async.StartAsTask
 
-            Greeter.Service.sayHelloDuplexStreamingImpl <- 
-                fun (requestStream: IAsyncStreamReader<HelloRequest>) (writer: IServerStreamWriter<HelloReply>) (context: ServerCallContext) ->
-                    AsyncSeq.ofAsyncEnum (requestStream.ReadAllAsync())
-                    |> AsyncSeq.mapAsync (fun x -> handler x context |> Async.AwaitTask)
-                    |> AsyncSeq.iterAsync (fun x -> writer.WriteAsync(x) |> Async.AwaitTask)
-                    |> Async.StartAsTask
-                    |> fun x -> task { do! x } 
+                let names = List.map (fun x -> x.Name) names
+                return { Message = $"""Hello {String.concat ", " names}""" }
+            }
 
+        override _.SayHelloDuplexStreaming
+            (requestStream: IAsyncStreamReader<HelloRequest>)
+            (writer: IServerStreamWriter<HelloReply>)
+            (context: ServerCallContext)
+            =
+            AsyncSeq.ofAsyncEnum (requestStream.ReadAllAsync())
+            |> AsyncSeq.iterAsync (fun x ->
+                writer.WriteAsync { Message = "Hello " + x.Name }
+                |> Async.AwaitTask)
+            |> fun x -> task { do! x }
 
-            let builder : WebApplicationBuilder = WebApplication.CreateBuilder()
+    type ServiceFixture() =
+        let builder = WebApplication.CreateBuilder()
+        do
             builder.Services.AddGrpc() |> ignore
             builder.WebHost
-                .ConfigureKestrel(fun serverOptions -> 
-                    serverOptions.ConfigureEndpointDefaults(fun listenOptions -> 
+                .ConfigureKestrel(fun serverOptions ->
+                    serverOptions.ConfigureEndpointDefaults(fun listenOptions ->
                         listenOptions.Protocols <- Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2))
-                .UseShutdownTimeout(TimeSpan.FromSeconds(60))        
+                .UseShutdownTimeout(TimeSpan.FromSeconds(60))
                 |> ignore
             app <- builder.Build()
-            app.MapGrpcService<Greeter.Service>() |> ignore
+            app.MapGrpcService<GRPCService>() |> ignore
             app.StartAsync().Wait()
-            
+
         interface IDisposable with
-            member __.Dispose () = 
+            member __.Dispose () =
                 app.StopAsync().Wait()
                 app.DisposeAsync().AsTask().Wait()
-                
 
 module ServiceTests =
     type ServiceTests() =
@@ -140,5 +135,3 @@ module ServiceTests =
             Assert.True(expected.SequenceEqual(responses.Result))
 
         interface IClassFixture<Fixtures.ServiceFixture>
-
-
