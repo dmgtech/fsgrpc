@@ -151,6 +151,79 @@ let serializedMessage = FsGrpc.Json.serialize message
 let deserializedMessage : Http = FsGrpc.Json.deserialize serializedMessage
 ```
 
+### Implementing a GRPC service
+Starting from a protobuf service defined like the following:
+
+```protobuf
+message HelloRequest {
+    string name = 1;
+}
+  
+  message HelloReply {
+    string message = 1;
+}
+
+service Greeter {
+    rpc SayHello (HelloRequest) returns (HelloReply);
+    rpc SayHelloServerStreaming (HelloRequest) returns (stream HelloReply);
+    rpc SayHelloClientStreaming (stream HelloRequest) returns (HelloReply);
+    rpc SayHelloDuplexStreaming (stream HelloRequest) returns (stream HelloReply);
+}
+```
+
+The implementation can then look like:
+```fsharp
+    open FSharp.Control //from the FSharp.Control.AsyncSeq package
+
+    type GRPCService () =
+        inherit Greeter.ServiceBase()
+
+        override _.SayHello (request: HelloRequest) (context: ServerCallContext) =
+            task { return { Message = "Hello " + request.Name } }
+
+        override _.SayHelloServerStreaming (request: HelloRequest) (writer: IServerStreamWriter<HelloReply>) (context: ServerCallContext) =
+            task {
+                for i in [1..5] do
+                    do! writer.WriteAsync { Message = "Hello " + request.Name }
+            }
+
+        override _.SayHelloClientStreaming (requestStream: IAsyncStreamReader<HelloRequest>) (context: ServerCallContext) =
+            task {
+                let! names =
+                    AsyncSeq.ofAsyncEnum (requestStream.ReadAllAsync())
+                    |> AsyncSeq.toListAsync
+
+                let names = List.map (fun x -> x.Name) names
+                return { Message = $"""Hello {String.concat ", " names}""" }
+            }
+
+        override _.SayHelloDuplexStreaming
+            (requestStream: IAsyncStreamReader<HelloRequest>)
+            (writer: IServerStreamWriter<HelloReply>)
+            (context: ServerCallContext)
+            =
+            AsyncSeq.ofAsyncEnum (requestStream.ReadAllAsync())
+            |> AsyncSeq.iterAsync (fun x ->
+                writer.WriteAsync { Message = "Hello " + x.Name }
+                |> Async.AwaitTask)
+            |> fun x -> task { do! x }
+
+        let builder = WebApplication.CreateBuilder()
+        do
+            builder.Services.AddGrpc() |> ignore
+            builder.WebHost
+                .ConfigureKestrel(fun serverOptions ->
+                    serverOptions.ConfigureEndpointDefaults(fun listenOptions ->
+                        listenOptions.Protocols <- Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2))
+                .UseShutdownTimeout(TimeSpan.FromSeconds(60))
+                |> ignore
+
+            let mutable app = Unchecked.defaultof<WebApplication>
+            app <- builder.Build()
+            app.MapGrpcService<GRPCService>() |> ignore
+            app.StartAsync().Wait()
+```
+
 ## Status
 Note: This is currently a work in progress.  Code generation for protocol buffers is currently working but considered an alpha version.  gRPC and other features (such as code comments and reflection) are not complete.
 
