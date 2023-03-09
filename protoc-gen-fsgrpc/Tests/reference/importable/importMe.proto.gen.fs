@@ -1,5 +1,6 @@
 namespace rec Ex.Ample.Importable
 open FsGrpc.Protobuf
+open Google.Protobuf
 #nowarn "40"
 #nowarn "1182"
 
@@ -33,6 +34,7 @@ module Imported =
 type private _Imported = Imported
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Imported = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)
@@ -94,6 +96,7 @@ module Args =
 type private _Args = Args
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Args = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)

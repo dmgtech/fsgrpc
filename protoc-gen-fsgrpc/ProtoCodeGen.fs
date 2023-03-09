@@ -1048,6 +1048,7 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
         Line $"type private _%s{fsName} = %s{fsName}"
         Line $"[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]"
         Line $"[<FsGrpc.Protobuf.Message>]"
+        Line $"[<StructuralEquality;StructuralComparison>]"
         Line $"type {fsName} = {{"
         Block [
             Line "// Field Declarations"
@@ -1157,6 +1158,7 @@ let private toFsNamespaceDecl (package: string) =
     Frag [
     Line $"namespace rec {toFsNamespace package}"
     Line $"open FsGrpc.Protobuf"
+    Line $"open Google.Protobuf"
     Line $"#nowarn \"40\"" // TODO: need to see if we can eliminate this, possibly by having the implementation of the field writes be inlined by the generator itself
     Line $"#nowarn \"1182\"" //suppress unused variable warnings
     ]
@@ -1183,17 +1185,11 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     
     let depSort = DependencySort.depSort depsOf
 
-    let inImportOrder = files |> Seq.map nameOf |> Seq.sortBy depSort
+    let inImportOrder = files |> Seq.map nameOf |> Seq.sortBy depSort.Invoke
     let includes = inImportOrder |> Seq.map toCompileInclude
     Frag [
     Line $"""<?xml version="1.0"?>"""
     Line $"""<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">"""
-    Line $"""<PropertyGroup>"""
-    Block [
-        Line $"""<!-- Grpc.AspNetCore requires this flag in order to build.  Despite this, no C# code is generated -->"""
-        Line $"""<Protobuf_Generator>CSharp</Protobuf_Generator>"""
-    ]
-    Line $"""</PropertyGroup>"""
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These files are listed in dependency order such that none is listed above any other file on which it depends -->"""
@@ -1204,7 +1200,7 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These are project references required for service and client classes -->"""
-        Line $"""<PackageReference  Include="Grpc.AspNetCore" Version="2.32.0" />"""
+        Line $"""<PackageReference  Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.51.0" />"""
     ]
     Line $"""</ItemGroup>"""
     Line $"""</Project>"""

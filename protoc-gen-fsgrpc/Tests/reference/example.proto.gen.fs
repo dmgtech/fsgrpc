@@ -1,5 +1,6 @@
 namespace rec Ex.Ample
 open FsGrpc.Protobuf
+open Google.Protobuf
 #nowarn "40"
 #nowarn "1182"
 
@@ -57,6 +58,7 @@ module Inner =
 type private _Inner = Inner
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Inner = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("intFixed")>] IntFixed: int // (13)
@@ -229,6 +231,7 @@ module Outer =
     type private _Nested = Nested
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
+    [<StructuralEquality;StructuralComparison>]
     type Nested = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("enums")>] Enums: Ex.Ample.Outer.NestEnumeration list // (1)
@@ -420,6 +423,7 @@ module Outer =
 type private _Outer = Outer
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Outer = {
     // Field Declarations
     /// <summary>primitive double value</summary>
@@ -864,6 +868,7 @@ module ResultEvent =
     type private _Record = Record
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
+    [<StructuralEquality;StructuralComparison>]
     type Record = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("key")>] Key: string // (1)
@@ -937,6 +942,7 @@ module ResultEvent =
 type private _ResultEvent = ResultEvent
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type ResultEvent = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("subscriptionState")>] SubscriptionState: Ex.Ample.EnumType // (1)

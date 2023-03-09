@@ -57,62 +57,63 @@ There are a couple of approaches you can use to generate code from your protos.
 1. If using buf (or if you just want to use the buf cli), start by installing the buf cli from https://docs.buf.build/installation.
 
 2. Add the following "remote" section to your buf.gen.yaml (or create a new buf.gen.yaml if one doesn't already exist):
-    A.
+A.
+```yaml
+version: v1
+plugins:
+- remote: buf.build/divisions-maintenance-group/plugins/fsharp
+    out: gen
+    strategy: all
+```
+B. If you need to run the plugin offline:
+1. Pull the fsgrpc repo locally
+2. Build the protoc-gen-fsgrpc project in that repo
+3. Change your buf.gen.yaml file to look like this:
     ```yaml
     version: v1
     plugins:
-    - remote: buf.build/divisions-maintenance-group/plugins/fsharp
+    - plugin: fsgrpc.exe 'fsgrpc for non-windows operating systems and fsgrpc.exe for windows
         out: gen
+        path: <path to the fsgrpc repo>/fsgrpc/protoc-gen-fsgrpc/bin/Debug/net6.0/protoc-gen-fsgrpc
         strategy: all
     ```
-    B. If you need to run the plugin offline:
-    1. Pull the fsgrpc repo locally
-    2. Build the protoc-gen-fsgrpc project in that repo
-    3. Change your buf.gen.yaml file to look like this:
-        ```yaml
-        version: v1
-        plugins:
-        - plugin: fsgrpc.exe 'fsgrpc for non-windows operating systems and fsgrpc.exe for windows
-            out: gen
-            path: <path to the fsgrpc repo>/fsgrpc/protoc-gen-fsgrpc/bin/Debug/net6.0/protoc-gen-fsgrpc
-            strategy: all
-        ```
 
 3. Generate the code
 
-	- Option 1:
-		1. Place your protos in a folder named "protos" in the same folder as your buf.gen.yaml file.
+- Option 1:
+    1. Place your protos in a folder named "protos" in the same folder as your buf.gen.yaml file.
 
-		2. If your protos are in buf, you can export them into that folder by running:
-	       `buf export buf.build/path/to/your/protos -o protos`
+    2. If your protos are in buf, you can export them into that folder by running:
+    `buf export buf.build/path/to/your/protos -o protos`
 
-	       e.g. `buf export buf.build/googleapis/googleapis -o protos` will place the proto defintions for the google apis into the protos folder
+    e.g. `buf export buf.build/googleapis/googleapis -o protos` will place the proto defintions for the google apis into the protos folder
 
-		3. Run `buf generate protos --include-imports --include-wkt` in the folder where your buf.gen.yaml file is located.
+    3. Run `buf generate protos --include-imports --include-wkt` in the folder where your buf.gen.yaml file is located.
 
-	- Option 2:
-		1. Run buf generate command directly referencing protos in buf
-        `buf generate buf.build/googleapis/googleapis`
+- Option 2:
+    1. Run buf generate command directly referencing protos in buf
+    `buf generate buf.build/googleapis/googleapis`
 
 4. Add the generated code to your F# project
-Using `buf generate` with the above example will generate .fs files in the "gen" directory, and also a Protobuf.targets file in that directory which includes those files in correct dependency order.
 
-You then add the following line to your .fsproj inside the top-level "project" element:
-```xml
-<Import Project="gen/Protobuf.targets" />
-```
+    Using `buf generate` with the above example will generate .fs files in the "gen" directory, and also a Protobuf.targets file in that directory which includes those files in correct dependency order.
 
-And run
+    You then add the following line to your .fsproj inside the top-level "project" element:
+    ```xml
+    <Import Project="gen/Protobuf.targets" />
+    ```
 
-```bash
-dotnet add package fsgrpc
-```
+    And run
 
-or
+    ```bash
+    dotnet add package fsgrpc
+    ```
 
-```powershell
-Install-Package FsGrpc
-```
+    or
+
+    ```powershell
+    Install-Package FsGrpc
+    ```
 
 ## Usage in F#
 
@@ -125,7 +126,7 @@ let message =
 	    Description = "some string here" }
 ```
 
-You can serialize/deserialize from various formats:
+    You can serialize/deserialize from various formats:
 
 ### Serializing to/from bytes
 
