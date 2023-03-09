@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/dotnet/sdk:6.0
+WORKDIR /app
+COPY protoc-gen-fsgrpc/*.fsproj ./protoc-gen-fsgrpc/
+COPY FsGrpc/*.fsproj ./FsGrpc/
+COPY protoc-gen-fsgrpc/Tests/*.fsproj ./protoc-gen-fsgrpc/Tests/
+RUN (cd protoc-gen-fsgrpc/Tests && dotnet restore)
+COPY protoc-gen-fsgrpc ./protoc-gen-fsgrpc
+COPY FsGrpc ./FsGrpc
+RUN (cd protoc-gen-fsgrpc/Tests && dotnet test)

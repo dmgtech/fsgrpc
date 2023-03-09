@@ -5,7 +5,7 @@ open Google.Protobuf
 open System.IO
 
 let doDump toFile : Google.Protobuf.Compiler.CodeGeneratorResponse =
-    eprintfn $"Dumping to {toFile}"
+    //printfn $"Dumping to {toFile}"
     use stream = System.Console.OpenStandardInput(0)
     use output = new MemoryStream();
     stream.CopyTo(output)
@@ -14,17 +14,17 @@ let doDump toFile : Google.Protobuf.Compiler.CodeGeneratorResponse =
     Compiler.CodeGeneratorResponse.empty
 
 let doGeneration (fromFile: string option) : Google.Protobuf.Compiler.CodeGeneratorResponse =
-    eprintfn $"Generating..."
+    //printfn $"Generating..."
     use stream =
         match fromFile with
         | None ->
             System.Console.OpenStandardInput(0)
         | Some fromFile ->
-            eprintfn $"Reading from {fromFile}"
+            //printfn $"Reading from {fromFile}"
             File.OpenRead(fromFile) :> System.IO.Stream
     use cis = new CodedInputStream(stream)
     let request = Compiler.CodeGeneratorRequest.Proto.Force().Decode cis
-    eprintfn $"(selected: %d{request.FilesToGenerate |> Seq.length}, total: %d{request.ProtoFiles |> Seq.length})"
+    //printfn $"(selected: %d{request.FilesToGenerate |> Seq.length}, total: %d{request.ProtoFiles |> Seq.length})"
     let protoFiles = request.ProtoFiles |> Seq.map ProtoGenFsgrpc.Model.FileDef.From
     let typeMap = ProtoCodeGen.createTypeMap protoFiles
     let isFileToGen file = Seq.exists (fun g -> g = file) request.FilesToGenerate
@@ -33,25 +33,25 @@ let doGeneration (fromFile: string option) : Google.Protobuf.Compiler.CodeGenera
         |> Seq.filter (fun f -> isFileToGen f.Name)
 
     let targetsPath = $"Protobuf.targets"
-    eprintf $"Generating: {targetsPath}..."
+    //printf $"Generating: {targetsPath}..."
     let targetsContents = ProtoCodeGen.generateTargetsFile filesToGen request
     let targets = (targetsPath, targetsContents)
-    eprintfn $" Done"
+    //printfn $" Done"
 
     let codeFiles =
         filesToGen
         |> Seq.map (fun inFile ->
             let outFilename = $"{inFile.Name}.gen.fs"
-            let outPath = $"{outFilename}"
-            eprintf $"Generating: {outPath}..."
+            //let outPath = $"{outFilename}"
+            //printf $"Generating: {outPath}..."
             let contents = ProtoCodeGen.generateFile inFile typeMap request
-            eprintfn $" Done"
+            //printfn $" Done"
             (outFilename, contents)
         )
         |> Seq.toList
     
     let outFiles =
-        [targets] @ codeFiles
+        targets :: codeFiles
     
     let outFiles =
         outFiles

@@ -1,5 +1,6 @@
 namespace rec Ex.Ample
 open FsGrpc.Protobuf
+open Google.Protobuf
 #nowarn "40"
 #nowarn "1182"
 
@@ -57,6 +58,7 @@ module Inner =
 type private _Inner = Inner
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Inner = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("intFixed")>] IntFixed: int // (13)
@@ -153,16 +155,20 @@ module Outer =
     | [<System.Text.Json.Serialization.JsonPropertyName("stringOption")>] StringOption of string
     /// <summary>a message type from another file</summary>
     | [<System.Text.Json.Serialization.JsonPropertyName("importedOption")>] ImportedOption of Ex.Ample.Importable.Args
+    /// <summary>the fsgrpc bytes type</summary>
+    | [<System.Text.Json.Serialization.JsonPropertyName("bytesOption")>] BytesOption of FsGrpc.Bytes
     with
         static member OneofCodec : Lazy<OneofCodec<UnionCase>> = 
             lazy
             let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
             let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
             let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+            let BytesOption = FieldCodec.OneofCase "union" ValueCodec.Bytes (48, "bytesOption")
             let Union = FieldCodec.Oneof "union" (FSharp.Collections.Map [
                 ("innerOption", fun node -> UnionCase.InnerOption (InnerOption.ReadJsonField node))
                 ("stringOption", fun node -> UnionCase.StringOption (StringOption.ReadJsonField node))
                 ("importedOption", fun node -> UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
+                ("bytesOption", fun node -> UnionCase.BytesOption (BytesOption.ReadJsonField node))
                 ])
             Union
 
@@ -225,6 +231,7 @@ module Outer =
     type private _Nested = Nested
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
+    [<StructuralEquality;StructuralComparison>]
     type Nested = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("enums")>] Enums: Ex.Ample.Outer.NestEnumeration list // (1)
@@ -350,6 +357,7 @@ module Outer =
             | 25 -> x.Union.Set (UnionCase.InnerOption (ValueCodec.Message<Ex.Ample.Inner>.ReadValue reader))
             | 26 -> x.Union.Set (UnionCase.StringOption (ValueCodec.String.ReadValue reader))
             | 30 -> x.Union.Set (UnionCase.ImportedOption (ValueCodec.Message<Ex.Ample.Importable.Args>.ReadValue reader))
+            | 48 -> x.Union.Set (UnionCase.BytesOption (ValueCodec.Bytes.ReadValue reader))
             | 27 -> x.Nested.Set (ValueCodec.Message<Ex.Ample.Outer.Nested>.ReadValue reader)
             | 28 -> x.Imported.Set (ValueCodec.Message<Ex.Ample.Importable.Imported>.ReadValue reader)
             | 29 -> x.EnumImported <- ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport>.ReadValue reader
@@ -415,6 +423,7 @@ module Outer =
 type private _Outer = Outer
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Outer = {
     // Field Declarations
     /// <summary>primitive double value</summary>
@@ -523,6 +532,7 @@ type Outer = {
         let InnerOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Inner> (25, "innerOption")
         let StringOption = FieldCodec.OneofCase "union" ValueCodec.String (26, "stringOption")
         let ImportedOption = FieldCodec.OneofCase "union" ValueCodec.Message<Ex.Ample.Importable.Args> (30, "importedOption")
+        let BytesOption = FieldCodec.OneofCase "union" ValueCodec.Bytes (48, "bytesOption")
         let Nested = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Outer.Nested> (27, "nested")
         let Imported = FieldCodec.Optional ValueCodec.Message<Ex.Ample.Importable.Imported> (28, "imported")
         let EnumImported = FieldCodec.Primitive ValueCodec.Enum<Ex.Ample.Importable.Imported.EnumForImport> (29, "enumImported")
@@ -545,6 +555,7 @@ type Outer = {
             ("innerOption", fun node -> Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField node))
             ("stringOption", fun node -> Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField node))
             ("importedOption", fun node -> Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField node))
+            ("bytesOption", fun node -> Ex.Ample.Outer.UnionCase.BytesOption (BytesOption.ReadJsonField node))
             ])
         // Proto Definition Implementation
         { // ProtoDef<Outer>
@@ -617,6 +628,7 @@ type Outer = {
                     | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.CalcFieldSize v
                     | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.CalcFieldSize v
                     | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.CalcFieldSize v
+                    | Ex.Ample.Outer.UnionCase.BytesOption v -> BytesOption.CalcFieldSize v
                 + Nested.CalcFieldSize m.Nested
                 + Imported.CalcFieldSize m.Imported
                 + EnumImported.CalcFieldSize m.EnumImported
@@ -661,6 +673,7 @@ type Outer = {
                 | Ex.Ample.Outer.UnionCase.InnerOption v -> InnerOption.WriteField w v
                 | Ex.Ample.Outer.UnionCase.StringOption v -> StringOption.WriteField w v
                 | Ex.Ample.Outer.UnionCase.ImportedOption v -> ImportedOption.WriteField w v
+                | Ex.Ample.Outer.UnionCase.BytesOption v -> BytesOption.WriteField w v
                 )
                 Nested.WriteField w m.Nested
                 Imported.WriteField w m.Imported
@@ -711,6 +724,7 @@ type Outer = {
                 let writeInnerOption = InnerOption.WriteJsonField o
                 let writeStringOption = StringOption.WriteJsonField o
                 let writeImportedOption = ImportedOption.WriteJsonField o
+                let writeBytesOption = BytesOption.WriteJsonField o
                 let writeNested = Nested.WriteJsonField o
                 let writeImported = Imported.WriteJsonField o
                 let writeEnumImported = EnumImported.WriteJsonField o
@@ -755,6 +769,7 @@ type Outer = {
                     | Ex.Ample.Outer.UnionCase.InnerOption v -> writeInnerOption w v
                     | Ex.Ample.Outer.UnionCase.StringOption v -> writeStringOption w v
                     | Ex.Ample.Outer.UnionCase.ImportedOption v -> writeImportedOption w v
+                    | Ex.Ample.Outer.UnionCase.BytesOption v -> writeBytesOption w v
                     )
                     writeNested w m.Nested
                     writeImported w m.Imported
@@ -801,6 +816,7 @@ type Outer = {
                     | "innerOption" -> { value with Union = Ex.Ample.Outer.UnionCase.InnerOption (InnerOption.ReadJsonField kvPair.Value) }
                     | "stringOption" -> { value with Union = Ex.Ample.Outer.UnionCase.StringOption (StringOption.ReadJsonField kvPair.Value) }
                     | "importedOption" -> { value with Union = Ex.Ample.Outer.UnionCase.ImportedOption (ImportedOption.ReadJsonField kvPair.Value) }
+                    | "bytesOption" -> { value with Union = Ex.Ample.Outer.UnionCase.BytesOption (BytesOption.ReadJsonField kvPair.Value) }
                     | "union" -> { value with Union = Union.ReadJsonField kvPair.Value }
                     | "nested" -> { value with Nested = Nested.ReadJsonField kvPair.Value }
                     | "imported" -> { value with Imported = Imported.ReadJsonField kvPair.Value }
@@ -852,6 +868,7 @@ module ResultEvent =
     type private _Record = Record
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
+    [<StructuralEquality;StructuralComparison>]
     type Record = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("key")>] Key: string // (1)
@@ -925,6 +942,7 @@ module ResultEvent =
 type private _ResultEvent = ResultEvent
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type ResultEvent = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("subscriptionState")>] SubscriptionState: Ex.Ample.EnumType // (1)
@@ -1031,6 +1049,14 @@ module Outer =
                 _which = fun s ->
                     match s with
                     | Ex.Ample.Outer.UnionCase.ImportedOption a -> Ok a
+                    | _ -> Error s
+            }
+        let ifBytesOption : IPrism'<Ex.Ample.Outer.UnionCase,FsGrpc.Bytes> =
+            {
+                _unto = fun a -> Ex.Ample.Outer.UnionCase.BytesOption a
+                _which = fun s ->
+                    match s with
+                    | Ex.Ample.Outer.UnionCase.BytesOption a -> Ok a
                     | _ -> Error s
             }
     let ``doubleVal`` : ILens'<Ex.Ample.Outer,double> =
@@ -1556,6 +1582,12 @@ type OpticsExtensionMethods_example_proto =
     static member inline IfImportedOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,Ex.Ample.Importable.Args,Ex.Ample.Importable.Args> = 
         traversal.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifImportedOption)
     [<Extension>]
+    static member inline IfBytesOption(prism : IPrism<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : IPrism<'s,'t,FsGrpc.Bytes,FsGrpc.Bytes> = 
+        prism.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifBytesOption)
+    [<Extension>]
+    static member inline IfBytesOption(traversal : ITraversal<'s,'t,Ex.Ample.Outer.UnionCase,Ex.Ample.Outer.UnionCase>) : ITraversal<'s,'t,FsGrpc.Bytes,FsGrpc.Bytes> = 
+        traversal.ComposeWith(Ex.Ample.Optics.Outer.UnionPrisms.ifBytesOption)
+    [<Extension>]
     static member inline Enums(lens : ILens<'a,'b,Ex.Ample.Outer.Nested,Ex.Ample.Outer.Nested>) : ILens<'a,'b,Ex.Ample.Outer.NestEnumeration list,Ex.Ample.Outer.NestEnumeration list> =
         lens.ComposeWith(Ex.Ample.Optics.Outer.Nested.``enums``)
     [<Extension>]
@@ -1659,17 +1691,6 @@ module ServiceOne =
                 | null -> Unchecked.defaultof<Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>>
                 | _ -> Grpc.Core.ServerStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.ResultEvent>(serviceImpl.ExampleSubscription)
             serviceBinder.AddMethod(__Method_ExampleSubscription, serviceMethodOrNull) |> ignore
-    type Service() = 
-        inherit ServiceBase()
-        static member val exampleUnaryRpcImpl : Ex.Ample.Inner -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Imported> =
-            (fun _ _ -> failwith "\"Service.ExampleUnaryRpcImpl\" has not been set.") with get, set 
-        override this.ExampleUnaryRpc request context = Service.exampleUnaryRpcImpl request context
-        static member val exampleServerStreamingRpcImpl : Ex.Ample.Outer.Nested -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Imported> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.ExampleServerStreamingRpcImpl\" has not been set.") with get, set 
-        override this.ExampleServerStreamingRpc request writer context = Service.exampleServerStreamingRpcImpl request writer context
-        static member val exampleSubscriptionImpl : Ex.Ample.Importable.Args -> Grpc.Core.IServerStreamWriter<Ex.Ample.ResultEvent> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.ExampleSubscriptionImpl\" has not been set.") with get, set 
-        override this.ExampleSubscription request writer context = Service.exampleSubscriptionImpl request writer context
     type Client = 
         inherit Grpc.Core.ClientBase<Client>
         new () = { inherit Grpc.Core.ClientBase<Client>() }

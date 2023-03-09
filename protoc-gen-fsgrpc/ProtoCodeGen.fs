@@ -69,7 +69,7 @@ type CommentMap = (string -> string)
 let private toFsEnumValueName (enumType: EnumDef) (value: EnumValueDef) =
     let prefix = toPascalCase enumType.Name
     let fullVal = toPascalCase value.Name
-    if fullVal.StartsWith(prefix) then
+    if fullVal.StartsWith(prefix) && fullVal <> prefix then
         fullVal[prefix.Length..]
     else
         fullVal
@@ -1048,6 +1048,7 @@ let rec private toFsRecordDef (typeMap: TypeMap) (protoNs: string) (protoMessage
         Line $"type private _%s{fsName} = %s{fsName}"
         Line $"[<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]"
         Line $"[<FsGrpc.Protobuf.Message>]"
+        Line $"[<StructuralEquality;StructuralComparison>]"
         Line $"type {fsName} = {{"
         Block [
             Line "// Field Declarations"
@@ -1157,6 +1158,7 @@ let private toFsNamespaceDecl (package: string) =
     Frag [
     Line $"namespace rec {toFsNamespace package}"
     Line $"open FsGrpc.Protobuf"
+    Line $"open Google.Protobuf"
     Line $"#nowarn \"40\"" // TODO: need to see if we can eliminate this, possibly by having the implementation of the field writes be inlined by the generator itself
     Line $"#nowarn \"1182\"" //suppress unused variable warnings
     ]
@@ -1183,17 +1185,11 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     
     let depSort = DependencySort.depSort depsOf
 
-    let inImportOrder = files |> Seq.map nameOf |> Seq.sortBy depSort
+    let inImportOrder = files |> Seq.map nameOf |> Seq.sortBy depSort.Invoke
     let includes = inImportOrder |> Seq.map toCompileInclude
     Frag [
     Line $"""<?xml version="1.0"?>"""
     Line $"""<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">"""
-    Line $"""<PropertyGroup>"""
-    Block [
-        Line $"""<!-- Grpc.AspNetCore requires this flag in order to build.  Despite this, no C# code is generated -->"""
-        Line $"""<Protobuf_Generator>CSharp</Protobuf_Generator>"""
-    ]
-    Line $"""</PropertyGroup>"""
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These files are listed in dependency order such that none is listed above any other file on which it depends -->"""
@@ -1204,7 +1200,7 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Line $"""<ItemGroup>"""
     Block [
         Line $"""<!-- These are project references required for service and client classes -->"""
-        Line $"""<PackageReference  Include="Grpc.AspNetCore" Version="2.32.0" />"""
+        Line $"""<PackageReference  Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.51.0" />"""
     ]
     Line $"""</ItemGroup>"""
     Line $"""</Project>"""
@@ -1321,23 +1317,6 @@ let fsClientFunctions (typeMap: TypeMap) (serviceMethod: MethodDescriptorProto) 
         ]
         ]
 
-let toFsServiceMethodOverride (typeMap: TypeMap) (method: MethodDescriptorProto) =
-    let implName = $"{method.Name}Impl"
-    let methodDef = 
-        match (method.ClientStreaming, method.ServerStreaming) with
-        | (false, false) -> $"override this.{method.Name} request context = Service.{camelCase implName} request context"
-        | (true, false) ->  $"override this.{method.Name} requestStream context = Service.{camelCase implName} requestStream context"
-        | (false, true) ->  $"override this.{method.Name} request writer context = Service.{camelCase implName} request writer context"
-        | (true, true) ->   $"override this.{method.Name} requestStream writer context = Service.{camelCase implName} requestStream writer context"
-    let funDefPrefix = if method.ServerStreaming then "fun _ _ _" else "fun _ _"
-    Frag [
-    Line $"static member val {camelCase implName} : {toFsServiceMethodSignature typeMap method} ="
-    Block [
-        Line $"""({funDefPrefix} -> failwith "\"Service.{implName}\" has not been set.") with get, set """
-    ]
-    Line methodDef
-    ]
-
 let private toFsServiceDefs (typeMap: TypeMap) (file: FileDef)  : CodeNode =
     let serviceBaseClasses = seq [
         for service in file.Services do
@@ -1353,11 +1332,6 @@ let private toFsServiceDefs (typeMap: TypeMap) (file: FileDef)  : CodeNode =
                     Frag <| List.map (fun x -> Line $"abstract member {x.Name} : {toFsServiceMethodSignature typeMap x}") service.Methods
                     Line $"static member BindService (serviceBinder: Grpc.Core.ServiceBinderBase) (serviceImpl: ServiceBase) ="
                     Block <| List.map (toFsServiceMethodBindSection typeMap) service.Methods
-                ]
-                Line $"type Service() = "
-                Block [
-                    Line "inherit ServiceBase()"
-                    Frag <| List.map (toFsServiceMethodOverride typeMap) service.Methods
                 ]
                 Line $"type Client = "
                 Block [
@@ -1380,8 +1354,6 @@ let generateTargetsFile (files: FileDef seq) (_request: Google.Protobuf.Compiler
 let generateFile (infile: FileDef) (typeMap: TypeMap) (_request: Google.Protobuf.Compiler.CodeGeneratorRequest) =
     let protoMessageDefs = infile.MessageTypes
     let protoEnumDefs = infile.EnumTypes
-    //let comments = getComments infile.SourceCodeInfo
-    //let findComment = comments.TryFind
     let fsNamespace = toFsNamespaceDecl infile.Package
     let fsRecordDefs = toFsRecordDefs infile.Name typeMap infile.Package protoMessageDefs protoEnumDefs
     render 0 (Frag [

@@ -18,10 +18,10 @@ open FSharpPlus
 
 let trim (s: string) = s.Trim()
 let unindent (s: string) =
-    let lines = s.Trim([|'\r'|]).Trim([|'\n'|]).Split([|'\n'|])
+    let lines = s.Trim([|'\r'|]).Trim([|'\n'|]).Split([|'\n'|]) |> Array.map(fun x->x.Trim([|'\r'|]))
     let minIndent = lines |> Seq.map (fun line -> System.Text.RegularExpressions.Regex.Match(line, "^ *").Length) |> Seq.min
     let sinIndent = lines |> Seq.map (fun line -> line.Substring(minIndent));
-    sinIndent |> String.concat "\n" |> trim
+    sinIndent |> String.concat Environment.NewLine |> trim
 
 let ignoreNull =
     new JsonSerializerOptions(

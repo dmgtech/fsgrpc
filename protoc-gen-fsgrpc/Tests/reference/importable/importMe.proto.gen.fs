@@ -1,5 +1,6 @@
 namespace rec Ex.Ample.Importable
 open FsGrpc.Protobuf
+open Google.Protobuf
 #nowarn "40"
 #nowarn "1182"
 
@@ -33,6 +34,7 @@ module Imported =
 type private _Imported = Imported
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Imported = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)
@@ -94,6 +96,7 @@ module Args =
 type private _Args = Args
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Args = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("value")>] Value: string // (1)
@@ -205,14 +208,6 @@ module ServiceTwo =
                 | null -> Unchecked.defaultof<Grpc.Core.DuplexStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>>
                 | _ -> Grpc.Core.DuplexStreamingServerMethod<Ex.Ample.Importable.Args,Ex.Ample.Importable.Args>(serviceImpl.ExampleBidirectionalRpc)
             serviceBinder.AddMethod(__Method_ExampleBidirectionalRpc, serviceMethodOrNull) |> ignore
-    type Service() = 
-        inherit ServiceBase()
-        static member val exampleClientStreamingRpcImpl : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Ex.Ample.Importable.Args> =
-            (fun _ _ -> failwith "\"Service.ExampleClientStreamingRpcImpl\" has not been set.") with get, set 
-        override this.ExampleClientStreamingRpc requestStream context = Service.exampleClientStreamingRpcImpl requestStream context
-        static member val exampleBidirectionalRpcImpl : Grpc.Core.IAsyncStreamReader<Ex.Ample.Importable.Args> -> Grpc.Core.IServerStreamWriter<Ex.Ample.Importable.Args> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.ExampleBidirectionalRpcImpl\" has not been set.") with get, set 
-        override this.ExampleBidirectionalRpc requestStream writer context = Service.exampleBidirectionalRpcImpl requestStream writer context
     type Client = 
         inherit Grpc.Core.ClientBase<Client>
         new () = { inherit Grpc.Core.ClientBase<Client>() }

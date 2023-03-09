@@ -83,6 +83,8 @@ message Outer {
         string string_option = 26;
         // a message type from another file
         importable.Args imported_option = 30;
+        // the fsgrpc bytes type
+        bytes bytes_option = 48;
     }
     // a message that is defined inside this message
     Nested nested = 27;
