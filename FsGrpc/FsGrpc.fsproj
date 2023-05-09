@@ -20,7 +20,6 @@
     <Compile Include="Bytes.fs" />
     <Compile Include="Protobuf.fs" />
     <Compile Include="Json.fs" />
-    <Compile Include="Optics.fs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1088,11 +1088,11 @@ let private toFsRecordDefs (fileName: string) (typeMap: TypeMap) (protoNs: strin
     else
         Line ""
         Line $"namespace %s{opticsNs}"
-        Line $"open FsGrpc.Optics"
+        Line $"open Focal.Core"
         Frag (opticsMessageDefs)
         Line ""
         Line $"namespace %s{toFsNamespace protoNs}"
-        Line $"open FsGrpc.Optics"
+        Line $"open Focal.Core"
         Line $"open System.Runtime.CompilerServices"
         Line "[<Extension>]"
         Line $"type OpticsExtensionMethods_%s{extensionMethodSuffix} ="
@@ -1201,12 +1201,13 @@ let private toTargetsFile (files: FileDef seq) : CodeNode =
     Block [
         Line $"""<!-- These are project references required for service and client classes -->"""
         Line $"""<PackageReference  Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.51.0" />"""
+        Line $"""<PackageReference  Include="Focal.Core" Version="0.9.2" />"""
     ]
     Line $"""</ItemGroup>"""
     Line $"""</Project>"""
     ]
 
-open FsGrpc.Optics
+open Focal.Core
 open Google.Protobuf
 
 let toMarshallerName (typeName: string) = $"__Marshaller_{typeName.Replace('.','_')}"

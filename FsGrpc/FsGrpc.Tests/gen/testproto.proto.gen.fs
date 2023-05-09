@@ -1,5 +1,6 @@
 namespace rec Test.Name.Space
 open FsGrpc.Protobuf
+open Google.Protobuf
 #nowarn "40"
 #nowarn "1182"
 
@@ -66,6 +67,7 @@ module TestMessage =
 type private _TestMessage = TestMessage
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type TestMessage = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("testInt")>] TestInt: int // (1)
@@ -242,6 +244,7 @@ module Nest =
     type private _Inner = Inner
     [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
     [<FsGrpc.Protobuf.Message>]
+    [<StructuralEquality;StructuralComparison>]
     type Inner = {
         // Field Declarations
         [<System.Text.Json.Serialization.JsonPropertyName("innerName")>] InnerName: string // (1)
@@ -309,6 +312,7 @@ module Nest =
 type private _Nest = Nest
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Nest = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -406,6 +410,7 @@ module Special =
 type private _Special = Special
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Special = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("intList")>] IntList: int list // (1)
@@ -538,6 +543,7 @@ module Enums =
 type private _Enums = Enums
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Enums = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("mainColor")>] MainColor: Test.Name.Space.Enums.Color // (1)
@@ -660,6 +666,7 @@ module Google =
 type private _Google = Google
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type Google = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("int32Val")>] Int32Val: int option // (1)
@@ -745,6 +752,7 @@ module IntMap =
 type private _IntMap = IntMap
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type IntMap = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("intMap")>] IntMap: Map<int, string> // (1)
@@ -806,6 +814,7 @@ module HelloRequest =
 type private _HelloRequest = HelloRequest
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type HelloRequest = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("name")>] Name: string // (1)
@@ -867,6 +876,7 @@ module HelloReply =
 type private _HelloReply = HelloReply
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type HelloReply = {
     // Field Declarations
     [<System.Text.Json.Serialization.JsonPropertyName("message")>] Message: string // (1)
@@ -984,6 +994,7 @@ module OneofWithNoParamsWrapper =
 type private _OneofWithNoParamsWrapper = OneofWithNoParamsWrapper
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
 [<FsGrpc.Protobuf.Message>]
+[<StructuralEquality;StructuralComparison>]
 type OneofWithNoParamsWrapper = {
     // Field Declarations
     Empty: Test.Name.Space.OneofWithNoParamsWrapper.EmptyCase
@@ -1046,7 +1057,7 @@ type OneofWithNoParamsWrapper = {
         with get() = Test.Name.Space._OneofWithNoParamsWrapper.Proto.Value.Empty
 
 namespace Test.Name.Space.Optics
-open FsGrpc.Optics
+open Focal.Core
 module TestMessage =
     let ``testInt`` : ILens'<Test.Name.Space.TestMessage,int> =
         {
@@ -1283,7 +1294,7 @@ module OneofWithNoParamsWrapper =
         }
 
 namespace Test.Name.Space
-open FsGrpc.Optics
+open Focal.Core
 open System.Runtime.CompilerServices
 [<Extension>]
 type OpticsExtensionMethods_testproto_proto =
@@ -1609,20 +1620,6 @@ module Greeter =
                 | null -> Unchecked.defaultof<Grpc.Core.DuplexStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>>
                 | _ -> Grpc.Core.DuplexStreamingServerMethod<Test.Name.Space.HelloRequest,Test.Name.Space.HelloReply>(serviceImpl.SayHelloDuplexStreaming)
             serviceBinder.AddMethod(__Method_SayHelloDuplexStreaming, serviceMethodOrNull) |> ignore
-    type Service() = 
-        inherit ServiceBase()
-        static member val sayHelloImpl : Test.Name.Space.HelloRequest -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply> =
-            (fun _ _ -> failwith "\"Service.SayHelloImpl\" has not been set.") with get, set 
-        override this.SayHello request context = Service.sayHelloImpl request context
-        static member val sayHelloServerStreamingImpl : Test.Name.Space.HelloRequest -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.SayHelloServerStreamingImpl\" has not been set.") with get, set 
-        override this.SayHelloServerStreaming request writer context = Service.sayHelloServerStreamingImpl request writer context
-        static member val sayHelloClientStreamingImpl : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task<Test.Name.Space.HelloReply> =
-            (fun _ _ -> failwith "\"Service.SayHelloClientStreamingImpl\" has not been set.") with get, set 
-        override this.SayHelloClientStreaming requestStream context = Service.sayHelloClientStreamingImpl requestStream context
-        static member val sayHelloDuplexStreamingImpl : Grpc.Core.IAsyncStreamReader<Test.Name.Space.HelloRequest> -> Grpc.Core.IServerStreamWriter<Test.Name.Space.HelloReply> -> Grpc.Core.ServerCallContext -> System.Threading.Tasks.Task =
-            (fun _ _ _ -> failwith "\"Service.SayHelloDuplexStreamingImpl\" has not been set.") with get, set 
-        override this.SayHelloDuplexStreaming requestStream writer context = Service.sayHelloDuplexStreamingImpl requestStream writer context
     type Client = 
         inherit Grpc.Core.ClientBase<Client>
         new () = { inherit Grpc.Core.ClientBase<Client>() }
