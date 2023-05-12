@@ -1,9 +1,11 @@
 module TestOptics
-open FsGrpc.Optics
+open Focal.Core
 open FsGrpc
 open Test.Name.Space
 open Test.Name.Space.Enums
 open Xunit
+
+module Optics = Focal.Core
 
 [<Fact>]
 let ``Lens.id works`` () =
