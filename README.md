@@ -2,9 +2,6 @@
 # FsGrpc
 Idiomatic F# code generation for Protocol Buffers and gRPC
 
-> *⚠️ this is currently a work in progress.  See the "Status" section
-> for more info*
-
 Generate idiomatic F# records from proto3 message definitions, complete with oneofs as discriminated unions, and serialize/deserialize to and from protocol buffer wire format.
 
 # Usage System Diagram
@@ -226,7 +223,7 @@ The implementation can then look like:
 ```
 
 ## Status
-Note: This is currently a work in progress.  Code generation for protocol buffers is currently working but considered an alpha version.  gRPC and other features (such as code comments and reflection) are not complete.
+We are using this for production and it is very stable. See below for status of individual features
 
 The major features intended are:
 - [x] Protobuf Messages as immutable F# record types
