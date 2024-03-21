@@ -76,7 +76,7 @@ type ProtoDef<'M> = {
 let inline ProtoOf< ^T when ^T : (static member Proto : Lazy<ProtoDef< ^T>>)> : Lazy<ProtoDef< ^T>> =
 
     ((^T) : (static member Proto : Lazy<ProtoDef< ^T>>) ())
-    
+
 let ReflectProtoOf<'T> () : ProtoDef<'T> =
     // find a static member called "Proto"
     let tipo = typeof<'T>
@@ -433,7 +433,7 @@ module ValueCodec =
         let readValue (reader: Reader) : uint32 =
             reader.ReadUInt32 ()
         let readJsonValue (node: JsonNode) : uint32 =
-            node.GetValue ()  
+            node.GetValue ()
         let isNonDefault (value: uint32) =
             value <> 0u
         {
@@ -554,12 +554,12 @@ module ValueCodec =
             if isEnum then (enumVal :?> 'E)
             else
                 (typeof<'E>).GetFields(Reflection.BindingFlags.Static ||| Reflection.BindingFlags.Public)
-                |> Array.pick(fun case -> 
+                |> Array.pick(fun case ->
                     let attrs = case.GetCustomAttributes(false)
                     let protoNameAttr = attrs |> Seq.tryPick tryCastTo<ProtobufNameAttribute>
                     match protoNameAttr with
                     | None -> None
-                    | Some attr -> 
+                    | Some attr ->
                         if attr.Name = jsonVal.GetValue<string>() then Some (case.GetValue(null) :?> 'E)
                         else None)
 
@@ -604,7 +604,7 @@ module ValueCodec =
         }
 
     let inline Enum<'E when 'E : (static member op_Explicit : 'E -> int) and 'E : enum<int> and 'E : equality> : ValueCodec<'E> =
-        EnumFor<'E> LanguagePrimitives.EnumOfValue int 
+        EnumFor<'E> LanguagePrimitives.EnumOfValue int
 
     let private messageCalcSize (proto: Lazy<ProtoDef<'M>>) (m: 'M) =
         let size = proto.Force().Size m
@@ -621,12 +621,12 @@ module ValueCodec =
         w.WriteStartObject()
         proto.Force().EncodeJson o w v
         w.WriteEndObject()
-    
+
     let private messageReadValue (proto: Lazy<ProtoDef<'M>>) (reader: Reader) : 'M =
         let bytes = reader.ReadBytes()
         use subreader = bytes.CreateCodedInput()
         proto.Force().Decode subreader
-    
+
     let private messageReadJsonValue (proto: Lazy<ProtoDef<'M>>) (node: JsonNode) : 'M =
         proto.Force().DecodeJson node
 
@@ -649,14 +649,14 @@ module ValueCodec =
             // the following are not actually used because these are used when this value is used for a non-optional field
             // but protocol buffers doesn't allow non-optional messages,
             // However, if it ever does, then the following should be the correct behavior
-            GetDefault = getDefault 
+            GetDefault = getDefault
             IsNonDefault = isNonDefault
         }
-    
+
     let inline Message< ^M when ^M : equality and ^M : (static member Proto : Lazy<ProtoDef< ^M>>)> : ValueCodec< ^M> =
         let proto = ProtoOf< ^M>
         MessageFrom proto
-    
+
     let Wrap<'P when 'P : equality> (primitive: ValueCodec<'P>) : ValueCodec<'P> =
         // Note: this will convert the primitive into a message with the value in field 1 ("value")
         //       but it does not actually handle the optional (None/Nullable) part of this
@@ -685,15 +685,15 @@ module ValueCodec =
                 // this isn't generally used because the wrapper isn't needed for json encoding
                 // so we've implemented what the json would look like, but there is no purpose for it
                 EncodeJson =
-                    writeJsonField primitive "value"           
-                DecodeJson = 
-                    primitive.ReadJsonValue     
+                    writeJsonField primitive "value"
+                DecodeJson =
+                    primitive.ReadJsonValue
             }
         let wrappedMessageValue = MessageFrom proto
         { wrappedMessageValue with
             WriteJsonValue = primitive.WriteJsonValue
         }
-    
+
     let Packed<'P> (primitive: ValueCodec<'P>) : ValueCodec<'P list> =
         let valtype =
             match primitive.RepeatEncoding with
@@ -730,7 +730,7 @@ module ValueCodec =
                     let item = primitive.ReadValue subreader
                     output[i] <- item
                 output |> Seq.toList
-            | Variable _ -> 
+            | Variable ->
                 let builder = new System.Collections.Generic.List<'P>()
                 let sub = r.ReadBytes()
                 use subreader = sub.CreateCodedInput()
@@ -762,10 +762,10 @@ module ValueCodec =
             // the following are not actually used because these are used when this value is used for a non-optional field
             // but protocol buffers doesn't allow non-optional messages
             // if it ever did, then the following should work
-            GetDefault = getDefault 
+            GetDefault = getDefault
             IsNonDefault = isNonDefault
         }
-    
+
     let private createMapRecordProto<'K, 'V> (keycodec: ValueCodec<'K>) (valcodec: ValueCodec<'V>) =
         lazy
         let defVal: 'K * 'V = (keycodec.GetDefault(), valcodec.GetDefault())
@@ -835,7 +835,7 @@ module ValueCodec =
     let private epoch = NodaTime.Instant.FromUnixTimeSeconds(0)
     let private timestampProto =
         lazy
-        let decompose (instant: NodaTime.Instant) = 
+        let decompose (instant: NodaTime.Instant) =
             let seconds = int64 (floor (instant.Minus epoch).TotalSeconds)
             let rounded = NodaTime.Instant.FromUnixTimeSeconds(seconds)
             let nanos = int (instant.Minus rounded).TotalNanoseconds
@@ -885,10 +885,10 @@ module ValueCodec =
                 let result = instantReadFormatter.Parse str
                 if result.Success then result.Value else raise result.Exception
             }
-    
+
     let private durationProto =
         lazy
-        let decompose (duration: NodaTime.Duration) = 
+        let decompose (duration: NodaTime.Duration) =
             let seconds = int64 (floor duration.TotalSeconds)
             let rounded = NodaTime.Duration.FromSeconds seconds
             let nanos = int (duration.Minus rounded).TotalNanoseconds
@@ -932,7 +932,7 @@ module ValueCodec =
                 let value = compose (seconds, nanos)
                 value
             EncodeJson = writeJson
-            DecodeJson = fun (node: JsonNode) -> 
+            DecodeJson = fun (node: JsonNode) ->
                 let str = node.GetValue<string>().Replace("s","")
                 let result = durationFormatter.Parse str
                 if result.Success then result.Value else raise result.Exception
@@ -949,7 +949,7 @@ module ValueCodec =
         }
     let Duration =
         { MessageFrom durationProto with
-            WriteJsonValue = encodeForJson durationToProto3String String.WriteJsonValue 
+            WriteJsonValue = encodeForJson durationToProto3String String.WriteJsonValue
         }
 
     let private anyProto  : Lazy<ProtoDef<Any>> =
@@ -994,10 +994,10 @@ module ValueCodec =
                 }
                 any
             EncodeJson = writeJson
-            DecodeJson = fun (node: JsonNode) -> 
+            DecodeJson = fun (node: JsonNode) ->
                 failwith "anyProto not implemented"
         }
-    
+
     let Any =
         MessageFrom anyProto
 
@@ -1025,7 +1025,7 @@ module FieldCodec =
             ReadJsonField = valcodec.ReadJsonValue
             GetDefault = valcodec.GetDefault
         }
-    
+
     let Optional<'V> (valcodec: ValueCodec<'V>) (tag: int, jsonName: string) : FieldCodec<'V option> =
         let calcFieldSize (value: 'V option) =
             match value with
@@ -1060,7 +1060,7 @@ module FieldCodec =
         let readJsonField (node: JsonNode) =
             match node with
             | null -> None
-            | x -> Some <| valcodec.ReadJsonValue node             
+            | x -> Some <| valcodec.ReadJsonValue node
         {
             CalcFieldSize = calcFieldSize
             WriteField = writeField
@@ -1068,7 +1068,7 @@ module FieldCodec =
             GetDefault = defer None
             ReadJsonField = readJsonField
         }
-    
+
     let Oneof<'V> (oneofName: string) (readJsonMap: Map<string,(JsonNode -> 'V)>): OneofCodec<'V> =
         let writeNone (o: JsonOptions) =
             match shouldWriteNone o with
@@ -1081,16 +1081,16 @@ module FieldCodec =
                 let nop _ = ()
                 nop
         let readJsonField (node: JsonNode) =
-            match node with 
+            match node with
             | null -> Unchecked.defaultof<'V>
-            | _ -> 
+            | _ ->
                 let kvPair = node.AsObject() |> Seq.head
                 (Map.find kvPair.Key readJsonMap) kvPair.Value
         {
             WriteJsonNoneCase = writeNone
             ReadJsonField = readJsonField
         }
-    
+
     let OneofCase<'V> (oneofName: string) (valcodec: ValueCodec<'V>) (tag: int, jsonName: string) : FieldCodec<'V> =
         let calcFieldSize (value: 'V) =
             Writer.ComputeInt32Size(tag <<< 3) +
@@ -1129,7 +1129,7 @@ module FieldCodec =
             GetDefault = valcodec.GetDefault
             ReadJsonField = readJsonField
         }
-    
+
     let Repeated (valcodec: ValueCodec<'T>) (tag: int, jsonName: string) : FieldCodec<'T list> =
         match valcodec.RepeatEncoding with
         | Packed _ -> failwith "Invalid use of FieldCodec.Repeated for Packed field"
@@ -1181,7 +1181,7 @@ module FieldCodec =
             GetDefault = defer List.empty
             ReadJsonField = readJsonField
         }
-    
+
     type MapRecord<'K,'V> = ('K * 'V)
     let Map (keycodec: ValueCodec<'K>) (valcodec: ValueCodec<'V>) (tag: int, jsonName: string) : FieldCodec<FSharp.Collections.Map<'K,'V>> =
         let recordCodec = ValueCodec.MapRecord keycodec valcodec
@@ -1234,7 +1234,7 @@ module FieldCodec =
             GetDefault = defer FSharp.Collections.Map.empty
             ReadJsonField = readJsonValue
         }
-    
+
 [<Struct>]
 type RepeatedBuilderState<'T> =
 | Empty
