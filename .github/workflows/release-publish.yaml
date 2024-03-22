@@ -1,4 +1,4 @@
-name: dotnet package
+name: publish dotnet package
 
 on:
   push:
@@ -7,9 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        dotnet-version: ['6.0.x']
     defaults:
       run:
         working-directory: ./FsGrpc
@@ -19,23 +16,34 @@ jobs:
       - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}
         uses: actions/setup-dotnet@v2.0.0
         with:
-          dotnet-version: ${{ matrix.dotnet-version }}
+          dotnet-version: 8.0.x
       - name: Display version
         run: dotnet --version
       - name: Install dependencies
         run: dotnet restore
       - name: Build
-        run: dotnet build --configuration Release --no-restore
+        run: |
+          dotnet build \
+            --configuration Release \
+            --no-restore
       - name: Publish
         env:
           FSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet publish -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} --no-restore --no-build --configuration Release
-      - name: Zip
-        run: (cd bin/Release/net6.0/publish && zip -r ../FsGrpc.zip .)
+        run: |
+          dotnet publish \
+            -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} \
+            --no-restore \
+            --no-build \
+            --configuration Release
       - name: Package
         env:
           FSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet pack -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} --no-restore --no-build --configuration Release
+        run: |
+          dotnet pack \
+            -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} \
+            --no-restore \
+            --no-build \
+            --configuration Release
       - name: Nuget Push
         env:
           FSGRPC_VERSION: ${{github.ref_name}}
@@ -58,5 +66,3 @@ jobs:
           file: Dockerfile.plugin
           push: true
           tags: plugins.buf.build/divisions-maintenance-group/fsharp:${{github.ref_name}}
-
-
