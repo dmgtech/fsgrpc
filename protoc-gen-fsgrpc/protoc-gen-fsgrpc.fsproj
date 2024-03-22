@@ -23,7 +23,6 @@
     <ProjectReference Include="./bootstrap-fsgrpc/FsGrpc/FsGrpc.fsproj" Condition="Exists('./bootstrap-fsgrpc/FsGrpc/FsGrpc.fsproj')" />
     <ProjectReference Include="../FsGrpc/FsGrpc.fsproj" Condition="!Exists('./bootstrap-fsgrpc/FsGrpc/FsGrpc.fsproj')" />
     <PackageReference Include="Focal.Core" Version="0.10.0" />
-    <PackageReference Update="FSharp.Core" Version="8.0.200" />
   </ItemGroup>
 
 </Project>
