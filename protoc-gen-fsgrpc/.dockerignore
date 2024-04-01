@@ -1,7 +1,0 @@
-bin
-obj
-.*
-hack-gen
-input.bin
-bootstrap-gen
-Dockerfile
