@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="FsGrpc/FsGrpc.fsproj" />
+  <Project Path="FsGrpc/FsGrpc.Tests/FsGrpc.Tests.fsproj" />
+</Solution>

@@ -730,7 +730,7 @@ module ValueCodec =
                     let item = primitive.ReadValue subreader
                     output[i] <- item
                 output |> Seq.toList
-            | Variable _ -> 
+            | Variable -> 
                 let builder = new System.Collections.Generic.List<'P>()
                 let sub = r.ReadBytes()
                 use subreader = sub.CreateCodedInput()
