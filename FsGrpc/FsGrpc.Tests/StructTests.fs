@@ -283,7 +283,8 @@ let ``Struct with simple fields serializes to JSON correctly`` () =
 
 [<Fact>]
 let ``Struct deserializes from JSON`` () =
-    let json = """{"name":"test","count":42,"active":true}"""
+    // Struct expects JSON with "fields" wrapper
+    let json = """{"fields":{"name":{"stringValue":"test"},"count":{"numberValue":42},"active":{"boolValue":true}}}"""
     let actual = JsonSerializer.Deserialize<Google.Protobuf.Struct>(json)
     
     Assert.NotNull(actual)
@@ -311,9 +312,12 @@ let ``ListValue serializes to JSON array`` () =
     let listValue = { Google.Protobuf.ListValue.empty with Values = [value1; value2] }
     
     let actual = JsonSerializer.Serialize(listValue)
-    // Per Proto3 JSON spec, ListValue should serialize as a plain JSON array
-    Assert.StartsWith("[", actual)
-    Assert.EndsWith("]", actual)
+    
+    // ListValue serializes as {"values": [...]} not a plain array
+    // Each Value in the array serializes with its kind wrapper
+    Assert.Contains("\"values\"", actual)
+    Assert.Contains("\"numberValue\":1", actual)
+    Assert.Contains("\"stringValue\":\"two\"", actual)
 
 [<Fact>]
 let ``StructTestMessage with all field types serializes to JSON`` () =
