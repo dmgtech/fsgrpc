@@ -276,7 +276,7 @@ let ``Populated structures serialize with generic serializer plus nodatime`` () 
       In this one, we use the generic serializer
       but we add NodaTime's serializer also so that we get good json representations of the NodaTime classes.
       It would be nice to get this automatically, but NodaTime's dissapointing lack of built-in support for .net's own json is a problem that we can't easily address
-      Even if it were supported, we would have to provide our own proto3-json-Compatible serializer anyway
+      Even if it were supported, we would have to provide our own proto3-json-compatible serializer anyway
       So if you want proto3-like serializers, you can have it
       If you want noda's serializers, you just have to add theirs
     *)
@@ -670,54 +670,3 @@ let ``Round trip (Map<int,Enums>)`` (o: JsonOptions, x: Map<int,Enums>) =
 [<Property(Arbitrary=[| typeof<Generator> |])>]
 let ``Round trip ({| Data: Bytes |})`` (o: JsonOptions, x: {| Data: Bytes |}) =
   roundTrip o x
-
-// ============================================================================
-// Tests for google.protobuf.Struct - Testing with updated dependencies
-// ============================================================================
-// These tests check google.protobuf.Struct support after updating Google.Protobuf package.
-// The Struct type represents arbitrary JSON-like data:
-// - Fields is a map<string, Value>
-// - Value can be: null, number, string, bool, list of values, or nested struct
-//
-// Expected behavior:
-// - Struct should serialize to/from standard JSON objects
-// - Should handle all Value types (null, number, string, bool, list, struct)
-// - Should round-trip correctly through both protobuf binary and JSON
-
-//[<Fact>]
-//let ``Struct with simple fields serializes to JSON`` () =
-//    // Create a simple Struct with various field types
-//    let structValue = Google.Protobuf.Struct.empty
-    
-//    let actual = JsonSerializer.Serialize(structValue, ignoreDefault)
-//    let expected = """{}"""
-//    Assert.Equal(expected, actual)
-
-//[<Fact>]
-//let ``Struct with nested fields serializes correctly`` () =
-//    // Test a more complex structure
-//    let structValue = Google.Protobuf.Struct.empty
-    
-//    let actual = JsonSerializer.Serialize(structValue)
-//    let expected = """{}"""
-//    Assert.Equal(expected, actual)
-
-//[<Fact>]
-//let ``Struct deserializes from JSON`` () =
-//    // Test deserialization from JSON
-//    let json = """{"name":"test","count":42,"active":true}"""
-    
-//    let actual : Google.Protobuf.Struct = JsonSerializer.Deserialize(json)
-    
-//    // Verify the struct was properly deserialized
-//    Assert.NotNull(actual)
-
-//[<Fact>]
-//let ``Struct round-trips through JSON`` () =
-//    // This is the key test - create a Struct, serialize it, deserialize it, and verify equality
-//    let original = Google.Protobuf.Struct.empty
-    
-//    let serialized = JsonSerializer.Serialize(original)
-//    let deserialized : Google.Protobuf.Struct = JsonSerializer.Deserialize(serialized)
-    
-//    Assert.Equal(original, deserialized)
