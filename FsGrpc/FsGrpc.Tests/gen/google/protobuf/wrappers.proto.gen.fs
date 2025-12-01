@@ -26,6 +26,9 @@ module DoubleValue =
 /// Wrapper message for `double`.
 /// 
 /// The JSON representation for `DoubleValue` is JSON number.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _DoubleValue = DoubleValue
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -94,6 +97,9 @@ module FloatValue =
 /// Wrapper message for `float`.
 /// 
 /// The JSON representation for `FloatValue` is JSON number.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _FloatValue = FloatValue
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -162,6 +168,9 @@ module Int64Value =
 /// Wrapper message for `int64`.
 /// 
 /// The JSON representation for `Int64Value` is JSON string.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _Int64Value = Int64Value
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -230,6 +239,9 @@ module UInt64Value =
 /// Wrapper message for `uint64`.
 /// 
 /// The JSON representation for `UInt64Value` is JSON string.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _UInt64Value = UInt64Value
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -298,6 +310,9 @@ module Int32Value =
 /// Wrapper message for `int32`.
 /// 
 /// The JSON representation for `Int32Value` is JSON number.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _Int32Value = Int32Value
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -366,6 +381,9 @@ module UInt32Value =
 /// Wrapper message for `uint32`.
 /// 
 /// The JSON representation for `UInt32Value` is JSON number.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _UInt32Value = UInt32Value
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -434,6 +452,9 @@ module BoolValue =
 /// Wrapper message for `bool`.
 /// 
 /// The JSON representation for `BoolValue` is JSON `true` and `false`.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _BoolValue = BoolValue
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -502,6 +523,9 @@ module StringValue =
 /// Wrapper message for `string`.
 /// 
 /// The JSON representation for `StringValue` is JSON string.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _StringValue = StringValue
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]
@@ -570,6 +594,9 @@ module BytesValue =
 /// Wrapper message for `bytes`.
 /// 
 /// The JSON representation for `BytesValue` is JSON string.
+/// 
+/// Not recommended for use in new APIs, but still useful for legacy APIs and
+/// has no plan to be removed.
 /// </summary>
 type private _BytesValue = BytesValue
 [<System.Text.Json.Serialization.JsonConverter(typeof<FsGrpc.Json.MessageConverter>)>]

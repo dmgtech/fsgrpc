@@ -1,0 +1,19 @@
+syntax = "proto3";
+package test.name.space;
+
+import "google/protobuf/struct.proto";
+
+// Test message that uses all Struct-related types
+message StructTestMessage {
+    google.protobuf.Struct metadata = 1;
+    google.protobuf.Value data = 2;
+    google.protobuf.ListValue items = 3;
+    google.protobuf.NullValue null_field = 4;
+}
+
+// Test message with nested Struct usage
+message NestedStructTest {
+    string name = 1;
+    google.protobuf.Struct properties = 2;
+    repeated google.protobuf.Value values = 3;
+}

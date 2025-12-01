@@ -1,5 +1,5 @@
 version: v1
 plugins:
   - name: fsgrpc
-    path: ../../protoc-gen-fsgrpc/bin/Debug/net6.0/protoc-gen-fsgrpc
+    path: ../../../FsGrpc.ProtocGenFsGrpc/protoc-gen-fsgrpc/bin/Debug/net8.0/protoc-gen-fsgrpc
     out: gen
