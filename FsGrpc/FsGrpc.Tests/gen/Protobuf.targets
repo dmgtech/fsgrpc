@@ -15,5 +15,6 @@
 <ItemGroup>
     <!-- These are project references required for service and client classes -->
     <PackageReference  Include="Grpc.AspNetCore.Server.ClientFactory" Version="2.51.0" />
+    <PackageReference Include="Focal.Core" Version="*" />
 </ItemGroup>
 </Project>
