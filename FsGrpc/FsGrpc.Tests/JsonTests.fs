@@ -447,7 +447,7 @@ type BadEnum =
 
 
 [<Fact>]
-let ``Test`` =
+let ``Test BadEnum`` =
   let vc = ValueCodec.Enum<BadEnum>
   let options = JsonOptions.Proto3Defaults
   let stream = new System.IO.MemoryStream()
