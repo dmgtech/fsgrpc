@@ -3,6 +3,18 @@ name: dotnet package
 on:
   push:
     tags: [v*.*]
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build"
+        required: true
+        default: "main"
+        type: string
+      version:
+        description: "Version to use (e.g., 1.2.3) — required for manual runs"
+        required: false
+        type: string
+    
 
 jobs:
   build:
