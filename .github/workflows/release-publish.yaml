@@ -7,6 +7,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     strategy:
       matrix:
         dotnet-version: ['8.0']
@@ -34,13 +37,25 @@ jobs:
         env:
           FSGRPC_VERSION: ${{github.ref_name}}
         run: dotnet pack -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} --no-restore --no-build --configuration Release
-      - name: Nuget Push
+
+      - name: Add GitHub Packages source (dmgtech)
+        run: |
+          dotnet nuget add source \
+            --username "${{ github.actor }}" \
+            --password "${{ github.token }}" \
+            --store-password-in-clear-text \
+            --name github https://nuget.pkg.github.com/dmgtech/index.json
+
+      - name: NuGet Push (GitHub Packages - dmgtech)
         env:
-          FSGRPC_VERSION: ${{github.ref_name}}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push bin/Release/FsGrpc.${FSGRPC_VERSION#v}.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
+          FSGRPC_VERSION: ${{ github.ref_name }}
+        run: |
+          dotnet nuget push "bin/Release/FsGrpc.${FSGRPC_VERSION#v}.nupkg" \
+            --source github \
+            --skip-duplicate
+
       - name: GitHubRelease
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ./FsGrpc/bin/Release/FsGrpc.$($env:GITHUB_REF -replace "refs/tags/").nupkg
+          files: ./FsGrpc/bin/Release/FsGrpc.${{ github.ref_name }}.nupkg
