@@ -2,11 +2,27 @@ name: dotnet package
 
 on:
   push:
-    tags: [v*.*]
+    tags:
+      - "v*.*"
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to build"
+        required: true
+        default: "main"
+        type: string
+      version:
+        description: "Version to use (e.g., 1.2.3) — required for manual runs"
+        required: false
+        type: string
+
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     strategy:
       matrix:
         dotnet-version: ['8.0']
@@ -15,12 +31,35 @@ jobs:
         working-directory: ./FsGrpc
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-      - name: Setup .NET Core SDK ${{ matrix.dotnet-version }}.x
-        uses: actions/setup-dotnet@v2.0.0
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.branch || '' }}
+
+      - name: Setup .NET SDK ${{ matrix.dotnet-version }}.x
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: ${{ matrix.dotnet-version }}.x
-      - name: Display version
+
+      - name: Compute package version
+        id: version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "push" && "${{ github.ref }}" =~ ^refs/tags/ ]]; then
+            tag="${GITHUB_REF#refs/tags/}"
+            v="${tag#v}"
+            echo "Derived version from tag: $v"
+            echo "value=$v" >> "$GITHUB_OUTPUT"
+          else
+            if [[ -n "${{ inputs.version }}" ]]; then
+              echo "Using input version: ${{ inputs.version }}"
+              echo "value=${{ inputs.version }}" >> "$GITHUB_OUTPUT"
+            else
+              echo "::error::No version provided for workflow_dispatch. Supply the 'version' input (e.g., 1.2.3)."
+              exit 1
+            fi
+          fi
+
+      - name: Display dotnet version
         run: dotnet --version
       - name: Install dependencies
         run: dotnet restore
@@ -28,19 +67,31 @@ jobs:
         run: dotnet build --configuration Release --no-restore
       - name: Publish
         env:
-          FSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet publish -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} --no-restore --no-build --configuration Release
+          FSGRPC_VERSION: ${{ steps.version.outputs.value }}
+        run: dotnet publish -p:FSGRPC_VERSION="$FSGRPC_VERSION" --no-restore --no-build --configuration Release
+
       - name: Package
         env:
-          FSGRPC_VERSION: ${{github.ref_name}}
-        run: dotnet pack -p:FSGRPC_VERSION=${FSGRPC_VERSION#v} --no-restore --no-build --configuration Release
-      - name: Nuget Push
-        env:
-          FSGRPC_VERSION: ${{github.ref_name}}
-          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
-        run: dotnet nuget push bin/Release/FsGrpc.${FSGRPC_VERSION#v}.nupkg --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate
-      - name: GitHubRelease
-        uses: softprops/action-gh-release@v1
+          FSGRPC_VERSION: ${{ steps.version.outputs.value }}
+        run: dotnet pack -p:FSGRPC_VERSION="$FSGRPC_VERSION" --no-restore --no-build --configuration Release
+
+      - name: Add GitHub Packages source (dmgtech)
+        run: |
+          dotnet nuget add source \
+            --username "${{ github.actor }}" \
+            --password "${{ secrets.GITHUB_TOKEN }}" \
+            --store-password-in-clear-text \
+            --name github https://nuget.pkg.github.com/dmgtech/index.json
+
+      - name: NuGet Push (GitHub Packages - dmgtech)
+        run: |
+          dotnet nuget push "bin/Release/*.nupkg" \
+            --source github \
+            --skip-duplicate
+
+      - name: GitHubRelease (attach package on tag events)
+        uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ./FsGrpc/bin/Release/FsGrpc.$($env:GITHUB_REF -replace "refs/tags/").nupkg
+          files: |
+            ./FsGrpc/bin/Release/*.nupkg
